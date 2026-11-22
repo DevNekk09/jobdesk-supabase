@@ -29,12 +29,15 @@ async function readApiJson<T>(response:Response,path:string):Promise<T>{
  const contentType=(response.headers.get('content-type')||'').toLowerCase();
  if(!contentType.includes('application/json')){
   const kind=contentType.includes('html')?'HTML instead of JSON':'a non-JSON response';
-  throw Error(pagesOnly ? 'GitHub Pages can display the Jobdesk frontend, but it cannot run the Node.js API or access the private Supabase PostgreSQL database. Deploy this repository as a Node.js web app (server.mjs) on Hostinger to use the shared workspace.' : `Jobdesk API ${path} returned ${kind} (HTTP ${response.status}). The Node.js backend may not be running. Check your server configuration and /api/health.`);
+  throw Error(pagesOnly ? 'Supabase Edge Function returned HTML instead of JSON. Check the Jobdesk API deployment in your Supabase dashboard.' : `Jobdesk API ${path} returned ${kind} (HTTP ${response.status}). The Node.js backend may not be running. Check your server configuration and /api/health.`);
  }
  try{return await response.json() as T}catch{throw Error(`Jobdesk API ${path} returned invalid JSON. Check your Node.js runtime logs.`)}
 }
 const pagesOnly = typeof window !== 'undefined' && window.location.hostname.endsWith('.github.io');
 const publicBase = import.meta.env.BASE_URL || '/';
+const edgeApiBase = pagesOnly ? 'https://vsvlutqagtkdtrowaked.supabase.co/functions/v1/jobdesk-api' : '';
+const accessHeaders = () => pagesOnly ? {'x-workspace-token':localStorage.getItem('jobdesk-workspace-token')||''} : {};
+const apiUrl = (path:string) => edgeApiBase + path;
 function deviceHeaders(){
  let key=localStorage.getItem('jobdesk-device-id');
  if(!key||!/^[0-9a-f-]{36}$/i.test(key)){key=crypto.randomUUID?.()||'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const n=crypto.getRandomValues(new Uint8Array(1))[0]%16;return (c==='x'?n:(n&3|8)).toString(16)});localStorage.setItem('jobdesk-device-id',key)}
@@ -74,9 +77,9 @@ export default function Home(){
  useEffect(()=>{window.scrollTo({top:0,behavior:'instant'})},[tab,space,settingsTab]);
  const dataRef=useRef(data);useEffect(()=>{dataRef.current=data},[data]);
  function notify(t:string){setNotice(t);setTimeout(()=>setNotice(''),4500)}
- async function request(path:string,method='GET',body?:unknown){const r=await fetch(path,{method,headers:{'Content-Type':'application/json','X-CSRF-Token':dataRef.current?.csrf||'',...deviceHeaders()},...(body?{body:JSON.stringify(body)}:{})});const b=await readApiJson<{error?:string;job:Job;activity:Activity[];user:User}>(r,path);if(!r.ok)throw Error(b.error||'Could not complete the request.');return b}
- const load=useCallback(async()=>{try{if(pagesOnly)throw Error('This address is a GitHub Pages static preview. To use shared jobs and Supabase, deploy the Node.js server (server.mjs) to Hostinger and open its Web App URL. GitHub Pages cannot run the server or safely hold DATABASE_URL.');const r=await fetch('/api/bootstrap',{cache:'no-store',headers:deviceHeaders()});const b=await readApiJson<Data & {error?:string}>(r,'/api/bootstrap');if(!r.ok)throw Error(b.error||'Could not open the workspace.');if(!Array.isArray(b.users)||!Array.isArray(b.jobs)||!Array.isArray(b.spaces))throw Error('Jobdesk API returned an unexpected response. Check that the correct Node.js server is running.');setData({...b,spaces:b.spaces||[]});setError('')}catch(e){setError((e as Error).message)}finally{setLoading(false)}},[]);
- useEffect(()=>{if(location.hash||new URLSearchParams(location.search).has('owner'))window.history.replaceState(null,'',publicBase);load()},[load]);
+ async function request(path:string,method='GET',body?:unknown){const r=await fetch(apiUrl(path),{method,headers:{'Content-Type':'application/json','X-CSRF-Token':dataRef.current?.csrf||'',...deviceHeaders(),...accessHeaders()},...(body?{body:JSON.stringify(body)}:{})});const b=await readApiJson<{error?:string;job:Job;activity:Activity[];user:User}>(r,path);if(!r.ok)throw Error(b.error||'Could not complete the request.');return b}
+ const load=useCallback(async()=>{try{if(pagesOnly&&!localStorage.getItem('jobdesk-workspace-token'))throw Error('Your private workspace invitation link is required. Open the link shared by your Jobdesk administrator.');const r=await fetch(apiUrl('/api/bootstrap'),{cache:'no-store',headers:{...deviceHeaders(),...accessHeaders()}});const b=await readApiJson<Data & {error?:string}>(r,'/api/bootstrap');if(!r.ok)throw Error(b.error||'Could not open the workspace.');if(!Array.isArray(b.users)||!Array.isArray(b.jobs)||!Array.isArray(b.spaces))throw Error('Jobdesk API returned an unexpected response. Check that the correct Node.js server is running.');setData({...b,spaces:b.spaces||[]});setError('')}catch(e){setError((e as Error).message)}finally{setLoading(false)}},[]);
+ useEffect(()=>{const params=new URLSearchParams(location.search);const invite=params.get('workspace');if(pagesOnly&&invite&&/^[A-Za-z0-9_-]{40,128}$/.test(invite)){localStorage.setItem('jobdesk-workspace-token',invite)}if(location.hash||params.has('owner')||params.has('workspace'))window.history.replaceState(null,'',publicBase);load()},[load]);
  useEffect(()=>{const refresh=()=>{if(document.visibilityState==='visible'&&!document.querySelector('[role="dialog"]'))load()};const id=setInterval(refresh,60000);document.addEventListener('visibilitychange',refresh);return()=>{clearInterval(id);document.removeEventListener('visibilitychange',refresh)}},[load]);
  async function useDeviceProfile(id:number){
   const member=data?.users.find(u=>u.id===id&&u.active);
