@@ -110,3 +110,68 @@ html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="of
 .admin-pin-form .form-hint{text-align:center}
 .admin-unlock-btn{width:100%;justify-content:center}
 @media(max-width:400px){.brand-stack strong{font-size:1.05rem}.brand-stack small{font-size:.54rem}.ksl-footer{flex-wrap:wrap}}
+
+
+/* V1.6.1: screenshot-matched compact forest-green navigation dock. */
+.floating-panel{
+  gap:12px;
+  padding:9px 10px;
+  background:#2d4236;
+  border:1px solid rgba(206,226,200,.13);
+  border-radius:23px;
+  box-shadow:0 15px 35px rgba(22,45,30,.24),inset 0 1px rgba(255,255,255,.075);
+}
+.floating-panel>button{
+  box-sizing:border-box;
+  min-width:68px;
+  width:68px;
+  height:48px;
+  gap:5px;
+  color:#bdcebc;
+  border-radius:13px;
+  font-size:.67rem;
+  line-height:1;
+}
+.floating-panel>button>svg{width:19px;height:19px}
+.floating-panel>button.active{
+  background:#425e3a;
+  color:#f2f9e8;
+  box-shadow:inset 0 1px 0 #ffffff1a;
+}
+.floating-panel>button.floating-add{
+  min-width:68px;
+  width:68px;
+  height:48px;
+  margin:0;
+  border-radius:14px;
+  background:#a7da67;
+  color:#203c22;
+  box-shadow:0 2px 8px rgba(17,45,20,.10);
+}
+.floating-panel>button.floating-add svg{width:24px;height:24px}
+.floating-panel>button.floating-add:hover{background:#b7e47a;color:#213a24}
+.floating-panel>button:hover:not(.floating-add){background:#405943;color:#fff}
+
+/* Dashboard urgent priority sits alongside Jobsheet, due-soon and overdue. */
+.team-metrics{grid-template-columns:repeat(5,minmax(0,1fr))}
+.personal-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat.urgent{background:#fff9ff;border-color:#f1e6f4}
+.stat.urgent .stat-icon{background:#f5ecfc;color:#8d54b0}
+.stat.urgent .stat-number{color:#8050a0}
+.stat.urgent:hover{border-color:#dfc5f1}
+.doc-icon.urgent{background:#f5ebff;color:#8758b2;border-color:#ebdef4}
+@media(max-width:1180px){
+  .team-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .team-metrics,.personal-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:380px){
+  .floating-panel{gap:7px;padding:7px 8px}
+  .floating-panel>button{min-width:62px;width:62px}
+  .floating-panel>button.floating-add{min-width:62px;width:62px}
+  .stat.urgent .stat-top{font-size:.63rem}
+}
+@media(prefers-reduced-motion:reduce){
+  .floating-panel>button{transition:none!important}
+}
