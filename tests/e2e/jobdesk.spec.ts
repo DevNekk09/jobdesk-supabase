@@ -40,3 +40,28 @@ test('no horizontal viewport overflow on responsive screens',async({page})=>{
  const size=await page.evaluate(()=>({html:document.documentElement.scrollWidth,width:window.innerWidth}));
  expect(size.html).toBeLessThanOrEqual(size.width+1);
 });
+
+
+test('Admin can generate a one-time staff invite without changing Admin PIN panel',async({page})=>{
+ const member={id:22,name:'Team Member',role:'Designer',email:'member@profiles.invalid',active:true};
+ await page.addInitScript(()=>localStorage.setItem('jobdesk-workspace-token','W'.repeat(48)));
+ await page.route('**/api/bootstrap*',async route=>{
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+   ...emptyWorkspace,me:{...emptyWorkspace.me,id:1,name:'Admin',role:'Admin'},users:[member]
+  })});
+ });
+ await page.route('**/api/staff/invite',async route=>{
+  const request=route.request();
+  expect(request.method()).toBe('POST');
+  expect(request.postDataJSON()).toEqual({user_id:22});
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,invite:'b'.repeat(64),user_id:22,user_name:member.name})});
+ });
+ await page.reload();
+ await page.locator('.device-switch').click();
+ const section=page.locator('.v2-staff-invites');
+ await expect(section).toBeVisible();
+ await section.locator('select').selectOption('22');
+ await section.getByRole('button',{name:'Generate link'}).click();
+ await expect(section.getByLabel('One-time staff invitation link')).toHaveValue(/staff=b{64}/);
+ await expect(page.locator('.admin-pin-form')).toHaveCount(0);
+});
