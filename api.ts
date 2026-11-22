@@ -44,10 +44,26 @@ async function handler(req:Request){try{
 
  if(path==='/api/session'&&method==='GET')return testJson(req,{me:safe(u),csrf,hosted:true,open_test:true},csrf);
  if(path==='/api/bootstrap'&&method==='GET'){
-  // Blank workspace: never add sample job spaces, dummy users or sample jobs.
+  // Filter large job sets on the server while preserving the complete month dropdown.
+  const requestedMonth=new URL(req.url).searchParams.get('month')||'all';
+  if(requestedMonth!=='all'&&!/^\d{4}-(0[1-9]|1[0-2])$/.test(requestedMonth))fail('Invalid month filter.');
+  const nextMonth=requestedMonth==='all'?'':(()=>{
+   const [year,month]=requestedMonth.split('-').map(Number);
+   return month===12?String(year+1)+'-01-01':year+'-'+String(month+1).padStart(2,'0')+'-01';
+  })();
+  const jobQuery=requestedMonth==='all'?db.prepare(selectJob+' ORDER BY j.due_date,j.id'):
+   db.prepare(selectJob+' WHERE j.due_date>=? AND j.due_date<? ORDER BY j.due_date,j.id').bind(requestedMonth+'-01',nextMonth);
+  // No demo jobs, users, or workspace seeds.
   if(validDevice&&acting.id!==shared.id)await db.prepare('UPDATE device_profiles SET last_seen=? WHERE device_key=? AND user_id=?').bind(now(),deviceId,acting.id).run();
-  const [users,jobs,activity,spaces,devices]=await Promise.all([db.prepare("SELECT * FROM users WHERE deleted_at IS NULL AND email!='shared-team@system.invalid' ORDER BY active DESC,name").all<Row>(),db.prepare(selectJob+' ORDER BY j.due_date,j.id').all(),db.prepare('SELECT a.*,u.name AS user_name,j.name AS job_name FROM activity a JOIN users u ON u.id=a.user_id LEFT JOIN jobs j ON j.id=a.job_id ORDER BY a.id DESC LIMIT 100').all(),db.prepare('SELECT * FROM job_spaces ORDER BY sort_order,id').all(),db.prepare("SELECT d.device_key,d.device_label,d.user_id,d.last_seen,u.name AS user_name FROM device_profiles d JOIN users u ON u.id=d.user_id WHERE u.deleted_at IS NULL ORDER BY d.last_seen DESC LIMIT 100").all()]);
-  return testJson(req,{me:safe(u),csrf,users:users.results.map(safe),jobs:jobs.results,activity:activity.results,spaces:spaces.results,devices:devices.results,device_key:validDevice?deviceId:'',hosted:true,open_test:true},csrf);
+  const [users,jobs,activity,spaces,devices,months]=await Promise.all([
+   db.prepare("SELECT * FROM users WHERE deleted_at IS NULL AND email!='shared-team@system.invalid' ORDER BY active DESC,name").all<Row>(),
+   jobQuery.all(),
+   db.prepare('SELECT a.*,u.name AS user_name,j.name AS job_name FROM activity a JOIN users u ON u.id=a.user_id LEFT JOIN jobs j ON j.id=a.job_id ORDER BY a.id DESC LIMIT 100').all(),
+   db.prepare('SELECT * FROM job_spaces ORDER BY sort_order,id').all(),
+   db.prepare("SELECT d.device_key,d.device_label,d.user_id,d.last_seen,u.name AS user_name FROM device_profiles d JOIN users u ON u.id=d.user_id WHERE u.deleted_at IS NULL ORDER BY d.last_seen DESC LIMIT 100").all(),
+   db.prepare('SELECT DISTINCT LEFT(due_date,7) AS month FROM jobs ORDER BY month DESC').all()
+  ]);
+  return testJson(req,{me:safe(u),csrf,users:users.results.map(safe),jobs:jobs.results,activity:activity.results,spaces:spaces.results,devices:devices.results,available_months:months.results.map(row=>row.month),device_key:validDevice?deviceId:'',hosted:true,open_test:true},csrf);
  }
  if(path==='/api/device/clear'&&method==='POST'){
   if(!validDevice)fail('This browser needs a valid device ID.',400);
