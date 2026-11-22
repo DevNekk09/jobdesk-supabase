@@ -219,3 +219,17 @@ html[data-motion="off"] .job-save-symbol svg path{stroke-dashoffset:0}
 .sync-warning>button:hover{background:#ffe5ac}
 .sync-warning>button svg{width:16px;height:16px}
 @media(max-width:760px){.sync-warning{top:76px;right:10px;width:calc(100vw - 20px)}}
+
+
+/* V2.0 — member invitation controls outside the existing Admin Settings panel. */
+.v2-staff-invites{display:flex;flex-direction:column;gap:13px;margin-top:12px;padding:17px;border:1px solid #d8e8d5;border-radius:18px;background:linear-gradient(145deg,#f5faee,#fff)}
+.v2-staff-invites .identity-section-title{margin:0;color:#58744e}
+.v2-staff-invites .form-hint{margin:0;line-height:1.5;color:#688166}
+.v2-staff-invites .field{margin:0}
+.v2-invite-actions{display:flex;gap:9px;flex-wrap:wrap}
+.v2-invite-actions .btn{flex:1;min-width:120px}
+.v2-invite-result{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;padding:12px;background:#eaf6e4;border:1px solid #d6e8d0;border-radius:13px}
+.v2-invite-result .field{flex:1;min-width:0}
+.v2-invite-result input{width:100%;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;user-select:all}
+.v2-invite-result>.btn{flex:0 0 auto}
+@media(max-width:460px){.v2-staff-invites{padding:12px}.v2-invite-result .field{min-width:100%}.v2-invite-result>.btn{width:100%}}
