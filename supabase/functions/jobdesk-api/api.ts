@@ -59,7 +59,7 @@ async function handler(req:Request){try{
    db.prepare("SELECT * FROM users WHERE deleted_at IS NULL AND email!='shared-team@system.invalid' ORDER BY active DESC,name").all<Row>(),
    jobQuery.all(),
    db.prepare('SELECT a.*,u.name AS user_name,j.name AS job_name FROM activity a JOIN users u ON u.id=a.user_id LEFT JOIN jobs j ON j.id=a.job_id ORDER BY a.id DESC LIMIT 100').all(),
-   db.prepare('SELECT * FROM job_spaces ORDER BY sort_order,id').all(),
+   db.prepare('SELECT * FROM job_spaces WHERE archived_at IS NULL ORDER BY sort_order,id').all(),
    db.prepare("SELECT d.device_key,d.device_label,d.user_id,d.last_seen,u.name AS user_name FROM device_profiles d JOIN users u ON u.id=d.user_id WHERE u.deleted_at IS NULL ORDER BY d.last_seen DESC LIMIT 100").all(),
    db.prepare('SELECT DISTINCT LEFT(due_date,7) AS month FROM jobs ORDER BY month DESC').all(),
    db.prepare("SELECT COALESCE(j.space_id,(SELECT s.id FROM job_spaces s WHERE s.owner_user_id=j.assigned_to ORDER BY s.id LIMIT 1),0) AS space_id,COUNT(*)::int AS count FROM jobs j WHERE j.status NOT IN ('Completed','Cancelled','Deleted') AND j.due_date<? GROUP BY 1").bind(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())).all(),
@@ -87,23 +87,41 @@ async function handler(req:Request){try{
  if(path==='/api/users'&&method==='POST'){
   role(u,['Admin']);const b=await data(req),n=str(b.name,'Name',100,true);if(!['Designer','Print'].includes(b.role||'Designer'))fail('Choose Designer or Production.');
   if(await db.prepare('SELECT id FROM users WHERE lower(name)=lower(?) AND deleted_at IS NULL').bind(n).first())fail('A member with that name already exists.',409);
-  const chosen=b.space_id?await db.prepare('SELECT * FROM job_spaces WHERE id=? AND owner_user_id IS NULL').bind(Number(b.space_id)).first<Row>():await db.prepare('SELECT * FROM job_spaces WHERE lower(name)=lower(?) AND owner_user_id IS NULL').bind(n).first<Row>();if(b.space_id&&!chosen)fail('That Jobdesk is already linked or unavailable.');
-  if(!chosen&&await db.prepare('SELECT id FROM job_spaces WHERE lower(name)=lower(?)').bind(n).first())fail('A Jobdesk with that name already exists. Choose it or use a different member name.',409);
+  const chosen=b.space_id?await db.prepare('SELECT * FROM job_spaces WHERE id=? AND owner_user_id IS NULL AND archived_at IS NULL').bind(Number(b.space_id)).first<Row>():await db.prepare('SELECT * FROM job_spaces WHERE lower(name)=lower(?) AND owner_user_id IS NULL AND archived_at IS NULL').bind(n).first<Row>();if(b.space_id&&!chosen)fail('That Jobdesk is already linked or unavailable.');
+  if(!chosen&&await db.prepare('SELECT id FROM job_spaces WHERE lower(name)=lower(?)').bind(n).first())fail('A Jobdesk with that name already exists (possibly archived for history). Use a different member name.',409);
   const key='profile-'+crypto.randomUUID()+'@profiles.invalid';
   const result=await db.batch([db.prepare('INSERT INTO users(name,email,role,created_at) VALUES(?,?,?,?) RETURNING id').bind(n,key,b.role||'Designer',now()),...(b.role==='Print'?[]:chosen?[db.prepare('UPDATE job_spaces SET owner_user_id=(SELECT id FROM users WHERE email=?) WHERE id=?').bind(key,chosen.id)]:[db.prepare('INSERT INTO job_spaces(name,owner_user_id,sort_order,created_at) VALUES(?,(SELECT id FROM users WHERE email=?),(SELECT COALESCE(MAX(sort_order),0)+1 FROM job_spaces),?)').bind(n,key,now())]),log(null,`Added member ${n} and shared Jobdesk`)]);
   return json({user:safe((await db.prepare('SELECT * FROM users WHERE id=?').bind(result[0].meta.last_row_id).first<Row>())!)},201);
  }
  if(path==='/api/spaces'&&method==='POST'){role(u,['Admin']);const b=await data(req);await db.batch([db.prepare('INSERT INTO job_spaces(name,sort_order,created_at) VALUES(?,(SELECT COALESCE(MAX(sort_order),0)+1 FROM job_spaces),?)').bind(str(b.name,'Space name',100,true),now()),log(null,'Added Jobdesk space')]);return json({ok:true},201)}
  const sm=path.match(/^\/api\/spaces\/(\d+)(?:\/(delete))?$/);
- if(sm&&['POST','PATCH'].includes(method)){role(u,['Admin']);const id=Number(sm[1]);const target=await db.prepare('SELECT * FROM job_spaces WHERE id=?').bind(id).first<Row>();if(!target)fail('Space not found.',404);const b=await data(req);if(sm[2]==='delete'){await db.batch([db.prepare('UPDATE jobs SET space_id=NULL,assigned_to=NULL,version=version+1 WHERE space_id=? OR (space_id IS NULL AND assigned_to=?)').bind(id,target.owner_user_id),db.prepare('DELETE FROM job_spaces WHERE id=?').bind(id),log(null,`Removed ${target.name}’s Jobdesk; jobs retained in All jobs`)]);}else await db.batch([db.prepare('UPDATE job_spaces SET name=? WHERE id=?').bind(str(b.name,'Space name',100,true),id),log(null,`Renamed ${target.name}’s Jobdesk`)]);return json({ok:true})}
+ if(sm&&['POST','PATCH'].includes(method)){role(u,['Admin']);const id=Number(sm[1]);const target=await db.prepare('SELECT * FROM job_spaces WHERE id=? AND archived_at IS NULL').bind(id).first<Row>();if(!target)fail('Space not found.',404);const b=await data(req);if(sm[2]==='delete'){await db.batch([db.prepare('UPDATE jobs SET space_id=NULL,assigned_to=NULL,version=version+1 WHERE space_id=? OR (space_id IS NULL AND assigned_to=?)').bind(id,target.owner_user_id),db.prepare('DELETE FROM job_spaces WHERE id=?').bind(id),log(null,`Removed ${target.name}’s Jobdesk; jobs retained in All jobs`)]);}else await db.batch([db.prepare('UPDATE job_spaces SET name=? WHERE id=?').bind(str(b.name,'Space name',100,true),id),log(null,`Renamed ${target.name}’s Jobdesk`)]);return json({ok:true})}
  const ud=path.match(/^\/api\/users\/(\d+)\/delete$/);
- if(ud&&method==='POST'){role(u,['Admin']);const id=Number(ud[1]);const target=await db.prepare('SELECT * FROM users WHERE id=?').bind(id).first<Row>();if(!target)fail('User not found.',404);if(id===u.id)fail('This shared workspace profile is reserved.');await db.batch([db.prepare('UPDATE users SET active=0,deleted_at=? WHERE id=?').bind(now(),id),db.prepare('UPDATE job_spaces SET owner_user_id=NULL WHERE owner_user_id=?').bind(id),db.prepare('DELETE FROM device_profiles WHERE user_id=?').bind(id),log(null,`Removed user ${target.name}; job history retained`)]);return json({ok:true})}
+ if(ud&&method==='POST'){
+  role(u,['Admin']);
+  const id=Number(ud[1]);
+  const target=await db.prepare('SELECT * FROM users WHERE id=? AND deleted_at IS NULL').bind(id).first<Row>();
+  if(!target)fail('Active member not found.',404);
+  if(id===u.id)fail('This shared workspace profile is reserved.');
+  // Keep historical jobs and spaces intact; archive spaces so removed users vanish from navigation.
+  const linked=await db.prepare('SELECT id FROM job_spaces WHERE owner_user_id=? AND archived_at IS NULL').bind(id).all<Row>();
+  const removedSpaces=linked.results.map(row=>Number(row.id));
+  await db.batch([
+   db.prepare('UPDATE users SET active=0,deleted_at=? WHERE id=?').bind(now(),id),
+   db.prepare('UPDATE job_spaces SET owner_user_id=NULL,archived_at=now() WHERE owner_user_id=?').bind(id),
+   db.prepare('DELETE FROM device_profiles WHERE user_id=?').bind(id),
+   db.prepare('UPDATE staff_sessions SET revoked_at=now() WHERE user_id=? AND revoked_at IS NULL').bind(id),
+   db.prepare('UPDATE staff_invites SET redeemed_at=now() WHERE user_id=? AND redeemed_at IS NULL').bind(id),
+   log(null,`Removed user ${target.name}; linked Jobdesk archived, job history retained`)
+  ]);
+  return json({ok:true,archived_space_ids:removedSpaces});
+ }
  const um=path.match(/^\/api\/users\/(\d+)$/);
  if(um&&method==='PATCH'){
   role(u,['Admin']);const id=Number(um[1]),b=await data(req),target=await db.prepare('SELECT * FROM users WHERE id=?').bind(id).first<Row>();if(!target)fail('User not found.',404);
   const r=b.role||target.role;if(!['Designer','Print','Admin'].includes(r))fail('Choose a valid role.');if(r==='Admin')fail('Admin permissions are reserved for a verified PIN session.',403);if(b.active!==undefined&&typeof b.active!=='boolean')fail('Active must be true or false.');const active=b.active===undefined?target.active:Number(b.active);
   if(id===u.id)fail('This shared workspace profile is reserved.');
-  if(b.space_id){const chosen=await db.prepare('SELECT * FROM job_spaces WHERE id=?').bind(Number(b.space_id)).first<Row>();if(!chosen||(chosen.owner_user_id&&chosen.owner_user_id!==id))fail('That job space is already linked or unavailable.');}
+  if(b.space_id){const chosen=await db.prepare('SELECT * FROM job_spaces WHERE id=? AND archived_at IS NULL').bind(Number(b.space_id)).first<Row>();if(!chosen||(chosen.owner_user_id&&chosen.owner_user_id!==id))fail('That job space is already linked or unavailable.');}
   await db.batch([...(b.space_id!==undefined?[db.prepare('UPDATE job_spaces SET owner_user_id=NULL WHERE owner_user_id=?').bind(id),...(b.space_id?[db.prepare('UPDATE job_spaces SET owner_user_id=? WHERE id=?').bind(id,Number(b.space_id))]:[])]:[]),db.prepare('UPDATE users SET name=?,role=?,active=? WHERE id=?').bind(str(b.name||target.name,'Name',100,true),r,active,id),log(null,`Updated team member ${target.name}`)]);return json({ok:true});
  }
  async function jobData(b:Row){const space=b.space_id?await db!.prepare('SELECT * FROM job_spaces WHERE id=?').bind(Number(b.space_id)).first<Row>():b.space_id===undefined?await db!.prepare('SELECT * FROM job_spaces WHERE owner_user_id=? ORDER BY sort_order,id LIMIT 1').bind(acting.id).first<Row>():null;if(b.space_id&&!space)fail('Job space not found.');const date_in=date(b.date_in,'date in'),due_date=date(b.due_date,'due date');if(due_date<date_in)fail('Due date must be on or after date in.');if(!['Normal','High','Urgent'].includes(b.priority||'Normal'))fail('Choose a valid priority.');const assigned=b.assigned_to===undefined?(space?.owner_user_id||acting.id):b.assigned_to?Number(b.assigned_to):null;if(assigned&&!await db!.prepare('SELECT id FROM users WHERE id=? AND active=1').bind(assigned).first())fail('Assigned staff member is unavailable.');const quantity=Number(b.quantity??1);if(!Number.isInteger(quantity)||quantity<1||quantity>10000000)fail('Quantity must be a whole number between 1 and 10,000,000.');return{space_id:space?.id??null,name:str(b.name,'Job-sheet name',160,true),customer:str(b.customer||'','Customer',160),contact:str(b.contact||'','Contact',120),date_in,due_date,priority:b.priority||'Normal',assigned_to:assigned,quantity,size:str(b.size||'','Size',160),material:str(b.material||'','Material',160),finishing:str(b.finishing||'','Finishing',200),notes:str(b.notes||'','Notes',5000),artwork_url:link(b.artwork_url,'Artwork link')}}
