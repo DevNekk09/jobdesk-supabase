@@ -1,82 +1,53 @@
-# Jobdesk V1.4.1 — GitHub + Supabase (PostgreSQL)
+# Jobdesk V1.5.0 — GitHub Pages + Supabase
 
-**Source repository for the shared Designer & Production Jobdesk.** React + Vite frontend, Node.js 22 HTTP backend, and Supabase PostgreSQL. This release replaces SQLite persistence. It starts with **zero sample jobs, zero demo members, zero sample spaces, and no demo mode**. The backend creates one internal `Shared team` service identity when first used, solely to record activity in the PIN-free test workspace.
+Shared Designer and Production job management. **No Hostinger needed.**
 
-> **SECURITY NOTICE:** This release deliberately has no login/PIN, per the original testing requirement. **Anyone who knows the deployed URL can read and modify work and customer information, including deleting it.** Browser name selection is not authentication. Do NOT use real customer data or expose this publicly until authentication and authorization are implemented. A private GitHub repository does not protect a publicly accessible app URL.
+- **Frontend**: https://devnekk09.github.io/jobdesk-supabase/
+- **Backend**: Supabase Edge Function `jobdesk-api`
+- **Database**: Supabase PostgreSQL (private `jobdesk` schema)
+- **Access**: private workspace invitation link; no email registration or PIN during testing
+- **Demo data**: none
 
-## What is included
+## Features
 
-- Shared Designer jobdesks with configurable names, member management **in Settings only**.
-- Shared Production jobdesk for all members and production progress tracking.
-- Team Overview metrics and compact Personal cards: Active, Due in 3 days, Overdue.
-- Default monthly filter (current Malaysia month), with other months/all-months.
-- Per-browser temporary team member selection and named PC (in browser + Supabase device registry).
-- REST API, optimistic job version updates, PostgreSQL transactions for job updates/deletes.
-- GitHub Actions CI checks, static build, SQL schema, diagnostics, and environment variable template.
+- Shared Designer Jobdesks and Production Jobdesk
+- Manage members exclusively in Settings
+- Team Overview, deadlines, priorities and month filtering (defaults to current month)
+- Personal Active / Due within 3 Days / Overdue summary
+- Temporary names and PC/device labels stored per browser
+- Activity history and shared PostgreSQL persistence
 
-## Repository structure
+## Deploy
 
-```text
-app/                    React UI source and CSS
-index.html              Vite HTML entry at repository root
-frontend/               Browser React entry
-public/                 Icons
-api.ts                  API source (transpiled into api.mjs during build)
-server.mjs              REQUIRED Node.js entry — serves /api/* and dist/
-lib/database.mjs        Server-only pg Pool + Supabase PostgreSQL adapter
-lib/sql.mjs             SQL translator and table namespace safety
-supabase/schema.sql     Private jobdesk schema, tables and indexes (no sample data)
-scripts/                Database check and optional live smoke test
-tests/                  Credential-free validation
-.github/workflows/      GitHub Actions build + checks
-build.mjs               npm run build → dist/ and api.mjs
-scripts/check-source.mjs  Verify GitHub source layout before building
-.env.example            Placeholder config ONLY (never enter real secrets here)
-```
+1. In GitHub **Settings → Pages**, choose **GitHub Actions** as the source.
+2. The `Deploy Jobdesk frontend preview to GitHub Pages` workflow builds the React/Vite app and publishes `dist`.
+3. Supabase project `Jobdesk` already contains the private tables and deployed `jobdesk-api` function.
+4. Open the **private invitation URL** provided by the workspace administrator, containing `?workspace=...`; the token is stored locally in the browser.
 
-**GitHub should contain the source files**, not `node_modules/`, `dist/`, `.env`, or database dumps. The build command creates both `dist/` and `api.mjs`.
+**Full setup, security warnings, and troubleshooting:** [SUPABASE_GITHUB_ONLY.md](SUPABASE_GITHUB_ONLY.md)
 
-## Quick setup
+### Security
 
-1. Create a **private** GitHub repository and upload the **contents of this extracted folder**, not the ZIP itself. See [GitHub + Hostinger](HOSTINGER_GITHUB_DEPLOY.md).
-2. Create a Supabase project. The Postgres schema is applied automatically by the Node server at startup, or manually via `supabase/schema.sql` in Supabase SQL Editor. It creates tables only, **no example data**.
-3. In Supabase dashboard → **Connect → Session pooler**, copy the connection string. Insert your actual password (URL-encode special characters). Keep the secret **server-side**.
-4. Configure Hostinger Environment Variables (see `.env.example`): `DATABASE_URL`, `APP_URL`, optionally `PG_POOL_MAX`. The database URL **must not** be prefixed `VITE_` and must never appear in frontend source.
-5. Deploy the GitHub repository as a **Node.js Web App / Framework Other**, with Node.js 22, build command `npm run build`, **entry file `server.mjs`**, and `npm start` if a start command is requested.
-6. Test `/api/health` (JSON 200) and `/api/bootstrap` (JSON arrays) before using the web UI.
-7. In the empty Jobdesk UI, use Settings → Team members to add real users, which creates Designer spaces; add Production users there too. No dummy records are auto-added.
+This is intentionally a shared testing workspace. Anyone holding an invitation link can access and change all jobs. Do not use sensitive customer information until authentication and per-role access rules are implemented. Do not put `DATABASE_URL`, service-role keys, or invitation tokens in frontend or GitHub source code.
 
-See [SUPABASE_SETUP.md](SUPABASE_SETUP.md) for database setup, risks and troubleshooting.
+The private PostgreSQL schema is accessed only via Edge Functions. It is not exposed to the Supabase Data API.
 
-## Develop and verify
+### Source layout
 
-Requires Node.js >=22.13 and npm. For local work, load `DATABASE_URL` from your shell or `.env` loader — Node does not automatically read `.env.example`.
+- `app/`, `frontend/`, `index.html`: React/Vite frontend
+- `supabase/functions/jobdesk-api/`: Supabase Edge API and database adapter
+- `supabase/schema.sql`: Private PostgreSQL schema, with no sample records
+- `.github/workflows/deploy-pages.yml`: GitHub Pages deployment
+- `api.ts`: Original shared job API logic, also adapted for Supabase Edge Functions
+- `server.mjs`: Retained for optional local Node.js development, not required for the deployed website
+
+### Develop
 
 ```bash
 npm install
 npm run verify:source
-npm run build
 npm run test:offline
-npm start
-# optional; requires a reachable Supabase database and reads current workspace:
-npm run db:check
-npm run test:smoke
+npm run build:pages
 ```
 
-`test:offline` needs no credentials; `test:smoke` and `db:check` require a live Supabase project. The repository does not bundle any production credentials or data.
-
-## Existing SQLite data
-
-This is a **new PostgreSQL database**, not an in-place SQLite migration. It **does not delete any old SQLite file**, and it **does not automatically import historical real jobs**. Keep your old Jobdesk SQLite backup untouched; import/ETL is a separate reviewed operation. Do not assume existing jobs have been moved to Supabase.
-
-## Important hosting note
-
-Hostinger must start `server.mjs`. Publishing only `dist/` as a static site will return HTML 404/403 for `/api/*`, exactly like earlier failures. See [deployment steps](HOSTINGER_GITHUB_DEPLOY.md). If the backend is running but the database cannot connect, `/api/health` responds with JSON 503 and a startup log entry.
-
-## Status
-
-Repository source is ready to upload; offline syntax/schema/SQL translator tests can be run without credentials. Live Supabase project provisioning and Hostinger routing **must be verified on your own connected project**. This package has no API keys or remote project connection.
-
-## GitHub Actions missing entry (fixed in V1.4.1)
-
-Vite now loads `index.html` from the repository root. See [GITHUB_BUILD_FIX_V141.md](GITHUB_BUILD_FIX_V141.md). GitHub Actions checks that root `index.html` and `frontend/main.tsx` are both committed. Upload all files from the extracted ZIP into the repo root; do not push the ZIP itself or just `.github/workflows`.
+GitHub Actions checks the compiled output. The deployed frontend does not need `npm start` or a running Node.js server.

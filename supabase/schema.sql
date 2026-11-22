@@ -69,6 +69,13 @@ CREATE TABLE IF NOT EXISTS jobdesk.device_profiles (
  last_seen text NOT NULL,
  created_at text NOT NULL
 );
+-- Private, revocable invitation hashes; create real links outside GitHub.
+CREATE TABLE IF NOT EXISTS jobdesk.workspace_access (
+ token_hash text PRIMARY KEY CHECK (length(token_hash)=64),
+ created_at timestamptz NOT NULL DEFAULT now(),
+ revoked_at timestamptz
+);
+REVOKE ALL ON ALL TABLES IN SCHEMA jobdesk FROM PUBLIC, anon, authenticated;
 CREATE INDEX IF NOT EXISTS jobs_due ON jobdesk.jobs(due_date,status);
 CREATE INDEX IF NOT EXISTS activity_job ON jobdesk.activity(job_id,id);
 CREATE INDEX IF NOT EXISTS device_profiles_member ON jobdesk.device_profiles(user_id);

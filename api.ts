@@ -27,7 +27,7 @@ async function handler(req:Request){try{
  if(path.startsWith('/api/access'))fail('Endpoint not found.',404);
  const cookieToken=(req.headers.get('cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('jobdesk_test_csrf='))?.slice(18)||'';
  const csrf=/^[a-f0-9]{64}$/.test(cookieToken)?cookieToken:random();
- if(method!=='GET'&&method!=='HEAD'){
+ if(method!=='GET'&&method!=='HEAD'&&!env.EDGE_TRUSTED_ACCESS){
   if(req.headers.get('origin')!==new URL(req.url).origin)fail('Request origin is not allowed.',403);
   if(!cookieToken||req.headers.get('x-csrf-token')!==cookieToken||cookieToken!==csrf)fail('Workspace check failed. Reload and try again.',403);
  }
