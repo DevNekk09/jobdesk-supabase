@@ -30,10 +30,10 @@ test('Jobsheet and Urgent cards exist in personal and team views',()=>{
  assert.match(css,/\.personal-stats\{grid-template-columns:repeat\(4,/);
 });
 test('reference dock keeps Overview, Plus and Spaces, with V1.6 admin and brand intact',()=>{
- const page=src('app/page.tsx'),css=src('app/globals.css');
- assert.match(page,/<span>Overview<\/span>/);
- assert.match(page,/<span>Spaces<\/span>/);
- assert.match(page,/floating-add/);
+ const page=src('app/page.tsx'),css=src('app/globals.css'),dock=src('app/components/QuickDock.tsx');
+ assert.match(dock,/<span>Overview<\/span>/);
+ assert.match(dock,/<span>Spaces<\/span>/);
+ assert.match(dock,/floating-add/);
  assert.match(css,/V1\.6\.1: screenshot-matched/);
  assert.match(page,/adminUnlock/);
  assert.match(page,/KSL Team Job Management/);
