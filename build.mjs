@@ -12,7 +12,12 @@ if(missing.length){
   throw new Error('Incomplete GitHub checkout. Missing: '+missing.join(', ')+'\nExtract the complete Jobdesk ZIP and commit all source directories at the repository root.');
 }
 
+const pagesMode = process.env.GITHUB_PAGES === 'true';
+const pagesRepo = process.env.GITHUB_REPOSITORY?.split('/')[1] || 'jobdesk-supabase';
+const publicBase = pagesMode ? `/${pagesRepo}/` : '/';
+
 await build({
+  base: publicBase,
   configFile:false,
   root,
   plugins:[react()],
@@ -21,4 +26,4 @@ await build({
 });
 const code=ts.transpileModule(readFileSync(join(root,'api.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.ES2022,target:ts.ScriptTarget.ES2022}}).outputText;
 writeFileSync(join(root,'api.mjs'),code);
-console.log('Jobdesk GitHub build passed. Serve using npm start / server.mjs.');
+console.log(`Jobdesk build passed (base: ${publicBase}). The Node.js API still requires a server runtime.`);
