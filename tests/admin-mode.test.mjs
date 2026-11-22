@@ -9,6 +9,7 @@ test('Admin mode uses a PIN modal and time-limited session, never a direct admin
  assert.match(ui,/\/api\/admin\/unlock/);
  assert.match(ui,/\/api\/admin\/lock/);
  assert.match(ui,/sessionStorage\.setItem\('jobdesk-admin-session'/);
+ assert.match(src('app/services/jobdesk-api.ts'),/x-jobdesk-admin-session/);
  assert.doesNotMatch(ui,/Return to shared test admin/);
  assert.match(ui,/KSL Team Job Management/);
  assert.match(ui,/APPLE SPORT SDN BHD/);
