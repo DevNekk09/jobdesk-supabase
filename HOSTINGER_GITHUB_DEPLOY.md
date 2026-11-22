@@ -25,3 +25,5 @@
 If HTTP 403/HTML 404 continues, verify the site is managed by Hostinger's Node.js Web App runtime and reverse proxy reaches `server.mjs`. Repeatedly uploading ZIPs cannot correct a static-site routing configuration. If `/api/health` is JSON 503, check `DATABASE_URL` and Supabase permissions in Node Runtime Logs.
 
 The source does **not** migrate any prior SQLite records. Back up the existing Jobdesk database first and keep it safe until real historical records are intentionally imported into PostgreSQL.
+
+**V1.4.1:** Vite entry is root `index.html`; do not change the backend entry from `server.mjs`. CI uses `npm run verify:source` before building.

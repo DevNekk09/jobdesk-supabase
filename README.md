@@ -1,4 +1,4 @@
-# Jobdesk V1.4.0 — GitHub + Supabase (PostgreSQL)
+# Jobdesk V1.4.1 — GitHub + Supabase (PostgreSQL)
 
 **Source repository for the shared Designer & Production Jobdesk.** React + Vite frontend, Node.js 22 HTTP backend, and Supabase PostgreSQL. This release replaces SQLite persistence. It starts with **zero sample jobs, zero demo members, zero sample spaces, and no demo mode**. The backend creates one internal `Shared team` service identity when first used, solely to record activity in the PIN-free test workspace.
 
@@ -18,7 +18,8 @@
 
 ```text
 app/                    React UI source and CSS
-frontend/               Vite HTML and browser entry
+index.html              Vite HTML entry at repository root
+frontend/               Browser React entry
 public/                 Icons
 api.ts                  API source (transpiled into api.mjs during build)
 server.mjs              REQUIRED Node.js entry — serves /api/* and dist/
@@ -29,6 +30,7 @@ scripts/                Database check and optional live smoke test
 tests/                  Credential-free validation
 .github/workflows/      GitHub Actions build + checks
 build.mjs               npm run build → dist/ and api.mjs
+scripts/check-source.mjs  Verify GitHub source layout before building
 .env.example            Placeholder config ONLY (never enter real secrets here)
 ```
 
@@ -52,6 +54,7 @@ Requires Node.js >=22.13 and npm. For local work, load `DATABASE_URL` from your 
 
 ```bash
 npm install
+npm run verify:source
 npm run build
 npm run test:offline
 npm start
@@ -73,3 +76,7 @@ Hostinger must start `server.mjs`. Publishing only `dist/` as a static site will
 ## Status
 
 Repository source is ready to upload; offline syntax/schema/SQL translator tests can be run without credentials. Live Supabase project provisioning and Hostinger routing **must be verified on your own connected project**. This package has no API keys or remote project connection.
+
+## GitHub Actions missing entry (fixed in V1.4.1)
+
+Vite now loads `index.html` from the repository root. See [GITHUB_BUILD_FIX_V141.md](GITHUB_BUILD_FIX_V141.md). GitHub Actions checks that root `index.html` and `frontend/main.tsx` are both committed. Upload all files from the extracted ZIP into the repo root; do not push the ZIP itself or just `.github/workflows`.

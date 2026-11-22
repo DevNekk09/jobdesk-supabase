@@ -1,1 +1,40 @@
-22
+# Local / downloaded dependencies
+node_modules/
+.npm/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Runtime SQLite data (including WAL and snapshots)
+data/
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.db
+*.db-*
+*.db-wal
+*.db-shm
+*.sqlite-wal
+*.sqlite-shm
+
+# Compiled frontend (Hostinger builds this from source)
+dist/
+public-built/
+
+# Temporary files, logs and editor data
+*.log
+logs/
+coverage/
+.tmp/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.tsbuildinfo
+
+# Generated server API (rebuilt from api.ts)
+api.mjs

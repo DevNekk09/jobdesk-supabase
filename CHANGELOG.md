@@ -1,3 +1,9 @@
+# V1.4.1 — GitHub Vite entry repair
+
+- Moved active Vite entry to repository root `index.html` and explicitly configured build input.
+- Added GitHub committed-file preflight and offline entry tests.
+- No demo seed, frontend feature, backend API or Supabase schema changes.
+
 # V1.4.0 — GitHub + Supabase PostgreSQL
 
 - Rebuilt as source GitHub repository with Hostinger Node.js entry file.
