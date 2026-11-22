@@ -10,7 +10,7 @@ export async function readApiJson<T>(response:Response,path:string):Promise<T>{
 export const pagesOnly = typeof window !== 'undefined' && window.location.hostname.endsWith('.github.io');
 export const publicBase = import.meta.env.BASE_URL || '/';
 const edgeApiBase = pagesOnly ? 'https://vsvlutqagtkdtrowaked.supabase.co/functions/v1/jobdesk-api' : '';
-const accessHeaders = () => pagesOnly ? {'x-workspace-token':localStorage.getItem('jobdesk-workspace-token')||'','x-jobdesk-admin-session':sessionStorage.getItem('jobdesk-admin-session')||''} : {};
+const accessHeaders = () => pagesOnly ? {'x-workspace-token':localStorage.getItem('jobdesk-workspace-token')||'','x-jobdesk-admin-session':sessionStorage.getItem('jobdesk-admin-session')||'','x-jobdesk-staff-session':localStorage.getItem('jobdesk-staff-session')||''} : {};
 const apiUrl = (path:string) => edgeApiBase + path;
 function deviceHeaders(){
  let key=localStorage.getItem('jobdesk-device-id');

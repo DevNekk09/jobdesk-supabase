@@ -1,6 +1,6 @@
 {
   "name": "jobdesk-supabase",
-  "version": "1.8.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -13,7 +13,9 @@
     "start": "node server.mjs",
     "test:offline": "node --test tests/*.test.mjs",
     "test:smoke": "node scripts/smoke-test.mjs",
-    "db:check": "node scripts/check-supabase.mjs"
+    "db:check": "node scripts/check-supabase.mjs",
+    "test:e2e": "playwright test --config=playwright.config.ts",
+    "test:all": "npm run test:offline && npm run test:e2e"
   },
   "dependencies": {
     "react": "19.2.6",
@@ -23,7 +25,8 @@
   "devDependencies": {
     "vite": "8.0.13",
     "@vitejs/plugin-react": "6.0.2",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "@playwright/test": "1.65.1"
   },
   "main": "server.mjs"
 }

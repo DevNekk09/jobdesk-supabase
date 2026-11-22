@@ -33,7 +33,7 @@ async function handler(req:Request){try{
  }
  await db.prepare("INSERT INTO users(user_id,name,email,role,active,created_at) VALUES(NULL,'Admin','shared-team@system.invalid','Admin',1,?) ON CONFLICT (email) DO NOTHING").bind(now()).run();
  const shared=(await db.prepare("SELECT * FROM users WHERE email='shared-team@system.invalid'").first<Row>())!;
- const actorId=Number(req.headers.get('x-jobdesk-actor')||'0');
+ const actorId=Number(env.EDGE_TRUSTED_ACCESS===true?req.headers.get('x-edge-staff-user')||'0':'0');
  const assigned:Row=Number.isSafeInteger(actorId)&&actorId>0?(await db.prepare("SELECT * FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid' AND role IN ('Designer','Print','Sales')").bind(actorId).first<Row>()||shared):shared;
  const isAdmin=env.EDGE_TRUSTED_ACCESS===true&&req.headers.get('x-edge-admin-verified')==='1';
  const acting:Row=isAdmin?shared:assigned;
@@ -55,26 +55,31 @@ async function handler(req:Request){try{
    db.prepare(selectJob+' WHERE j.due_date>=? AND j.due_date<? ORDER BY j.due_date,j.id').bind(requestedMonth+'-01',nextMonth);
   // No demo jobs, users, or workspace seeds.
   if(validDevice&&acting.id!==shared.id)await db.prepare('UPDATE device_profiles SET last_seen=? WHERE device_key=? AND user_id=?').bind(now(),deviceId,acting.id).run();
-  const [users,jobs,activity,spaces,devices,months]=await Promise.all([
+  const [users,jobs,activity,spaces,devices,months,overdue,nearDeadline]=await Promise.all([
    db.prepare("SELECT * FROM users WHERE deleted_at IS NULL AND email!='shared-team@system.invalid' ORDER BY active DESC,name").all<Row>(),
    jobQuery.all(),
    db.prepare('SELECT a.*,u.name AS user_name,j.name AS job_name FROM activity a JOIN users u ON u.id=a.user_id LEFT JOIN jobs j ON j.id=a.job_id ORDER BY a.id DESC LIMIT 100').all(),
    db.prepare('SELECT * FROM job_spaces ORDER BY sort_order,id').all(),
    db.prepare("SELECT d.device_key,d.device_label,d.user_id,d.last_seen,u.name AS user_name FROM device_profiles d JOIN users u ON u.id=d.user_id WHERE u.deleted_at IS NULL ORDER BY d.last_seen DESC LIMIT 100").all(),
-   db.prepare('SELECT DISTINCT LEFT(due_date,7) AS month FROM jobs ORDER BY month DESC').all()
+   db.prepare('SELECT DISTINCT LEFT(due_date,7) AS month FROM jobs ORDER BY month DESC').all(),
+   db.prepare("SELECT COALESCE(j.space_id,(SELECT s.id FROM job_spaces s WHERE s.owner_user_id=j.assigned_to ORDER BY s.id LIMIT 1),0) AS space_id,COUNT(*)::int AS count FROM jobs j WHERE j.status NOT IN ('Completed','Cancelled','Deleted') AND j.due_date<? GROUP BY 1").bind(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())).all(),
+   db.prepare("SELECT COALESCE(j.space_id,(SELECT s.id FROM job_spaces s WHERE s.owner_user_id=j.assigned_to ORDER BY s.id LIMIT 1),0) AS space_id,COUNT(*) FILTER (WHERE j.priority='Urgent' OR (j.due_date>=to_char(now() AT TIME ZONE 'Asia/Kuala_Lumpur','YYYY-MM-DD') AND j.due_date<to_char((now() AT TIME ZONE 'Asia/Kuala_Lumpur')+interval '3 days','YYYY-MM-DD')))::int AS urgent_count,COUNT(*) FILTER (WHERE j.due_date>=to_char(now() AT TIME ZONE 'Asia/Kuala_Lumpur','YYYY-MM-DD') AND j.due_date<to_char((now() AT TIME ZONE 'Asia/Kuala_Lumpur')+interval '4 days','YYYY-MM-DD'))::int AS soon_count FROM jobs j WHERE j.status NOT IN ('Completed','Cancelled','Deleted') GROUP BY 1").all()
   ]);
-  return testJson(req,{me:safe(u),csrf,users:users.results.map(safe),jobs:jobs.results,activity:activity.results,spaces:spaces.results,devices:devices.results,available_months:months.results.map(row=>row.month),device_key:validDevice?deviceId:'',hosted:true,open_test:true},csrf);
+  return testJson(req,{me:safe(u),csrf,users:users.results.map(safe),jobs:jobs.results,activity:activity.results,spaces:spaces.results,devices:devices.results,available_months:months.results.map(row=>row.month),overdue_by_space:overdue.results,overdue_total:overdue.results.reduce((n,row)=>n+Number(row.count||0),0),near_deadline_by_space:nearDeadline.results,urgent_total:nearDeadline.results.reduce((n,row)=>n+Number(row.urgent_count||0),0),soon_total:nearDeadline.results.reduce((n,row)=>n+Number(row.soon_count||0),0),device_key:validDevice?deviceId:'',hosted:true,open_test:true},csrf);
  }
  if(path==='/api/device/clear'&&method==='POST'){
+  role(u,['Admin','Designer','Print','Sales']);
   if(!validDevice)fail('This browser needs a valid device ID.',400);
   await db.prepare('DELETE FROM device_profiles WHERE device_key=?').bind(deviceId).run();
   return json({ok:true});
  }
  if(path==='/api/device'&&method==='POST'){
+  role(u,['Admin','Designer','Print','Sales']);
   if(!validDevice)fail('This browser needs a valid device ID.',400);
   const b=await data(req),label=str(b.label,'Device name',60,true);
   const member=await db.prepare("SELECT id FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid'").bind(Number(b.user_id)).first<Row>();
   if(!member)fail('Choose an active member before saving this device.',400);
+  if(u.role!=='Admin'&&Number(member.id)!==Number(u.id))fail('Your device can only be linked to your verified member profile.',403);
   await db.prepare('INSERT INTO device_profiles(device_key,device_label,user_id,last_seen,created_at) VALUES(?,?,?,?,?) ON CONFLICT(device_key) DO UPDATE SET device_label=excluded.device_label,user_id=excluded.user_id,last_seen=excluded.last_seen').bind(deviceId,label,member.id,now(),now()).run();
   return json({ok:true});
  }
