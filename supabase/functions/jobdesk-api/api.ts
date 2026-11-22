@@ -55,16 +55,17 @@ async function handler(req:Request){try{
    db.prepare(selectJob+' WHERE j.due_date>=? AND j.due_date<? ORDER BY j.due_date,j.id').bind(requestedMonth+'-01',nextMonth);
   // No demo jobs, users, or workspace seeds.
   if(validDevice&&acting.id!==shared.id)await db.prepare('UPDATE device_profiles SET last_seen=? WHERE device_key=? AND user_id=?').bind(now(),deviceId,acting.id).run();
-  const [users,jobs,activity,spaces,devices,months,overdue]=await Promise.all([
+  const [users,jobs,activity,spaces,devices,months,overdue,nearDeadline]=await Promise.all([
    db.prepare("SELECT * FROM users WHERE deleted_at IS NULL AND email!='shared-team@system.invalid' ORDER BY active DESC,name").all<Row>(),
    jobQuery.all(),
    db.prepare('SELECT a.*,u.name AS user_name,j.name AS job_name FROM activity a JOIN users u ON u.id=a.user_id LEFT JOIN jobs j ON j.id=a.job_id ORDER BY a.id DESC LIMIT 100').all(),
    db.prepare('SELECT * FROM job_spaces ORDER BY sort_order,id').all(),
    db.prepare("SELECT d.device_key,d.device_label,d.user_id,d.last_seen,u.name AS user_name FROM device_profiles d JOIN users u ON u.id=d.user_id WHERE u.deleted_at IS NULL ORDER BY d.last_seen DESC LIMIT 100").all(),
    db.prepare('SELECT DISTINCT LEFT(due_date,7) AS month FROM jobs ORDER BY month DESC').all(),
-   db.prepare("SELECT COALESCE(j.space_id,(SELECT s.id FROM job_spaces s WHERE s.owner_user_id=j.assigned_to ORDER BY s.id LIMIT 1),0) AS space_id,COUNT(*)::int AS count FROM jobs j WHERE j.status NOT IN ('Completed','Cancelled','Deleted') AND j.due_date<? GROUP BY 1").bind(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())).all()
+   db.prepare("SELECT COALESCE(j.space_id,(SELECT s.id FROM job_spaces s WHERE s.owner_user_id=j.assigned_to ORDER BY s.id LIMIT 1),0) AS space_id,COUNT(*)::int AS count FROM jobs j WHERE j.status NOT IN ('Completed','Cancelled','Deleted') AND j.due_date<? GROUP BY 1").bind(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())).all(),
+   db.prepare("SELECT COALESCE(j.space_id,(SELECT s.id FROM job_spaces s WHERE s.owner_user_id=j.assigned_to ORDER BY s.id LIMIT 1),0) AS space_id,COUNT(*) FILTER (WHERE j.priority='Urgent' OR (j.due_date>=to_char(now() AT TIME ZONE 'Asia/Kuala_Lumpur','YYYY-MM-DD') AND j.due_date<to_char((now() AT TIME ZONE 'Asia/Kuala_Lumpur')+interval '3 days','YYYY-MM-DD')))::int AS urgent_count,COUNT(*) FILTER (WHERE j.due_date>=to_char(now() AT TIME ZONE 'Asia/Kuala_Lumpur','YYYY-MM-DD') AND j.due_date<to_char((now() AT TIME ZONE 'Asia/Kuala_Lumpur')+interval '4 days','YYYY-MM-DD'))::int AS soon_count FROM jobs j WHERE j.status NOT IN ('Completed','Cancelled','Deleted') GROUP BY 1").all()
   ]);
-  return testJson(req,{me:safe(u),csrf,users:users.results.map(safe),jobs:jobs.results,activity:activity.results,spaces:spaces.results,devices:devices.results,available_months:months.results.map(row=>row.month),overdue_by_space:overdue.results,overdue_total:overdue.results.reduce((n,row)=>n+Number(row.count||0),0),device_key:validDevice?deviceId:'',hosted:true,open_test:true},csrf);
+  return testJson(req,{me:safe(u),csrf,users:users.results.map(safe),jobs:jobs.results,activity:activity.results,spaces:spaces.results,devices:devices.results,available_months:months.results.map(row=>row.month),overdue_by_space:overdue.results,overdue_total:overdue.results.reduce((n,row)=>n+Number(row.count||0),0),near_deadline_by_space:nearDeadline.results,urgent_total:nearDeadline.results.reduce((n,row)=>n+Number(row.urgent_count||0),0),soon_total:nearDeadline.results.reduce((n,row)=>n+Number(row.soon_count||0),0),device_key:validDevice?deviceId:'',hosted:true,open_test:true},csrf);
  }
  if(path==='/api/device/clear'&&method==='POST'){
   role(u,['Admin','Designer','Print','Sales']);
