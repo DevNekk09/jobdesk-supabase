@@ -31,6 +31,10 @@ jobs:
           node --check lib/database.mjs
           test -f dist/index.html
           test -d dist/assets
+      - name: Install Chromium for browser regressions
+        run: npx playwright install --with-deps chromium
+      - name: Test desktop and mobile workflows
+        run: npm run test:e2e
       - name: Verify GitHub Pages production asset paths
         run: |
           npm run build:pages
