@@ -33,7 +33,7 @@ async function handler(req:Request){try{
  }
  await db.prepare("INSERT INTO users(user_id,name,email,role,active,created_at) VALUES(NULL,'Admin','shared-team@system.invalid','Admin',1,?) ON CONFLICT (email) DO NOTHING").bind(now()).run();
  const shared=(await db.prepare("SELECT * FROM users WHERE email='shared-team@system.invalid'").first<Row>())!;
- const actorId=Number(req.headers.get('x-jobdesk-actor')||'0');
+ const actorId=Number(env.EDGE_TRUSTED_ACCESS===true?req.headers.get('x-edge-staff-user')||'0':'0');
  const assigned:Row=Number.isSafeInteger(actorId)&&actorId>0?(await db.prepare("SELECT * FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid' AND role IN ('Designer','Print','Sales')").bind(actorId).first<Row>()||shared):shared;
  const isAdmin=env.EDGE_TRUSTED_ACCESS===true&&req.headers.get('x-edge-admin-verified')==='1';
  const acting:Row=isAdmin?shared:assigned;
@@ -66,15 +66,18 @@ async function handler(req:Request){try{
   return testJson(req,{me:safe(u),csrf,users:users.results.map(safe),jobs:jobs.results,activity:activity.results,spaces:spaces.results,devices:devices.results,available_months:months.results.map(row=>row.month),device_key:validDevice?deviceId:'',hosted:true,open_test:true},csrf);
  }
  if(path==='/api/device/clear'&&method==='POST'){
+  role(u,['Admin','Designer','Print','Sales']);
   if(!validDevice)fail('This browser needs a valid device ID.',400);
   await db.prepare('DELETE FROM device_profiles WHERE device_key=?').bind(deviceId).run();
   return json({ok:true});
  }
  if(path==='/api/device'&&method==='POST'){
+  role(u,['Admin','Designer','Print','Sales']);
   if(!validDevice)fail('This browser needs a valid device ID.',400);
   const b=await data(req),label=str(b.label,'Device name',60,true);
   const member=await db.prepare("SELECT id FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid'").bind(Number(b.user_id)).first<Row>();
   if(!member)fail('Choose an active member before saving this device.',400);
+  if(u.role!=='Admin'&&Number(member.id)!==Number(u.id))fail('Your device can only be linked to your verified member profile.',403);
   await db.prepare('INSERT INTO device_profiles(device_key,device_label,user_id,last_seen,created_at) VALUES(?,?,?,?,?) ON CONFLICT(device_key) DO UPDATE SET device_label=excluded.device_label,user_id=excluded.user_id,last_seen=excluded.last_seen').bind(deviceId,label,member.id,now(),now()).run();
   return json({ok:true});
  }
