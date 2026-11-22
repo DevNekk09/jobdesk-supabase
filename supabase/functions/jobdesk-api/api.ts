@@ -34,7 +34,7 @@ async function handler(req:Request){try{
  await db.prepare("INSERT INTO users(user_id,name,email,role,active,created_at) VALUES(NULL,'Admin','shared-team@system.invalid','Admin',1,?) ON CONFLICT (email) DO NOTHING").bind(now()).run();
  const shared=(await db.prepare("SELECT * FROM users WHERE email='shared-team@system.invalid'").first<Row>())!;
  const actorId=Number(req.headers.get('x-jobdesk-actor')||'0');
- const assigned:Row=Number.isSafeInteger(actorId)&&actorId>0?(await db.prepare("SELECT * FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid'").bind(actorId).first<Row>()||shared):shared;
+ const assigned:Row=Number.isSafeInteger(actorId)&&actorId>0?(await db.prepare("SELECT * FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid' AND role IN ('Designer','Print','Sales')").bind(actorId).first<Row>()||shared):shared;
  const isAdmin=req.headers.get('x-edge-admin-verified')==='1';
  const acting:Row=isAdmin?shared:assigned;
  const u:Row=isAdmin?{...shared,name:'Admin',role:'Admin'}:assigned.id===shared.id?{...shared,name:'Guest',role:'Viewer'}:assigned;
@@ -80,7 +80,7 @@ async function handler(req:Request){try{
  const um=path.match(/^\/api\/users\/(\d+)$/);
  if(um&&method==='PATCH'){
   role(u,['Admin']);const id=Number(um[1]),b=await data(req),target=await db.prepare('SELECT * FROM users WHERE id=?').bind(id).first<Row>();if(!target)fail('User not found.',404);
-  const r=b.role||target.role;if(!['Designer','Print','Admin'].includes(r))fail('Choose a valid role.');if(b.active!==undefined&&typeof b.active!=='boolean')fail('Active must be true or false.');const active=b.active===undefined?target.active:Number(b.active);
+  const r=b.role||target.role;if(!['Designer','Print','Admin'].includes(r))fail('Choose a valid role.');if(r==='Admin')fail('Admin permissions are reserved for a verified PIN session.',403);if(b.active!==undefined&&typeof b.active!=='boolean')fail('Active must be true or false.');const active=b.active===undefined?target.active:Number(b.active);
   if(id===u.id)fail('This shared workspace profile is reserved.');
   if(b.space_id){const chosen=await db.prepare('SELECT * FROM job_spaces WHERE id=?').bind(Number(b.space_id)).first<Row>();if(!chosen||(chosen.owner_user_id&&chosen.owner_user_id!==id))fail('That job space is already linked or unavailable.');}
   await db.batch([...(b.space_id!==undefined?[db.prepare('UPDATE job_spaces SET owner_user_id=NULL WHERE owner_user_id=?').bind(id),...(b.space_id?[db.prepare('UPDATE job_spaces SET owner_user_id=? WHERE id=?').bind(id,Number(b.space_id))]:[])]:[]),db.prepare('UPDATE users SET name=?,role=?,active=? WHERE id=?').bind(str(b.name||target.name,'Name',100,true),r,active,id),log(null,`Updated team member ${target.name}`)]);return json({ok:true});
@@ -101,6 +101,7 @@ async function handler(req:Request){try{
   return json({job:await getJob(id)},201);
  }
  if(path==='/api/trash/clear'&&method==='POST'){
+  role(u,['Admin']);
   const body=await data(req);if(body.confirmation!=='CLEAR TRASH'||!Array.isArray(body.jobs)||!body.jobs.length||body.jobs.length>5000)fail('Review the Trash contents and confirm Clear Trash.');
   const snapshot=body.jobs as Row[];if(snapshot.some(x=>!Number.isInteger(x.id)||!Number.isInteger(x.version))||new Set(snapshot.map(x=>x.id)).size!==snapshot.length)fail('Invalid Trash snapshot.');
   await db.transaction(async tx=>{
@@ -118,9 +119,10 @@ async function handler(req:Request){try{
  if(jm){const id=Number(jm[1]),action=jm[2],j=await getJob(id);if(!j)fail('Job not found.',404);
   if(method==='GET'){const a=await db.prepare('SELECT a.*,u.name AS user_name FROM activity a JOIN users u ON u.id=a.user_id WHERE job_id=? ORDER BY a.id DESC').bind(id).all();return json({job:j,activity:a.results})}
   const b=await data(req);
-  if(action==='comment'&&method==='POST'){await log(id,'Note: '+str(b.message,'Note',2000,true)).run();return json({ok:true})}
+  if(action==='comment'&&method==='POST'){role(u,['Admin','Sales','Designer','Print']);await log(id,'Note: '+str(b.message,'Note',2000,true)).run();return json({ok:true})}
   if(Number(b.version)!==j.version)fail('This job was updated by another staff member. Reopen it and try again.',409);
   if(action==='purge'&&method==='POST'){
+   role(u,['Admin']);
    if(j.status!=='Deleted')fail('Only jobs in Trash can be permanently deleted.');if(b.confirmation!=='DELETE JOB')fail('Confirm permanent deletion first.');
    await db.transaction(async tx=>{
     const locked=await tx.prepare("SELECT id FROM jobs WHERE id=? AND version=? AND status='Deleted' FOR UPDATE").bind(id,j.version).first();
@@ -158,6 +160,7 @@ async function handler(req:Request){try{
   }else if(action==='file'&&method==='POST'){
    role(u,['Admin','Designer']);if(j.status!=='Preparing Print File')fail('Start print-file preparation before updating the print-file link.');Object.assign(update,{print_file_url:link(b.print_file_url,'Print-file link'),artwork_approved:0,print_checked:0});message='Updated prepared print-file link — approval checks reset';
   }else if(action==='status'&&method==='POST'){
+   role(u,['Admin','Sales','Designer','Print']);
    if(workflow.includes(j.status)&&!['On Hold','Cancelled'].includes(b.status))fail('Use the file progress action to update this job.');if(!statuses.includes(b.status))fail('Invalid job status.');for(const key of ['artwork_approved','print_checked'])if(b[key]!==undefined&&typeof b[key]!=='boolean')fail('Checklist values must be true or false.');const next=b.status;
    if(next===j.status)fail('This job is already at this stage.');
    const transitions:Record<string,string[]>={'Ready for Print File':['Preparing Print File'],'Preparing Print File':['Ready to Print'],'Ready to Print':['Printing'],'Printing':['Completed']};
