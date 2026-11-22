@@ -98,7 +98,7 @@ export default function Home(){
  async function unlockAdmin(){
   setBusy(true);setFormError('');
   try{
-   if(!/^\\d{6}$/.test(adminPin))throw Error('Enter the 6-digit Admin PIN.');
+   if(!/^[0-9]{6}$/.test(adminPin))throw Error('Enter the 6-digit Admin PIN.');
    const result=await request('/api/admin/unlock','POST',{pin:adminPin});
    if(!result.session)throw Error('Admin session was not issued.');
    sessionStorage.setItem('jobdesk-admin-session',result.session);
