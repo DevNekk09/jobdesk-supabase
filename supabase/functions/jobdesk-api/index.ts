@@ -54,7 +54,9 @@ Deno.serve(async request=>{
   const verifiedHeaders=new Headers(request.headers);
   verifiedHeaders.delete('x-edge-admin-verified');
   if(adminValid)verifiedHeaders.set('x-edge-admin-verified','1');
-  const adapted=new Request(new URL(apiPath,request.url),{method:request.method,headers:verifiedHeaders,...(request.method==='GET'?{}:{body:await request.text()})});
+  const endpoint=new URL(apiPath,request.url);
+  endpoint.search=new URL(request.url).search;
+  const adapted=new Request(endpoint,{method:request.method,headers:verifiedHeaders,...(request.method==='GET'?{}:{body:await request.text()})});
   const handler=request.method==='GET'?GET:request.method==='POST'?POST:PATCH;
   const response=await handler(adapted);
   const headers=new Headers(response.headers);
