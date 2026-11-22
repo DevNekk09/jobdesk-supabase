@@ -3,6 +3,7 @@ import {useState,useEffect,useRef,useCallback,useId} from 'react';
 import Icon from './components/Icon';
 import QuickDock from './components/QuickDock';
 import JobSaveFeedback, {type SaveFeedbackState} from './components/JobSaveFeedback';
+import {today,day,due,add,date,time,monthLabel} from './lib/dates';
 type Space={id:number;name:string;owner_user_id:number|null;sort_order:number};
 type Job={production_status?:string|null;production_updated_at?:string|null;deleted_from_status?:string;space_id?:number|null;resolved_space_id?:number|null;space_name?:string;id:number;invoice_id:string;name:string;date_in:string;due_date:string;priority:string;status:string;assigned_to:number|null;assigned_name?:string;created_name?:string;created_at:string;confirmed_at?:string;confirmed_name?:string;version:number};
 type User={id:number;name:string;email:string;role:string;active:boolean};
@@ -12,7 +13,6 @@ type Data={spaces:Space[];me:User;users:User[];jobs:Job[];activity:Activity[];de
 type Tab='overview'|'jobs'|'settings'|'production';
 type Filter='active'|'waiting'|'confirmed'|'completed'|'deleted';
 type Deadline='all'|'urgent'|'soon'|'overdue';
-const monthLabel=(value:string)=>new Intl.DateTimeFormat('en-MY',{month:'long',year:'numeric',timeZone:'Asia/Kuala_Lumpur'}).format(new Date(value+'-01T12:00:00+08:00'));
 // Detect static-only hosting before attempting to parse an HTML fallback as JSON.
 async function readApiJson<T>(response:Response,path:string):Promise<T>{
  const contentType=(response.headers.get('content-type')||'').toLowerCase();
@@ -32,12 +32,6 @@ function deviceHeaders(){
  if(!key||!/^[0-9a-f-]{36}$/i.test(key)){key=crypto.randomUUID?.()||'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const n=crypto.getRandomValues(new Uint8Array(1))[0]%16;return (c==='x'?n:(n&3|8)).toString(16)});localStorage.setItem('jobdesk-device-id',key)}
  return {'X-Jobdesk-Device':key,'X-Jobdesk-Actor':localStorage.getItem('jobdesk-device-user')||''};
 }
-const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-const day=(v:string)=>Math.round(Date.parse(v+'T00:00:00Z')/86400000);
-const due=(j:Job)=>day(j.due_date)-day(today());
-const add=(n:number)=>new Date((day(today())+n)*86400000).toISOString().slice(0,10);
-const date=(v:string,long=false)=>new Intl.DateTimeFormat('en-GB',{day:'numeric',month:long?'long':'short',...(long?{year:'numeric'}:{}),timeZone:'Asia/Kuala_Lumpur'}).format(new Date(v.length===10?v+'T12:00:00+08:00':v));
-const time=(v:string)=>new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kuala_Lumpur'}).format(new Date(v));
 const active=(j:Job)=>!['Completed','Cancelled','Deleted'].includes(j.status);
 const initials=(n:string)=>n.split(/\s+/).map(s=>s[0]).slice(0,2).join('').toUpperCase();
 const productionStages=['Review Files','Printing','Cutting','Sewing','Packing','Ready to Collect'];
