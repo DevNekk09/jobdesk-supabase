@@ -1,0 +1,27 @@
+{
+  "name": "jobdesk-supabase",
+  "version": "1.4.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node server.mjs",
+    "test:offline": "node --test tests/*.test.mjs",
+    "test:smoke": "node scripts/smoke-test.mjs",
+    "db:check": "node scripts/check-supabase.mjs"
+  },
+  "dependencies": {
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "vite": "8.0.13",
+    "@vitejs/plugin-react": "6.0.2",
+    "typescript": "5.9.3"
+  },
+  "main": "server.mjs"
+}
