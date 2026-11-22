@@ -32,7 +32,7 @@ Deno.serve(async request=>{
    if(!validDevice)return respond({error:'Device identity is required.'},400,origin);
    const body=await request.json().catch(()=>({}));
    const pin=String(body?.pin||'');
-   if(!/^\\d{6}$/.test(pin))return respond({error:'Enter the six-digit Admin PIN.'},400,origin);
+   if(!/^[0-9]{6}$/.test(pin))return respond({error:'Enter the six-digit Admin PIN.'},400,origin);
    const auth=await env.DB.prepare('SELECT extensions.crypt(?, pin_hash)=pin_hash AS valid,failed_attempts,locked_until FROM jobdesk.admin_auth WHERE id=true').bind(pin).first();
    if(!auth)return respond({error:'Admin PIN has not been configured.'},503,origin);
    if(auth.locked_until&&Date.parse(auth.locked_until)>Date.now())return respond({error:'Too many attempts. Admin unlock is temporarily locked for 15 minutes.'},429,origin);
