@@ -30,7 +30,7 @@ test('save and production animations only follow API success paths',()=>{
   assert.match(body,/catch\(e\)/);
  }
  assert.match(read('app/components/JobSaveFeedback.tsx'),/role="status" aria-live="polite" aria-atomic="true"/);
- assert.match(page,/job-save-feedback/);
+ assert.match(read('app/components/JobSaveFeedback.tsx'),/job-save-feedback/);
  assert.match(css,/@keyframes ksl-save-enter/);
  assert.match(css,/@keyframes ksl-check-draw/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
