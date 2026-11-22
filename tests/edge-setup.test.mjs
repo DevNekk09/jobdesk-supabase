@@ -12,11 +12,13 @@ test('Supabase Edge Function source committed with no server secrets',()=>{
  assert.doesNotMatch(code,/service_role|sb_secret_/);
 });
 test('GitHub Pages React client points to Supabase Edge API, not Hostinger',()=>{
- const p=read('app/page.tsx');
- assert.match(p,/functions\/v1\/jobdesk-api/);
- assert.match(p,/jobdesk-workspace-token/);
- assert.match(p,/fetch\(apiUrl\('/);
- assert.doesNotMatch(p,/Hostinger/);
+ const client=read('app/services/jobdesk-api.ts');
+ const page=read('app/page.tsx');
+ assert.match(client,/functions\/v1\/jobdesk-api/);
+ assert.match(client,/jobdesk-workspace-token/);
+ assert.match(client,/fetch\(apiUrl\(path\)/);
+ assert.match(page,/jobdeskRequest/);
+ assert.doesNotMatch(client,/Hostinger/);
 });
 test('Supabase database schema has no demo rows and private invitation hashes',()=>{
  const sql=read('supabase/schema.sql');
