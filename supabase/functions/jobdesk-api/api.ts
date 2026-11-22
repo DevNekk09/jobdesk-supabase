@@ -31,21 +31,23 @@ async function handler(req:Request){try{
   if(req.headers.get('origin')!==new URL(req.url).origin)fail('Request origin is not allowed.',403);
   if(!cookieToken||req.headers.get('x-csrf-token')!==cookieToken||cookieToken!==csrf)fail('Workspace check failed. Reload and try again.',403);
  }
- await db.prepare("INSERT INTO users(user_id,name,email,role,active,created_at) VALUES(NULL,'Shared team','shared-team@system.invalid','Admin',1,?) ON CONFLICT (email) DO NOTHING").bind(now()).run();
+ await db.prepare("INSERT INTO users(user_id,name,email,role,active,created_at) VALUES(NULL,'Admin','shared-team@system.invalid','Admin',1,?) ON CONFLICT (email) DO NOTHING").bind(now()).run();
  const shared=(await db.prepare("SELECT * FROM users WHERE email='shared-team@system.invalid'").first<Row>())!;
- const u:Row={...shared,role:'Admin'}; // Open test mode: access remains intentionally unrestricted.
  const actorId=Number(req.headers.get('x-jobdesk-actor')||'0');
- const acting:Row=Number.isSafeInteger(actorId)&&actorId>0?(await db.prepare("SELECT * FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid'").bind(actorId).first<Row>()||shared):shared;
+ const assigned:Row=Number.isSafeInteger(actorId)&&actorId>0?(await db.prepare("SELECT * FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid'").bind(actorId).first<Row>()||shared):shared;
+ const isAdmin=req.headers.get('x-edge-admin-verified')==='1';
+ const acting:Row=isAdmin?shared:assigned;
+ const u:Row=isAdmin?{...shared,name:'Admin',role:'Admin'}:assigned.id===shared.id?{...shared,name:'Guest',role:'Viewer'}:assigned;
  // Device IDs are browser-generated random UUIDs, not hardware fingerprints.
  const deviceId=req.headers.get('x-jobdesk-device')||'';
  const validDevice=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(deviceId);
 
- if(path==='/api/session'&&method==='GET')return testJson(req,{me:safe(acting),csrf,hosted:true,open_test:true},csrf);
+ if(path==='/api/session'&&method==='GET')return testJson(req,{me:safe(u),csrf,hosted:true,open_test:true},csrf);
  if(path==='/api/bootstrap'&&method==='GET'){
   // Blank workspace: never add sample job spaces, dummy users or sample jobs.
   if(validDevice&&acting.id!==shared.id)await db.prepare('UPDATE device_profiles SET last_seen=? WHERE device_key=? AND user_id=?').bind(now(),deviceId,acting.id).run();
   const [users,jobs,activity,spaces,devices]=await Promise.all([db.prepare("SELECT * FROM users WHERE deleted_at IS NULL AND email!='shared-team@system.invalid' ORDER BY active DESC,name").all<Row>(),db.prepare(selectJob+' ORDER BY j.due_date,j.id').all(),db.prepare('SELECT a.*,u.name AS user_name,j.name AS job_name FROM activity a JOIN users u ON u.id=a.user_id LEFT JOIN jobs j ON j.id=a.job_id ORDER BY a.id DESC LIMIT 100').all(),db.prepare('SELECT * FROM job_spaces ORDER BY sort_order,id').all(),db.prepare("SELECT d.device_key,d.device_label,d.user_id,d.last_seen,u.name AS user_name FROM device_profiles d JOIN users u ON u.id=d.user_id WHERE u.deleted_at IS NULL ORDER BY d.last_seen DESC LIMIT 100").all()]);
-  return testJson(req,{me:safe(acting),csrf,users:users.results.map(safe),jobs:jobs.results,activity:activity.results,spaces:spaces.results,devices:devices.results,device_key:validDevice?deviceId:'',hosted:true,open_test:true},csrf);
+  return testJson(req,{me:safe(u),csrf,users:users.results.map(safe),jobs:jobs.results,activity:activity.results,spaces:spaces.results,devices:devices.results,device_key:validDevice?deviceId:'',hosted:true,open_test:true},csrf);
  }
  if(path==='/api/device/clear'&&method==='POST'){
   if(!validDevice)fail('This browser needs a valid device ID.',400);
