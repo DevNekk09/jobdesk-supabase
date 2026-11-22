@@ -53,7 +53,7 @@ test('month-scoped Jobsheet still counts overdue jobs from all prior months',()=
  assert.match(api,/overdue_by_space:overdue\.results/);
  assert.match(api,/COALESCE\(j\.space_id,/);
  assert.match(page,/const overdueCount=month==='all'/);
- assert.match(page,/if\(d==='overdue'\)setMonth\('all'\)/);
+ assert.match(page,/if\(d==='overdue'\|\|d==='urgent'\|\|d==='soon'\)setMonth\('all'\)/);
  assert.equal((page.match(/label:'Overdue',value:overdueCount/g)||[]).length,2);
  assert.match(api,/near_deadline_by_space:nearDeadline\.results/);
  assert.match(api,/interval '3 days'/);
