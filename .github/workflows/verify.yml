@@ -31,6 +31,11 @@ jobs:
           node --check lib/database.mjs
           test -f dist/index.html
           test -d dist/assets
+      - name: Verify GitHub Pages production asset paths
+        run: |
+          npm run build:pages
+          grep -q '/jobdesk-supabase/assets/' dist/index.html
+          if grep -q '/frontend/main.tsx' dist/index.html; then echo 'Raw TSX in Pages bundle'; exit 1; fi
       - name: Offline repository tests
         run: npm run test:offline
 # No production Supabase credentials are used by CI.
