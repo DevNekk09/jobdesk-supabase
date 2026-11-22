@@ -75,7 +75,22 @@ CREATE TABLE IF NOT EXISTS jobdesk.workspace_access (
  created_at timestamptz NOT NULL DEFAULT now(),
  revoked_at timestamptz
 );
+-- Admin PIN hashes are provisioned privately and NEVER committed to GitHub.
+CREATE TABLE IF NOT EXISTS jobdesk.admin_auth (
+ id boolean PRIMARY KEY DEFAULT true,
+ pin_hash text NOT NULL,
+ failed_attempts integer NOT NULL DEFAULT 0,
+ locked_until timestamptz,
+ updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS jobdesk.admin_sessions (
+ token_hash text PRIMARY KEY,
+ device_key text NOT NULL,
+ created_at timestamptz NOT NULL DEFAULT now(),
+ expires_at timestamptz NOT NULL
+);
 REVOKE ALL ON ALL TABLES IN SCHEMA jobdesk FROM PUBLIC, anon, authenticated;
+
 CREATE INDEX IF NOT EXISTS jobs_due ON jobdesk.jobs(due_date,status);
 CREATE INDEX IF NOT EXISTS activity_job ON jobdesk.activity(job_id,id);
 CREATE INDEX IF NOT EXISTS device_profiles_member ON jobdesk.device_profiles(user_id);
