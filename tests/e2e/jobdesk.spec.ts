@@ -25,9 +25,9 @@ test('original green dock has three actions and saved branding is visible',async
 test('unchanged Admin PIN modal requires six-digit PIN and can be closed',async({page})=>{
  await page.locator('.device-switch').click();
  await expect(page.getByText('Enter Admin mode')).toBeVisible();
- await page.getByText('Enter Admin mode').click();
+ await page.locator('.admin-entry').click();
  await expect(page.getByRole('dialog')).toBeVisible();
- const pin=page.getByRole('textbox',{name:'Six-digit admin PIN'});
+ const pin=page.locator('input[aria-label="Six-digit admin PIN"]');
  await expect(pin).toBeVisible();
  await pin.fill('123');
  await expect(page.getByRole('button',{name:'Unlock Admin'})).toBeDisabled();
