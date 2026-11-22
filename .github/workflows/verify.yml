@@ -1,0 +1,30 @@
+name: Verify GitHub source
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build Node.js API and React frontend
+        run: npm run build
+      - name: Validate generated server files
+        run: |
+          node --check server.mjs
+          node --check api.mjs
+          node --check lib/database.mjs
+          test -f dist/index.html
+      - name: Run credential-free repository checks
+        run: npm run test:offline
+# Live Supabase integration tests are deliberately excluded from CI; do not put
+# a production DATABASE_URL in GitHub actions for this unauthenticated test app.
