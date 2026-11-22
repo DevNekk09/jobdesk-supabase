@@ -1,6 +1,6 @@
 {
   "name": "jobdesk-supabase",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "private": true,
   "type": "module",
   "engines": {
@@ -9,6 +9,7 @@
   "scripts": {
     "verify:source": "node scripts/check-source.mjs",
     "build": "node build.mjs",
+    "build:pages": "GITHUB_PAGES=true node build.mjs",
     "start": "node server.mjs",
     "test:offline": "node --test tests/*.test.mjs",
     "test:smoke": "node scripts/smoke-test.mjs",
