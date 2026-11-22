@@ -1,4 +1,4 @@
-name: Verify GitHub source
+name: Verify Jobdesk source
 on:
   push:
     branches: [main]
@@ -10,21 +10,27 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout full repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Check committed files and source paths
+        run: |
+          git ls-files --error-unmatch index.html frontend/main.tsx app/page.tsx app/globals.css api.ts server.mjs
+          npm run verify:source
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Build Node.js API and React frontend
+      - name: Build backend and frontend
         run: npm run build
-      - name: Validate generated server files
+      - name: Verify build output
         run: |
           node --check server.mjs
           node --check api.mjs
           node --check lib/database.mjs
           test -f dist/index.html
-      - name: Run credential-free repository checks
+          test -d dist/assets
+      - name: Offline repository tests
         run: npm run test:offline
-# Live Supabase integration tests are deliberately excluded from CI; do not put
-# a production DATABASE_URL in GitHub actions for this unauthenticated test app.
+# No production Supabase credentials are used by CI.
