@@ -35,7 +35,7 @@ async function handler(req:Request){try{
  const shared=(await db.prepare("SELECT * FROM users WHERE email='shared-team@system.invalid'").first<Row>())!;
  const actorId=Number(req.headers.get('x-jobdesk-actor')||'0');
  const assigned:Row=Number.isSafeInteger(actorId)&&actorId>0?(await db.prepare("SELECT * FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid' AND role IN ('Designer','Print','Sales')").bind(actorId).first<Row>()||shared):shared;
- const isAdmin=req.headers.get('x-edge-admin-verified')==='1';
+ const isAdmin=env.EDGE_TRUSTED_ACCESS===true&&req.headers.get('x-edge-admin-verified')==='1';
  const acting:Row=isAdmin?shared:assigned;
  const u:Row=isAdmin?{...shared,name:'Admin',role:'Admin'}:assigned.id===shared.id?{...shared,name:'Guest',role:'Viewer'}:assigned;
  // Device IDs are browser-generated random UUIDs, not hardware fingerprints.
