@@ -29,5 +29,9 @@ test('PIN is never embedded as plaintext in frontend or repository',()=>{
  for(const path of ['app/page.tsx','app/globals.css','supabase/functions/jobdesk-api/index.ts','supabase/functions/jobdesk-api/api.ts','supabase/schema.sql']){
    assert.doesNotMatch(src(path),/123456/);
  }
- assert.match(src('app/globals.css'),/HyperOS 4-inspired/);
+ const css=src('app/globals.css');
+ assert.doesNotMatch(css,/HyperOS 4-inspired/);
+ assert.match(css,/\.sidebar\{inset:16px auto 16px 16px/);
+ assert.match(css,/\.admin-pin-form/);
+ assert.match(css,/\.ksl-footer/);
 });
