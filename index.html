@@ -17,6 +17,35 @@ html,body{background:#f3f6f4;margin:0;font:14px Inter,"Segoe UI",Arial,sans-seri
 #root>[data-preboot] .boot-problem{display:none;margin-top:16px;color:#617564}
 @media(max-width:800px){#root>[data-preboot] aside{width:100%;padding:17px 20px;min-height:72px}#root>[data-preboot]{display:block}#root>[data-preboot] main{padding:26px 20px}#root>[data-preboot] .boot-brand img{width:38px;height:38px}#root>[data-preboot] .boot-brand strong{font-size:20px}}
 </style></head><body>
-<div id="root"><div data-preboot><aside><div class="boot-brand"><img src="%BASE_URL%icon.svg" alt=""><span><strong>Jobdesk</strong><small>KSL Job Management</small></span></div></aside><main><h1>Team overview</h1><p class="boot-problem">Unable to display Jobdesk. You can reload the page.</p><a class="boot-retry" href="">Reload Jobdesk</a></main></div></div>
+<div id="root"><div data-preboot><aside><div class="boot-brand"><img src="/jobdesk-supabase/icon.svg" alt=""><span><strong>Jobdesk</strong><small>KSL Job Management</small></span></div></aside><main><h1>Team overview</h1><p class="boot-problem">Unable to display Jobdesk. You can reload the page.</p><a class="boot-retry" href="">Reload Jobdesk</a></main></div></div>
 <script>setTimeout(function(){var b=document.querySelector('#root [data-preboot]');if(b){b.querySelector('.boot-problem').style.display='block';b.querySelector('.boot-retry').style.display='inline-block';}},12000);</script>
-<script type="module" src="/frontend/main.tsx"></script></body></html>
+<script type="module" src="/frontend/main.tsx"></script>
+<script>
+/* Legacy GitHub Pages branch publisher serves this uncompiled HTML.
+   Load the prebuilt Vite bundle when the original TSX module is still present.
+   Compiled Vite HTML rewrites the entry to /assets/... and skips this path. */
+(function () {
+  var entry = document.querySelector('script[type="module"][src="/frontend/main.tsx"]');
+  if (!entry) return;
+  var base = '/jobdesk-supabase/';
+  var logo = document.querySelector('[data-preboot] .boot-brand img');
+  if (logo) logo.src = base + 'icon.svg';
+  var style = document.createElement('link');
+  style.rel = 'stylesheet';
+  style.href = base + 'assets/jobdesk-compiled.css';
+  document.head.appendChild(style);
+  var bundle = document.createElement('script');
+  bundle.type = 'module';
+  bundle.src = base + 'assets/jobdesk-compiled.js';
+  bundle.onerror = function () {
+    var b = document.querySelector('#root [data-preboot]');
+    if (b) {
+      var msg = b.querySelector('.boot-problem'), action = b.querySelector('.boot-retry');
+      if (msg) { msg.textContent = 'Unable to load the application files. Please refresh Jobdesk.'; msg.style.display = 'block'; }
+      if (action) action.style.display = 'inline-block';
+    }
+  };
+  document.head.appendChild(bundle);
+})();
+</script>
+</body></html>

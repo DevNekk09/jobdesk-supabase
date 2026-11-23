@@ -4,7 +4,7 @@ on:
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 concurrency:
@@ -30,6 +30,18 @@ jobs:
           test -d dist/assets
           if grep -q '/frontend/main.tsx' dist/index.html; then echo 'Uncompiled TSX entry in output'; exit 1; fi
           grep -q '/jobdesk-supabase/assets/' dist/index.html
+      - name: Sync precompiled fallback for legacy branch Pages
+        run: |
+          mkdir -p assets
+          cp dist/assets/*.js assets/jobdesk-compiled.js
+          cp dist/assets/*.css assets/jobdesk-compiled.css
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/jobdesk-compiled.js assets/jobdesk-compiled.css
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(pages): publish compiled Jobdesk bundle [skip ci]"
+            git push origin HEAD:main
+          fi
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
