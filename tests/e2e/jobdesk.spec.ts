@@ -141,8 +141,8 @@ test('Admin can view archived jobs and prepare permanent deletion',async({page})
  await page.route('**/api/jobs/905',async route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({job:j,activity:[]})}));
  await page.reload();
  await page.getByRole('tab',{name:/Archived/}).click();
- await expect(page.getByRole('button',{name:'Archived sample job'})).toBeVisible();
- await page.getByRole('button',{name:'Archived sample job'}).click();
+ await expect(page.getByRole('button',{name:'Archived sample job',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Archived sample job',exact:true}).click();
  await expect(page.getByRole('button',{name:'Delete permanently'})).toBeVisible();
  await page.getByRole('button',{name:'Delete permanently'}).click();
  await expect(page.getByRole('dialog').last()).toContainText('cannot be undone');
