@@ -273,6 +273,8 @@ test('extended designer sidebar scrolls independently without overflowing viewpo
 });
 
 test('fast refresh guard does not make a duplicate bootstrap request on immediate focus',async({page})=>{
+ // Wait for the previous beforeEach navigation to finish before counting a fresh reload.
+ await expect(page.locator('nav.ksl-dock')).toBeVisible();
  let count=0;
  await page.route('**/api/bootstrap*',route=>{
   count++;
