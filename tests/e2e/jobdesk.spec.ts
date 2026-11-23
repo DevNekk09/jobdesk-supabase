@@ -147,3 +147,52 @@ test('Admin can view archived jobs and prepare permanent deletion',async({page})
  await page.getByRole('button',{name:'Delete permanently'}).click();
  await expect(page.getByRole('dialog').last()).toContainText('cannot be undone');
 });
+
+test('browser favicon matches sidebar icon and errors keep a left-aligned branded recovery screen',async({page})=>{
+ const favicon=await page.locator('link[rel="icon"]').getAttribute('href');
+ expect(favicon).toContain('icon.svg?v=206');
+ const sidebarIcon=await page.locator('.sidebar .brand-ksl img').getAttribute('src');
+ expect(sidebarIcon).toContain('icon.svg');
+ await page.route('**/api/bootstrap*',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'Temporary connection failure'})}));
+ await page.reload();
+ await expect(page.getByText('Could not open the workspace.')).toBeVisible();
+ await expect(page.getByText('KSL Job Management')).toBeVisible();
+ expect(await page.locator('.start-screen .brand-stack').evaluate(el=>getComputedStyle(el).textAlign)).toBe('left');
+ await expect(page.getByRole('button',{name:'Try again'})).toBeVisible();
+});
+
+test('missing client bundle displays the HTML opening screen, not a blank white page',async({page})=>{
+ await page.route('**/assets/*.js',route=>route.fulfill({status:404,body:'Missing bundle'}));
+ await page.reload();
+ await expect(page.locator('[data-preboot]')).toBeVisible();
+ await expect(page.locator('[data-preboot] .boot-brand')).toContainText('Jobdesk');
+ await expect(page.locator('[data-preboot] .boot-brand')).toContainText('KSL Job Management');
+});
+
+test('five confirmed jobs appear and no-match filters provide recovery',async({page})=>{
+ const jobs=Array.from({length:6},(_,i)=>({
+  id:501+i,invoice_id:'INV-2026-0050'+i,name:'Jobdesk item '+i,customer:'',contact:'',
+  date_in:'2026-11-20',due_date:'2026-11-27',priority:'Normal',
+  status:i===5?'Awaiting Sales':'Confirmed',assigned_to:22,space_id:200,
+  confirmed_at:i===5?null:'2026-11-21T02:00:00Z',
+  created_at:'2026-11-20T02:00:00Z',version:1
+ }));
+ await page.route('**/api/bootstrap*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+  ...emptyWorkspace,jobs,users:[{id:22,name:'Designer',role:'Designer',active:true}],
+  spaces:[{id:200,name:'Designer',owner_user_id:22,sort_order:1}]
+ })}));
+ await page.reload();
+ await page.getByRole('tab',{name:/Confirmed/}).click();
+ await expect(page.locator('.job-panel .job-link')).toHaveCount(5);
+ await page.getByRole('textbox',{name:'Search jobs'}).fill('no-such-job-9381');
+ await expect(page.getByText('No jobs match these filters.')).toBeVisible();
+ await page.getByRole('button',{name:'Show all jobs'}).click();
+ await expect(page.locator('.job-panel .job-link')).toHaveCount(6);
+});
+
+test('invalid job records show an actionable error instead of crashing to white',async({page})=>{
+ await page.route('**/api/bootstrap*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...emptyWorkspace,jobs:[{id:6,name:'Broken row',due_date:null}]})}));
+ await page.reload();
+ await expect(page.getByText('Could not open the workspace.')).toBeVisible();
+ await expect(page.getByText(/Some jobs returned incomplete data/)).toBeVisible();
+});
