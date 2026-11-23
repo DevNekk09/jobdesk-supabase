@@ -25,7 +25,7 @@ html,body{background:#f3f6f4;margin:0;font:14px Inter,"Segoe UI",Arial,sans-seri
    Load the prebuilt Vite bundle when the original TSX module is still present.
    Compiled Vite HTML rewrites the entry to /assets/... and skips this path. */
 (function () {
-  var entry = document.querySelector('script[type="module"][src="/frontend/main.tsx"]');
+  var entry = document.querySelector('script[type="module"][src="/frontend/" + "main.tsx"]');
   if (!entry) return;
   var base = '/jobdesk-supabase/';
   var logo = document.querySelector('[data-preboot] .boot-brand img');
