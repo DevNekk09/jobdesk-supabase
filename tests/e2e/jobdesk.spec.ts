@@ -65,3 +65,43 @@ test('Admin can generate a one-time staff invite without changing Admin PIN pane
  await expect(section.getByLabel('One-time staff invitation link')).toHaveValue(/staff=b{64}/);
  await expect(page.locator('.admin-pin-form')).toHaveCount(0);
 });
+
+
+test('Delete user removes their Jobdesk from sidebar while preserving other spaces',async({page})=>{
+ let removed=false;
+ const bob={id:22,name:'Removed Designer',role:'Designer',email:'member22@profiles.invalid',active:true};
+ const alice={id:33,name:'Active Designer',role:'Designer',email:'member33@profiles.invalid',active:true};
+ const removedDesk={id:200,name:'Removed Designer',owner_user_id:22,sort_order:1};
+ const activeDesk={id:300,name:'Active Designer',owner_user_id:33,sort_order:2};
+ const manualDesk={id:400,name:'General Projects',owner_user_id:null,sort_order:3};
+ await page.route('**/api/bootstrap*',async route=>{
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+    ...emptyWorkspace,
+    me:{...emptyWorkspace.me,name:'Admin',role:'Admin'},
+    users:removed?[alice]:[bob,alice],
+    spaces:removed?[activeDesk,manualDesk]:[removedDesk,activeDesk,manualDesk]
+  })});
+ });
+ await page.route('**/api/users/22/delete',async route=>{
+  expect(route.request().method()).toBe('POST');
+  removed=true;
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,archived_space_ids:[200]})});
+ });
+ await page.reload();
+ const mobileToggle=page.locator('.mobile-sidebar-toggle');
+ if(await mobileToggle.isVisible())await mobileToggle.click();
+ const nav=page.getByRole('navigation',{name:'Designer job spaces'});
+ await expect(nav.getByRole('button',{name:/Removed Designer/})).toBeVisible();
+ await expect(nav.getByRole('button',{name:/Active Designer/})).toBeVisible();
+ await expect(nav.getByRole('button',{name:/General Projects/})).toBeVisible();
+ await page.locator('.sidebar-settings').click();
+ await page.getByRole('tab',{name:/Team members/}).click();
+ await page.locator('.member').filter({hasText:'Removed Designer'}).getByRole('button',{name:'Manage user'}).click();
+ await page.getByRole('button',{name:'Delete user'}).click();
+ await page.getByRole('button',{name:'Confirm'}).click();
+ if(await mobileToggle.isVisible())await mobileToggle.click();
+ await expect(nav.getByRole('button',{name:/Removed Designer/})).toHaveCount(0);
+ await expect(nav.getByRole('button',{name:/Active Designer/})).toBeVisible();
+ await expect(nav.getByRole('button',{name:/General Projects/})).toBeVisible();
+ await expect(page.locator('.member').filter({hasText:'Removed Designer'})).toHaveCount(0);
+});
