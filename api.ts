@@ -33,11 +33,14 @@ async function handler(req:Request){try{
  }
  await db.prepare("INSERT INTO users(user_id,name,email,role,active,created_at) VALUES(NULL,'Admin','shared-team@system.invalid','Admin',1,?) ON CONFLICT (email) DO NOTHING").bind(now()).run();
  const shared=(await db.prepare("SELECT * FROM users WHERE email='shared-team@system.invalid'").first<Row>())!;
+ // Give public edits a real non-Admin system author, never falsely attribute them to Admin.
+ await db.prepare("INSERT INTO users(user_id,name,email,role,active,created_at) VALUES(NULL,'Team member','team-editor@system.invalid','Designer',1,?) ON CONFLICT (email) DO NOTHING").bind(now()).run();
+ const openEditor=(await db.prepare("SELECT * FROM users WHERE email='team-editor@system.invalid'").first<Row>())!;
  const actorId=Number(env.EDGE_TRUSTED_ACCESS===true?req.headers.get('x-edge-staff-user')||'0':'0');
- const assigned:Row=Number.isSafeInteger(actorId)&&actorId>0?(await db.prepare("SELECT * FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid' AND role IN ('Designer','Print','Sales')").bind(actorId).first<Row>()||shared):shared;
+ const assigned:Row=Number.isSafeInteger(actorId)&&actorId>0?(await db.prepare("SELECT * FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email NOT IN ('shared-team@system.invalid','team-editor@system.invalid') AND role IN ('Designer','Print','Sales')").bind(actorId).first<Row>()||openEditor):openEditor;
  const isAdmin=env.EDGE_TRUSTED_ACCESS===true&&req.headers.get('x-edge-admin-verified')==='1';
  const acting:Row=isAdmin?shared:assigned;
- const u:Row=isAdmin?{...shared,name:'Admin',role:'Admin'}:{...assigned,name:assigned.id===shared.id?'Team member':assigned.name,role:'Designer'};
+ const u:Row=isAdmin?{...shared,name:'Admin',role:'Admin'}:{...assigned,role:'Designer'};
  // Device IDs are browser-generated random UUIDs, not hardware fingerprints.
  const deviceId=req.headers.get('x-jobdesk-device')||'';
  const validDevice=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(deviceId);
@@ -56,7 +59,7 @@ async function handler(req:Request){try{
   // No demo jobs, users, or workspace seeds.
   if(validDevice&&acting.id!==shared.id)await db.prepare('UPDATE device_profiles SET last_seen=? WHERE device_key=? AND user_id=?').bind(now(),deviceId,acting.id).run();
   const [users,jobs,activity,spaces,devices,months,overdue,nearDeadline]=await Promise.all([
-   db.prepare("SELECT * FROM users WHERE deleted_at IS NULL AND email!='shared-team@system.invalid' ORDER BY active DESC,name").all<Row>(),
+   db.prepare("SELECT * FROM users WHERE deleted_at IS NULL AND email NOT IN ('shared-team@system.invalid','team-editor@system.invalid') ORDER BY active DESC,name").all<Row>(),
    jobQuery.all(),
    db.prepare('SELECT a.*,u.name AS user_name,j.name AS job_name FROM activity a JOIN users u ON u.id=a.user_id LEFT JOIN jobs j ON j.id=a.job_id ORDER BY a.id DESC LIMIT 100').all(),
    db.prepare('SELECT * FROM job_spaces WHERE archived_at IS NULL ORDER BY sort_order,id').all(),
@@ -77,7 +80,7 @@ async function handler(req:Request){try{
   role(u,['Admin','Designer','Print','Sales']);
   if(!validDevice)fail('This browser needs a valid device ID.',400);
   const b=await data(req),label=str(b.label,'Device name',60,true);
-  const member=await db.prepare("SELECT id FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid'").bind(Number(b.user_id)).first<Row>();
+  const member=await db.prepare("SELECT id FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email NOT IN ('shared-team@system.invalid','team-editor@system.invalid')").bind(Number(b.user_id)).first<Row>();
   if(!member)fail('Choose an active member before saving this device.',400);
   // Public team identity is optional; selecting a name does not grant Admin powers.
   await db.prepare('INSERT INTO device_profiles(device_key,device_label,user_id,last_seen,created_at) VALUES(?,?,?,?,?) ON CONFLICT(device_key) DO UPDATE SET device_label=excluded.device_label,user_id=excluded.user_id,last_seen=excluded.last_seen').bind(deviceId,label,member.id,now(),now()).run();
