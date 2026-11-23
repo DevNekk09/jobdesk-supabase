@@ -191,3 +191,14 @@ html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="of
 .start-screen .load-failure>p{max-width:100%;overflow-wrap:anywhere}
 .start-screen .load-failure .btn{align-self:flex-start}
 .job-panel .panel-title .row-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+
+/* V2.0.7: no opening screen, no loader or animated spinner. */
+.initial-workspace{display:flex;min-height:100dvh;background:#f3f6f4;color:#20362a}
+.initial-workspace-side{width:268px;flex-shrink:0;background:#192a25;color:#fff;padding:35px 22px}
+.initial-workspace-side .brand-ksl{justify-content:flex-start;align-items:center}
+.initial-workspace-side .brand-ksl img{width:44px;height:44px;flex-shrink:0;border-radius:11px}
+.initial-workspace-side .brand-stack strong{color:#fff;font-size:1.45rem}
+.initial-workspace-side .brand-stack small{color:#b9c7b7;font-size:.68rem}
+.initial-workspace-main{flex:1;padding:44px 36px}
+.initial-workspace-header h1{margin:0;font-size:1.75rem;letter-spacing:-.7px}
+@media(max-width:800px){.initial-workspace{display:block}.initial-workspace-side{width:100%;padding:17px 20px;min-height:72px}.initial-workspace-side .brand-ksl img{width:38px;height:38px}.initial-workspace-side .brand-stack strong{font-size:1.2rem}.initial-workspace-main{padding:26px 20px}}

@@ -161,12 +161,14 @@ test('browser favicon matches sidebar icon and errors keep a left-aligned brande
  await expect(page.getByRole('button',{name:'Try again'})).toBeVisible();
 });
 
-test('missing client bundle displays the HTML opening screen, not a blank white page',async({page})=>{
+test('missing client bundle displays the static workspace shell, not a blank white page',async({page})=>{
  await page.route('**/assets/*.js',route=>route.fulfill({status:404,body:'Missing bundle'}));
  await page.reload();
  await expect(page.locator('[data-preboot]')).toBeVisible();
  await expect(page.locator('[data-preboot] .boot-brand')).toContainText('Jobdesk');
  await expect(page.locator('[data-preboot] .boot-brand')).toContainText('KSL Job Management');
+ await expect(page.locator('[data-preboot] h1')).toHaveText('Team overview');
+ await expect(page.locator('[data-preboot] .boot-ring')).toHaveCount(0);
 });
 
 test('five confirmed jobs appear and no-match filters provide recovery',async({page})=>{
@@ -195,4 +197,17 @@ test('invalid job records show an actionable error instead of crashing to white'
  await page.reload();
  await expect(page.getByText('Could not open the workspace.')).toBeVisible();
  await expect(page.getByText(/Some jobs returned incomplete data/)).toBeVisible();
+});
+
+test('the initial workspace has no splash, opening message, or spinner',async({page})=>{
+ await page.route('**/api/bootstrap*',async route=>{
+  await new Promise(resolve=>setTimeout(resolve,1800));
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(emptyWorkspace)});
+ });
+ await page.reload();
+ await expect(page.getByRole('heading',{name:'Team overview'})).toBeVisible();
+ await expect(page.locator('.start-screen .loader')).toHaveCount(0);
+ await expect(page.getByText('Opening your workspace…')).toHaveCount(0);
+ await expect(page.locator('.boot-ring')).toHaveCount(0);
+ await expect(page.locator('nav.ksl-dock')).toBeVisible();
 });

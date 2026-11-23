@@ -3,20 +3,20 @@
 <meta name="theme-color" content="#1f332b"><title>Jobdesk · Shared Team Workspace</title>
 <link rel="icon" type="image/svg+xml" href="%BASE_URL%icon.svg?v=206"/>
 <style>
-html{background:#f3f6f4}
-#root>[data-preboot]{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;font:500 14px Inter,"Segoe UI",Arial,sans-serif;color:#293a2b}
-#root>[data-preboot] .boot-card{width:min(340px,100%);display:flex;flex-direction:column;gap:18px}
-#root>[data-preboot] .boot-brand{display:flex;align-items:center;gap:13px;text-align:left;justify-content:flex-start}
-#root>[data-preboot] .boot-brand img{width:52px;height:52px;border-radius:14px}
+html,body{background:#f3f6f4;margin:0;font:14px Inter,"Segoe UI",Arial,sans-serif;color:#20362a}
+#root>[data-preboot]{display:flex;min-height:100dvh}
+#root>[data-preboot] aside{box-sizing:border-box;width:268px;flex-shrink:0;background:#192a25;color:#fff;padding:35px 22px}
+#root>[data-preboot] .boot-brand{display:flex;align-items:center;gap:12px}
+#root>[data-preboot] .boot-brand img{width:44px;height:44px;border-radius:11px}
 #root>[data-preboot] .boot-brand span{display:flex;flex-direction:column;gap:5px}
-#root>[data-preboot] .boot-brand strong{font-size:25px;line-height:1.1;font-weight:750;letter-spacing:-.7px}
-#root>[data-preboot] .boot-brand small{color:#667a62;font-size:12px}
-#root>[data-preboot] .boot-status{display:flex;align-items:center;gap:12px;color:#667a62}
-#root>[data-preboot] .boot-ring{width:22px;height:22px;flex:none;border:2px solid #d9e8cf;border-top-color:#79aa36;border-radius:50%;animation:boot-spin .8s linear infinite}
-#root>[data-preboot] .boot-retry{display:none;color:#416b2c;text-decoration:underline;align-self:flex-start}
-@keyframes boot-spin{to{transform:rotate(360deg)}}
-@media(prefers-reduced-motion:reduce){#root>[data-preboot] .boot-ring{animation:none}}
+#root>[data-preboot] .boot-brand strong{font-size:24px;line-height:1}
+#root>[data-preboot] .boot-brand small{font-size:11px;color:#b9c7b7}
+#root>[data-preboot] main{padding:44px 36px;flex:1}
+#root>[data-preboot] h1{font-size:28px;letter-spacing:-.7px;margin:0}
+#root>[data-preboot] .boot-retry{display:none;margin-top:24px;color:#416b2c;font-weight:600}
+#root>[data-preboot] .boot-problem{display:none;margin-top:16px;color:#617564}
+@media(max-width:800px){#root>[data-preboot] aside{width:100%;padding:17px 20px;min-height:72px}#root>[data-preboot]{display:block}#root>[data-preboot] main{padding:26px 20px}#root>[data-preboot] .boot-brand img{width:38px;height:38px}#root>[data-preboot] .boot-brand strong{font-size:20px}}
 </style></head><body>
-<div id="root"><div data-preboot aria-live="polite"><div class="boot-card"><div class="boot-brand"><img src="%BASE_URL%icon.svg" alt=""><span><strong>Jobdesk</strong><small>KSL Job Management</small></span></div><div class="boot-status"><i class="boot-ring"></i><span>Opening your workspace…</span></div><a class="boot-retry" href="">Reload Jobdesk</a></div></div></div>
-<script>setTimeout(function(){var b=document.querySelector('#root [data-preboot]');if(b){b.querySelector('.boot-status span').textContent='The page is taking longer than expected.';b.querySelector('.boot-retry').style.display='inline';}},12000);</script>
+<div id="root"><div data-preboot><aside><div class="boot-brand"><img src="%BASE_URL%icon.svg" alt=""><span><strong>Jobdesk</strong><small>KSL Job Management</small></span></div></aside><main><h1>Team overview</h1><p class="boot-problem">Unable to display Jobdesk. You can reload the page.</p><a class="boot-retry" href="">Reload Jobdesk</a></main></div></div>
+<script>setTimeout(function(){var b=document.querySelector('#root [data-preboot]');if(b){b.querySelector('.boot-problem').style.display='block';b.querySelector('.boot-retry').style.display='inline-block';}},12000);</script>
 <script type="module" src="/frontend/main.tsx"></script></body></html>
