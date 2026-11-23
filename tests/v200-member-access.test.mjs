@@ -14,7 +14,9 @@ test('Normal GitHub Pages URL grants access to a common editable workspace',()=>
  assert.doesNotMatch(page,/v2-staff-invites|Generate link|revokeStaffAccess/);
  assert.match(edge,/verifiedHeaders\.delete\('x-edge-staff-user'\)/);
  assert.match(edge,/if\(Number\.isSafeInteger\(actorId\)&&actorId>0\)verifiedHeaders\.set\('x-edge-staff-user',String\(actorId\)\)/);
- assert.match(api,/name:assigned\.id===shared\.id\?'Team member':assigned\.name,role:'Designer'/);
+ assert.match(api,/const openEditor=/);
+ assert.match(api,/const u:Row=isAdmin\?\{\.\.\.shared,name:'Admin',role:'Admin'\}:\{\.\.\.assigned,role:'Designer'\}/);
+ assert.match(api,/team-editor@system\.invalid/);
  assert.match(page,/Everyone can view and edit shared jobs/);
 });
 test('Shared team identity never escalates to Admin without the existing PIN',()=>{
