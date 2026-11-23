@@ -4,7 +4,7 @@ import Icon from './components/Icon';
 import QuickDock from './components/QuickDock';
 import JobSaveFeedback, {type SaveFeedbackState} from './components/JobSaveFeedback';
 import {today,day,due,add,date,time,monthLabel} from './lib/dates';
-import {jobdeskRequest,publicBase} from './services/jobdesk-api';
+import {jobdeskRequest,publicBase,pagesOnly} from './services/jobdesk-api';
 type Space={id:number;name:string;owner_user_id:number|null;sort_order:number;archived_at?:string|null};
 type Job={production_status?:string|null;production_updated_at?:string|null;deleted_from_status?:string;space_id?:number|null;resolved_space_id?:number|null;space_name?:string;id:number;invoice_id:string;name:string;date_in:string;due_date:string;priority:string;status:string;assigned_to:number|null;assigned_name?:string;created_name?:string;created_at:string;confirmed_at?:string;confirmed_name?:string;version:number};
 type User={id:number;name:string;email:string;role:string;active:boolean};
