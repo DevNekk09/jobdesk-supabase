@@ -150,7 +150,7 @@ test('Admin can view archived jobs and prepare permanent deletion',async({page})
 
 test('browser favicon matches sidebar icon and errors keep a left-aligned branded recovery screen',async({page})=>{
  const favicon=await page.locator('link[rel="icon"]').getAttribute('href');
- expect(favicon).toContain('icon.svg?v=206');
+ expect(favicon).toContain('icon.svg?v=211');
  const sidebarIcon=await page.locator('.sidebar .brand-ksl img').getAttribute('src');
  expect(sidebarIcon).toContain('icon.svg');
  await page.route('**/api/bootstrap*',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'Temporary connection failure'})}));

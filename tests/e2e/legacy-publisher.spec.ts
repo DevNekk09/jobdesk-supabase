@@ -12,8 +12,8 @@ test('legacy GitHub Pages Jekyll publisher boots the real React UI instead of an
  const stylesheet=readFileSync(path('assets/jobdesk-compiled.css'));
  const icon=readFileSync(path('icon.svg'));
  await page.route('**/jobdesk-supabase/',route=>route.fulfill({status:200,contentType:'text/html',body:rawHtml}));
- await page.route('**/jobdesk-supabase/assets/jobdesk-compiled.js',route=>route.fulfill({status:200,contentType:'application/javascript',body:bundle}));
- await page.route('**/jobdesk-supabase/assets/jobdesk-compiled.css',route=>route.fulfill({status:200,contentType:'text/css',body:stylesheet}));
+ await page.route('**/jobdesk-supabase/assets/jobdesk-compiled.js*',route=>route.fulfill({status:200,contentType:'application/javascript',body:bundle}));
+ await page.route('**/jobdesk-supabase/assets/jobdesk-compiled.css*',route=>route.fulfill({status:200,contentType:'text/css',body:stylesheet}));
  await page.route('**/jobdesk-supabase/icon.svg',route=>route.fulfill({status:200,contentType:'image/svg+xml',body:icon}));
  await page.route('**/frontend/main.tsx',route=>route.fulfill({status:404,contentType:'text/plain',body:'Not Found'}));
  await page.route('**/api/bootstrap*',route=>route.fulfill({
