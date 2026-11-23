@@ -31,11 +31,13 @@ async function handler(req:Request){try{
   if(req.headers.get('origin')!==new URL(req.url).origin)fail('Request origin is not allowed.',403);
   if(!cookieToken||req.headers.get('x-csrf-token')!==cookieToken||cookieToken!==csrf)fail('Workspace check failed. Reload and try again.',403);
  }
- await db.prepare("INSERT INTO users(user_id,name,email,role,active,created_at) VALUES(NULL,'Admin','shared-team@system.invalid','Admin',1,?) ON CONFLICT (email) DO NOTHING").bind(now()).run();
- const shared=(await db.prepare("SELECT * FROM users WHERE email='shared-team@system.invalid'").first<Row>())!;
- // Give public edits a real non-Admin system author, never falsely attribute them to Admin.
- await db.prepare("INSERT INTO users(user_id,name,email,role,active,created_at) VALUES(NULL,'Team member','team-editor@system.invalid','Designer',1,?) ON CONFLICT (email) DO NOTHING").bind(now()).run();
- const openEditor=(await db.prepare("SELECT * FROM users WHERE email='team-editor@system.invalid'").first<Row>())!;
+ // Initialize both reserved identities in one SQL round trip instead of two.
+ await db.prepare("INSERT INTO users(user_id,name,email,role,active,created_at) VALUES(NULL,'Admin','shared-team@system.invalid','Admin',1,?),(NULL,'Team member','team-editor@system.invalid','Designer',1,?) ON CONFLICT (email) DO NOTHING").bind(now(),now()).run();
+ const systemUsers=(await db.prepare("SELECT * FROM users WHERE email IN ('shared-team@system.invalid','team-editor@system.invalid')").all<Row>()).results;
+ const shared=systemUsers.find(row=>row.email==='shared-team@system.invalid');
+ // Public edits use the non-Admin identity; original Admin PIN rules remain unchanged.
+ const openEditor=systemUsers.find(row=>row.email==='team-editor@system.invalid');
+ if(!shared||!openEditor)fail('Shared system identities are unavailable.',503);
  const actorId=Number(env.EDGE_TRUSTED_ACCESS===true?req.headers.get('x-edge-staff-user')||'0':'0');
  const assigned:Row=Number.isSafeInteger(actorId)&&actorId>0?(await db.prepare("SELECT * FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email NOT IN ('shared-team@system.invalid','team-editor@system.invalid') AND role IN ('Designer','Print','Sales')").bind(actorId).first<Row>()||openEditor):openEditor;
  const isAdmin=env.EDGE_TRUSTED_ACCESS===true&&req.headers.get('x-edge-admin-verified')==='1';

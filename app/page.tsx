@@ -59,6 +59,7 @@ export default function Home(){
  const [saveFeedback,setSaveFeedback]=useState<SaveFeedbackState|null>(null);
  const saveFeedbackSequence=useRef(0);
  const loadSequence=useRef(0);
+  const lastSuccessfulLoad=useRef(0);
  const dataRef=useRef(data);useEffect(()=>{dataRef.current=data},[data]);
  useEffect(()=>{if(data&&space!=='all'&&!data.spaces.some(d=>d.id===space)){setSpace('all');setTab(t=>t==='settings'||t==='production'?t:'overview')}},[data,space]);
  useEffect(()=>{if(!saveFeedback)return;const t=window.setTimeout(()=>setSaveFeedback(null),3700);return()=>window.clearTimeout(t)},[saveFeedback]);
@@ -73,6 +74,7 @@ export default function Home(){
    if(!Array.isArray(b.users)||!Array.isArray(b.jobs)||!Array.isArray(b.spaces))throw Error('Supabase returned an unexpected Jobdesk response.');
     if(b.jobs.some(j=>!j||!Number.isInteger(j.id)||typeof j.name!=='string'||typeof j.status!=='string'||typeof j.due_date!=='string'||typeof j.date_in!=='string'))throw Error('Some jobs returned incomplete data. Please refresh and try again.');
    setData({...b,spaces:b.spaces||[]});
+    lastSuccessfulLoad.current=Date.now();
    setError('');setSyncWarning('');
    return true;
   }catch(e){
@@ -92,7 +94,7 @@ export default function Home(){
    window.history.replaceState(null,'',publicBase);
   void load();
  },[load]);
- useEffect(()=>{const refresh=()=>{if(document.visibilityState==='visible'&&!document.querySelector('[role="dialog"]'))load()};const id=setInterval(refresh,60000);document.addEventListener('visibilitychange',refresh);return()=>{clearInterval(id);document.removeEventListener('visibilitychange',refresh)}},[load]);
+ useEffect(()=>{const refresh=()=>{if(document.visibilityState==='visible'&&!document.querySelector('[role="dialog"]')&&Date.now()-lastSuccessfulLoad.current>=30000)void load()};const id=setInterval(refresh,60000);document.addEventListener('visibilitychange',refresh);return()=>{clearInterval(id);document.removeEventListener('visibilitychange',refresh)}},[load]);
  async function useDeviceProfile(id:number){
   const member=data?.users.find(u=>u.id===id&&u.active);
   if(!member)throw Error('Choose an active team member.');

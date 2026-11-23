@@ -271,3 +271,19 @@ test('extended designer sidebar scrolls independently without overflowing viewpo
  const pageWidth=await page.evaluate(()=>[document.documentElement.scrollWidth,window.innerWidth]);
  expect(pageWidth[0]).toBeLessThanOrEqual(pageWidth[1]+1);
 });
+
+test('fast refresh guard does not make a duplicate bootstrap request on immediate focus',async({page})=>{
+ let count=0;
+ await page.route('**/api/bootstrap*',route=>{
+  count++;
+  return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(emptyWorkspace)});
+ });
+ await page.reload();
+ await expect(page.locator('nav.ksl-dock')).toBeVisible();
+ expect(count).toBe(1);
+ await page.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));
+ await page.waitForTimeout(150);
+ expect(count).toBe(1);
+ await page.getByRole('button',{name:'Refresh jobs'}).click();
+ await expect.poll(()=>count).toBe(2);
+});

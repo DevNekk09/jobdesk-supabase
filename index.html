@@ -1,7 +1,10 @@
 <!doctype html><html lang="en"><head>
 <meta name="referrer" content="no-referrer"/><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#1f332b"><title>Jobdesk · Shared Team Workspace</title>
-<link rel="icon" type="image/svg+xml" href="%BASE_URL%icon.svg?v=206"/>
+<meta name="theme-color" content="#1f332b">
+<link rel="dns-prefetch" href="//vsvlutqagtkdtrowaked.supabase.co">
+<link rel="preconnect" href="https://vsvlutqagtkdtrowaked.supabase.co" crossorigin>
+<title>Jobdesk · Shared Team Workspace</title>
+<link rel="icon" type="image/svg+xml" href="%BASE_URL%icon.svg?v=211"/>
 <style>
 html,body{background:#f3f6f4;margin:0;min-height:100%;color:#20362a;font-family:Inter,"Segoe UI",Arial,sans-serif}
 #root{min-height:100dvh}
@@ -46,14 +49,14 @@ html,body{background:#f3f6f4;margin:0;min-height:100%;color:#20362a;font-family:
   if (!entry) return;
   var base = '/jobdesk-supabase/';
   var favicon = document.querySelector('link[rel="icon"]');
-  if (favicon) favicon.href = base + 'icon.svg?v=209';
+  if (favicon) favicon.href = base + 'icon.svg?v=211';
   var style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = base + 'assets/jobdesk-compiled.css';
+  style.href = base + 'assets/jobdesk-compiled.css?v=211';
   document.head.appendChild(style);
   var bundle = document.createElement('script');
   bundle.type = 'module';
-  bundle.src = base + 'assets/jobdesk-compiled.js';
+  bundle.src = base + 'assets/jobdesk-compiled.js?v=211';
   bundle.onerror = function () {
     if(typeof window.showJobdeskBootFailure==='function') window.showJobdeskBootFailure();
   };
