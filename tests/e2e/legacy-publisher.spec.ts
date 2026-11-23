@@ -28,6 +28,7 @@ test('legacy GitHub Pages Jekyll publisher boots the real React UI instead of an
  await page.goto('/jobdesk-supabase/');
  await expect(page.locator('nav.ksl-dock')).toBeVisible({timeout:12000});
  await expect(page.locator('[data-preboot]')).toHaveCount(0);
+ await expect(page.locator('.initial-workspace')).toHaveCount(0);
  await expect(page.locator('.sidebar .brand')).toContainText('Jobdesk');
  await expect(page.locator('.sidebar .brand-stack small')).toHaveText('KSL Team Job Management');
  await expect(page.locator('.sidebar .brand img')).toHaveJSProperty('complete',true);

@@ -3,22 +3,37 @@
 <meta name="theme-color" content="#1f332b"><title>Jobdesk · Shared Team Workspace</title>
 <link rel="icon" type="image/svg+xml" href="%BASE_URL%icon.svg?v=206"/>
 <style>
-html,body{background:#f3f6f4;margin:0;font:14px Inter,"Segoe UI",Arial,sans-serif;color:#20362a}
-#root>[data-preboot]{display:flex;min-height:100dvh}
-#root>[data-preboot] aside{box-sizing:border-box;width:268px;flex-shrink:0;background:#192a25;color:#fff;padding:35px 22px}
-#root>[data-preboot] .boot-brand{display:flex;align-items:center;gap:12px}
-#root>[data-preboot] .boot-brand img{width:44px;height:44px;border-radius:11px}
-#root>[data-preboot] .boot-brand span{display:flex;flex-direction:column;gap:5px}
-#root>[data-preboot] .boot-brand strong{font-size:24px;line-height:1}
-#root>[data-preboot] .boot-brand small{font-size:11px;color:#b9c7b7}
-#root>[data-preboot] main{padding:44px 36px;flex:1}
-#root>[data-preboot] h1{font-size:28px;letter-spacing:-.7px;margin:0}
-#root>[data-preboot] .boot-retry{display:none;margin-top:24px;color:#416b2c;font-weight:600}
-#root>[data-preboot] .boot-problem{display:none;margin-top:16px;color:#617564}
-@media(max-width:800px){#root>[data-preboot] aside{width:100%;padding:17px 20px;min-height:72px}#root>[data-preboot]{display:block}#root>[data-preboot] main{padding:26px 20px}#root>[data-preboot] .boot-brand img{width:38px;height:38px}#root>[data-preboot] .boot-brand strong{font-size:20px}}
+html,body{background:#f3f6f4;margin:0;min-height:100%;color:#20362a;font-family:Inter,"Segoe UI",Arial,sans-serif}
+#root{min-height:100dvh}
+.boot-failure{box-sizing:border-box;max-width:480px;margin:0 auto;padding:15vh 25px 40px}
+.boot-failure h1{font-size:22px;line-height:1.3;color:#20362a;margin:0 0 12px}
+.boot-failure p{font-size:14px;line-height:1.7;color:#617564}
+.boot-failure a{display:inline-flex;margin-top:15px;min-height:44px;align-items:center;padding:0 20px;border-radius:10px;background:#83b835;color:#172820;font-weight:700;text-decoration:none}
 </style></head><body>
-<div id="root"><div data-preboot><aside><div class="boot-brand"><img src="/jobdesk-supabase/icon.svg" alt=""><span><strong>Jobdesk</strong><small>KSL Job Management</small></span></div></aside><main><h1>Team overview</h1><p class="boot-problem">Unable to display Jobdesk. You can reload the page.</p><a class="boot-retry" href="">Reload Jobdesk</a></main></div></div>
-<script>setTimeout(function(){var b=document.querySelector('#root [data-preboot]');if(b){b.querySelector('.boot-problem').style.display='block';b.querySelector('.boot-retry').style.display='inline-block';}},12000);</script>
+<div id="root"></div>
+<script>
+(function(){
+  function showFailure(){
+    if(document.documentElement.dataset.jobdeskBooted==='true')return;
+    var root=document.getElementById('root');
+    if(!root || root.childElementCount) return;
+    var panel=document.createElement('main');
+    panel.className='boot-failure';
+    panel.setAttribute('role','alert');
+    var heading=document.createElement('h1');
+    heading.textContent='Jobdesk could not start.';
+    var body=document.createElement('p');
+    body.textContent='The application files could not be loaded. Please reload the page to try again.';
+    var link=document.createElement('a');
+    link.href=location.href;
+    link.textContent='Reload Jobdesk';
+    panel.append(heading,body,link);
+    root.appendChild(panel);
+  }
+  window.showJobdeskBootFailure=showFailure;
+  setTimeout(showFailure,12000);
+})();
+</script>
 <script type="module" src="/frontend/main.tsx"></script>
 <script>
 /* Legacy GitHub Pages branch publisher serves this uncompiled HTML.
@@ -32,8 +47,6 @@ html,body{background:#f3f6f4;margin:0;font:14px Inter,"Segoe UI",Arial,sans-seri
   var base = '/jobdesk-supabase/';
   var favicon = document.querySelector('link[rel="icon"]');
   if (favicon) favicon.href = base + 'icon.svg?v=209';
-  var logo = document.querySelector('[data-preboot] .boot-brand img');
-  if (logo) logo.src = base + 'icon.svg';
   var style = document.createElement('link');
   style.rel = 'stylesheet';
   style.href = base + 'assets/jobdesk-compiled.css';
@@ -42,12 +55,7 @@ html,body{background:#f3f6f4;margin:0;font:14px Inter,"Segoe UI",Arial,sans-seri
   bundle.type = 'module';
   bundle.src = base + 'assets/jobdesk-compiled.js';
   bundle.onerror = function () {
-    var b = document.querySelector('#root [data-preboot]');
-    if (b) {
-      var msg = b.querySelector('.boot-problem'), action = b.querySelector('.boot-retry');
-      if (msg) { msg.textContent = 'Unable to load the application files. Please refresh Jobdesk.'; msg.style.display = 'block'; }
-      if (action) action.style.display = 'inline-block';
-    }
+    if(typeof window.showJobdeskBootFailure==='function') window.showJobdeskBootFailure();
   };
   document.head.appendChild(bundle);
 })();

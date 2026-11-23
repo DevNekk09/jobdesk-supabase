@@ -161,14 +161,16 @@ test('browser favicon matches sidebar icon and errors keep a left-aligned brande
  await expect(page.getByRole('button',{name:'Try again'})).toBeVisible();
 });
 
-test('missing client bundle displays the static workspace shell, not a blank white page',async({page})=>{
+test('missing client bundle shows recovery only after a failed start, never a fake workspace',async({page})=>{
+ await page.clock.install();
  await page.route('**/assets/*.js',route=>route.fulfill({status:404,body:'Missing bundle'}));
  await page.reload();
- await expect(page.locator('[data-preboot]')).toBeVisible();
- await expect(page.locator('[data-preboot] .boot-brand')).toContainText('Jobdesk');
- await expect(page.locator('[data-preboot] .boot-brand')).toContainText('KSL Job Management');
- await expect(page.locator('[data-preboot] h1')).toHaveText('Team overview');
- await expect(page.locator('[data-preboot] .boot-ring')).toHaveCount(0);
+ await expect(page.locator('[data-preboot]')).toHaveCount(0);
+ await expect(page.getByRole('heading',{name:'Team overview'})).toHaveCount(0);
+ await expect(page.getByText('Opening your workspace…')).toHaveCount(0);
+ await page.clock.fastForward(12500);
+ await expect(page.getByRole('heading',{name:'Jobdesk could not start.'})).toBeVisible();
+ await expect(page.getByRole('link',{name:'Reload Jobdesk'})).toBeVisible();
 });
 
 test('five confirmed jobs appear and no-match filters provide recovery',async({page})=>{
@@ -205,9 +207,11 @@ test('the initial workspace has no splash, opening message, or spinner',async({p
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(emptyWorkspace)});
  });
  await page.reload();
- await expect(page.getByRole('heading',{name:'Team overview'})).toBeVisible();
- await expect(page.locator('.start-screen .loader')).toHaveCount(0);
+ await expect(page.locator('[data-preboot]')).toHaveCount(0);
+ await expect(page.getByRole('heading',{name:'Team overview'})).toHaveCount(0);
  await expect(page.getByText('Opening your workspace…')).toHaveCount(0);
- await expect(page.locator('.boot-ring')).toHaveCount(0);
- await expect(page.locator('nav.ksl-dock')).toBeVisible();
+ await expect(page.locator('.initial-workspace')).toHaveCount(0);
+ await expect(page.locator('.loader')).toHaveCount(0);
+ await expect(page.locator('nav.ksl-dock')).toBeVisible({timeout:12000});
+ await expect(page.getByRole('heading',{name:'Team overview'})).toBeVisible();
 });
