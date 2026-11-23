@@ -30,6 +30,8 @@ html,body{background:#f3f6f4;margin:0;font:14px Inter,"Segoe UI",Arial,sans-seri
   });
   if (!entry) return;
   var base = '/jobdesk-supabase/';
+  var favicon = document.querySelector('link[rel="icon"]');
+  if (favicon) favicon.href = base + 'icon.svg?v=209';
   var logo = document.querySelector('[data-preboot] .boot-brand img');
   if (logo) logo.src = base + 'icon.svg';
   var style = document.createElement('link');
