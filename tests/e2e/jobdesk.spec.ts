@@ -286,6 +286,6 @@ test('fast refresh guard does not make a duplicate bootstrap request on immediat
  await page.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));
  await page.waitForTimeout(150);
  expect(count).toBe(1);
- await page.getByRole('button',{name:'Refresh jobs'}).click();
+ await page.getByRole('button',{name:'Refresh job list'}).click();
  await expect.poll(()=>count).toBe(2);
 });
