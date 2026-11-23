@@ -88,6 +88,8 @@ test('Delete user removes their Jobdesk from sidebar while preserving other spac
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,archived_space_ids:[200]})});
  });
  await page.reload();
+ const mobileToggle=page.locator('.mobile-sidebar-toggle');
+ if(await mobileToggle.isVisible())await mobileToggle.click();
  const nav=page.getByRole('navigation',{name:'Designer job spaces'});
  await expect(nav.getByRole('button',{name:/Removed Designer/})).toBeVisible();
  await expect(nav.getByRole('button',{name:/Active Designer/})).toBeVisible();
@@ -97,6 +99,7 @@ test('Delete user removes their Jobdesk from sidebar while preserving other spac
  await page.locator('.member').filter({hasText:'Removed Designer'}).getByRole('button',{name:'Manage user'}).click();
  await page.getByRole('button',{name:'Delete user'}).click();
  await page.getByRole('button',{name:'Confirm'}).click();
+ if(await mobileToggle.isVisible())await mobileToggle.click();
  await expect(nav.getByRole('button',{name:/Removed Designer/})).toHaveCount(0);
  await expect(nav.getByRole('button',{name:/Active Designer/})).toBeVisible();
  await expect(nav.getByRole('button',{name:/General Projects/})).toBeVisible();
