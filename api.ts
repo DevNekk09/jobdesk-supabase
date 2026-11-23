@@ -142,6 +142,29 @@ async function handler(req:Request){try{
   });
   return json({job:await getJob(id)},201);
  }
+ if(path==='/api/admin/reset-workspace'&&method==='POST'){
+  role(u,['Admin']);
+  const body=await data(req);
+  if(body.confirmation!=='RESET JOBDESK' || body.scope!=='all-workspace-data')fail('Type RESET JOBDESK to confirm the complete workspace reset.',400);
+  // Preserve the Admin PIN, Admin authentication tables and both reserved system identities.
+  // Delete dependent records in FK-safe order in one transaction; no physical external files are stored here.
+  const result=await db.transaction(async tx=>{
+   const counts=await Promise.all([
+    tx.prepare('SELECT COUNT(*)::int AS count FROM jobs').first<Row>(),
+    tx.prepare("SELECT COUNT(*)::int AS count FROM users WHERE email NOT IN ('shared-team@system.invalid','team-editor@system.invalid')").first<Row>()
+   ]);
+   await tx.prepare('DELETE FROM activity').run();
+   await tx.prepare('DELETE FROM jobs').run();
+   await tx.prepare('DELETE FROM device_profiles').run();
+   await tx.prepare('DELETE FROM staff_sessions').run();
+   await tx.prepare('DELETE FROM staff_invites').run();
+   await tx.prepare('DELETE FROM workspace_access').run();
+   await tx.prepare('DELETE FROM job_spaces').run();
+   await tx.prepare("DELETE FROM users WHERE email NOT IN ('shared-team@system.invalid','team-editor@system.invalid')").run();
+   return {jobs:Number(counts[0]?.count||0),members:Number(counts[1]?.count||0)};
+  });
+  return json({ok:true,deleted:result});
+ }
  if(path==='/api/trash/clear'&&method==='POST'){
   role(u,['Admin']);
   const body=await data(req);if(body.confirmation!=='CLEAR TRASH'||!Array.isArray(body.jobs)||!body.jobs.length||body.jobs.length>5000)fail('Review the Trash contents and confirm Clear Trash.');
@@ -165,12 +188,12 @@ async function handler(req:Request){try{
   if(Number(b.version)!==j.version)fail('This job was updated by another staff member. Reopen it and try again.',409);
   if(action==='purge'&&method==='POST'){
    role(u,['Admin']);
-   if(j.status!=='Deleted')fail('Only jobs in Trash can be permanently deleted.');if(b.confirmation!=='DELETE JOB')fail('Confirm permanent deletion first.');
+   if(!['Deleted','Cancelled'].includes(j.status))fail('Only trashed or archived jobs can be permanently deleted.');if(b.confirmation!=='DELETE JOB')fail('Confirm permanent deletion first.');
    await db.transaction(async tx=>{
-    const locked=await tx.prepare("SELECT id FROM jobs WHERE id=? AND version=? AND status='Deleted' FOR UPDATE").bind(id,j.version).first();
+    const locked=await tx.prepare("SELECT id FROM jobs WHERE id=? AND version=? AND status IN ('Deleted','Cancelled') FOR UPDATE").bind(id,j.version).first();
     if(!locked)fail('The job changed. Review Trash again.',409);
     await tx.prepare('DELETE FROM activity WHERE job_id=?').bind(id).run();
-    const removed=await tx.prepare("DELETE FROM jobs WHERE id=? AND version=? AND status='Deleted'").bind(id,j.version).run();
+    const removed=await tx.prepare("DELETE FROM jobs WHERE id=? AND version=? AND status IN ('Deleted','Cancelled')").bind(id,j.version).run();
     if(!removed.meta.changes)fail('The job changed. Review Trash again.',409);
     await tx.prepare('INSERT INTO activity(job_id,user_id,action,created_at) VALUES(NULL,?,?,?)').bind(acting.id,'Permanently deleted a trashed job',now()).run();
    });
