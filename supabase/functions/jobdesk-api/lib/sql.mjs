@@ -1,5 +1,5 @@
 /** SQL compatibility shim for the private Supabase PostgreSQL schema. */
-const tableName='(?:users|job_spaces|jobs|activity|device_profiles)';
+const tableName='(?:users|job_spaces|jobs|activity|device_profiles|staff_sessions|staff_invites)';
 const tableRef=new RegExp(`\\b(FROM|JOIN|UPDATE|INTO)\\s+(${tableName})\\b`,'gi');
 // SQL is exclusively authored server-side; user values are always bind parameters.
 export function sqlForPg(sql){
