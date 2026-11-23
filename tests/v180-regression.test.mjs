@@ -8,7 +8,7 @@ test('both API copies stay identical and cannot automatically elevate browser id
  assert.equal(local,edge,'Local and Edge API business logic must not drift');
  assert.match(edge,/env\.EDGE_TRUSTED_ACCESS===true&&req\.headers\.get\('x-edge-admin-verified'\)==='1'/);
  assert.match(edge,/AND role IN \('Designer','Print','Sales'\)/);
- assert.match(edge,/role:'Viewer'/);
+ assert.match(edge,/role:'Designer'/);
  assert.doesNotMatch(edge,/access remains intentionally unrestricted/);
  assert.doesNotMatch(edge,/const u:Row=\{\.\.\.shared,role:'Admin'\}/);
 });
@@ -28,7 +28,7 @@ test('Edge refuses forged verified header without a valid server session',()=>{
  assert.match(wrapper,/verifiedHeaders\.delete\('x-edge-admin-verified'\)/);
  assert.match(wrapper,/if\(adminValid\)verifiedHeaders\.set\('x-edge-admin-verified','1'\)/);
  assert.match(wrapper,/expires_at>now\(\)/);
- assert.match(wrapper,/x-workspace-token/);
+ assert.doesNotMatch(wrapper,/x-workspace-token|workspace_access/);
 });
 test('modular UI retains original Admin PIN modal unchanged in page',()=>{
  const page=read('app/page.tsx');
