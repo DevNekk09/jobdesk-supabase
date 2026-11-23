@@ -1,6 +1,7 @@
 import type {ReactNode} from 'react';
 
 const icons:Record<string,ReactNode>={
+ grip:<><circle cx="9" cy="5" r="1.35"/><circle cx="15" cy="5" r="1.35"/><circle cx="9" cy="12" r="1.35"/><circle cx="15" cy="12" r="1.35"/><circle cx="9" cy="19" r="1.35"/><circle cx="15" cy="19" r="1.35"/></>,
  menu:<path d="M4 6h16M4 12h16M4 18h16"/>,layers:<><path d="m12 3 10 5-10 5L2 8l10-5ZM2 12l10 5 10-5M2 16l10 5 10-5"/></>,
  settings:<><path d="m9 3-.6 2.2-2 .9-2.1-.6-2.3 4 1.6 1.6v2L2 14.7l2.3 4 2.1-.6 2 .9L9 21h6l.6-2.1 2-.9 2.1.6 2.3-4-1.6-1.6v-2L22 9.5l-2.3-4-2.1.6-2-.9L15 3z"/><circle cx="12" cy="12" r="3"/></>,
  grid:<><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></>,

@@ -191,3 +191,48 @@ html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="of
 .start-screen .load-failure>p{max-width:100%;overflow-wrap:anywhere}
 .start-screen .load-failure .btn{align-self:flex-start}
 .job-panel .panel-title .row-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+
+/* V2.1.0 — designer desk reordering and seamless sidebar scroll */
+:root{--jobdesk-sidebar-width:268px}
+.sidebar{width:var(--jobdesk-sidebar-width)}
+.app-main{margin-left:calc(var(--jobdesk-sidebar-width) + 34px)}
+.sidebar-scroll{
+ scroll-behavior:smooth;
+ scroll-padding-block:12px;
+ overscroll-behavior-y:contain;
+ -webkit-overflow-scrolling:touch;
+ scrollbar-width:thin;
+ scrollbar-color:#3e604b transparent;
+ touch-action:pan-y;
+}
+.sidebar-scroll::-webkit-scrollbar{width:4px}
+.sidebar-scroll::-webkit-scrollbar-thumb{border-radius:999px;background:#3e604b}
+.sidebar-scroll::-webkit-scrollbar-track{background:transparent}
+.sidebar-scroll.is-reordering{scroll-behavior:auto}
+.designer-reorder-nav>button{
+ width:100%;min-width:0;display:flex;align-items:center;gap:8px;position:relative;
+ transition:background-color .17s ease,border-color .17s ease,transform .17s ease;
+}
+.designer-reorder-nav>button>span:nth-child(2){flex:1 1 0;min-width:0;overflow:hidden;overflow-wrap:anywhere}
+.designer-reorder-nav>button .side-count{flex:0 0 auto;margin-left:auto}
+.designer-reorder-nav .desk-drag-grip{
+ width:28px;min-width:28px;min-height:38px;display:grid;place-items:center;
+ flex:0 0 28px;border-radius:9px;cursor:grab;color:#9bb5a2;
+ touch-action:none;user-select:none;-webkit-user-select:none;
+}
+.designer-reorder-nav .desk-drag-grip:hover,.designer-reorder-nav .desk-drag-grip:active{background:#ffffff12;color:#d4ebd5}
+.designer-reorder-nav .desk-drag-grip svg{width:18px;height:18px;pointer-events:none}
+.designer-reorder-nav>button.dragging-desk{opacity:.68;transform:scale(.985);background:#344c3d}
+.designer-reorder-nav>button.drop-target{border-color:#c1eb8e!important;background:#324d3c}
+.designer-reorder-nav>button.drop-target::before{content:"";position:absolute;left:8px;right:8px;top:-3px;height:3px;background:#bcf083;border-radius:999px}
+.designer-reorder-nav>button:focus-visible{outline:2px solid #c0ec8f;outline-offset:2px}
+@media(max-width:900px){
+ .sidebar{width:min(284px,calc(100vw - 24px));max-width:calc(100vw - 24px)}
+ .app-main{margin-left:0}
+}
+@media(prefers-reduced-motion:reduce){
+ .sidebar-scroll{scroll-behavior:auto}
+ .designer-reorder-nav>button{transition:none}
+}
+html[data-motion="off"] .sidebar-scroll{scroll-behavior:auto}
+html[data-motion="off"] .designer-reorder-nav>button{transition:none}

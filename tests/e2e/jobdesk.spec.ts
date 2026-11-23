@@ -215,3 +215,59 @@ test('the initial workspace has no splash, opening message, or spinner',async({p
  await expect(page.locator('nav.ksl-dock')).toBeVisible({timeout:12000});
  await expect(page.getByRole('heading',{name:'Team overview'})).toBeVisible();
 });
+
+test('designer sidebar sorts by dragging and promotes selected desk to first position, saved on reload',async({page,isMobile})=>{
+ const users=[
+  {id:31,name:'Alice',email:'alice@local.invalid',role:'Designer',active:true},
+  {id:32,name:'Bashir',email:'bashir@local.invalid',role:'Designer',active:true},
+  {id:33,name:'Carina',email:'carina@local.invalid',role:'Designer',active:true}
+ ];
+ const spaces=users.map((u,i)=>({id:301+i,name:u.name,owner_user_id:u.id,sort_order:i+1}));
+ await page.route('**/api/bootstrap*',route=>route.fulfill({
+  status:200,contentType:'application/json',
+  body:JSON.stringify({...emptyWorkspace,users,spaces})
+ }));
+ await page.reload();
+ if(isMobile)await page.getByRole('button',{name:'Open job spaces'}).click();
+ const nav=page.getByRole('navigation',{name:'Designer job spaces'});
+ const ids=async()=>nav.locator('button[data-designer-desk]').evaluateAll(nodes=>nodes.map(n=>Number((n as HTMLElement).dataset.designerDesk)));
+ await expect(nav.locator('button[data-designer-desk]')).toHaveCount(3);
+ expect(await ids()).toEqual([301,302,303]);
+ await nav.locator('button[data-designer-desk="303"]').click();
+ if(isMobile)await page.getByRole('button',{name:'Open job spaces'}).click();
+ expect(await ids()).toEqual([303,301,302]);
+ const handle=nav.locator('button[data-designer-desk="302"] .desk-drag-grip');
+ const target=nav.locator('button[data-designer-desk="301"]');
+ await handle.scrollIntoViewIfNeeded();
+ const from=await handle.boundingBox(),to=await target.boundingBox();
+ expect(from).not.toBeNull();expect(to).not.toBeNull();
+ await page.mouse.move(from!.x+from!.width/2,from!.y+from!.height/2);
+ await page.mouse.down();
+ await page.mouse.move(to!.x+to!.width/2,to!.y+to!.height/2,{steps:7});
+ await page.mouse.up();
+ await expect.poll(ids).toEqual([303,302,301]);
+ await page.reload();
+ if(isMobile)await page.getByRole('button',{name:'Open job spaces'}).click();
+ await expect.poll(ids).toEqual([303,302,301]);
+ await nav.locator('button[data-designer-desk="301"]').focus();
+ await page.keyboard.press('Alt+ArrowUp');
+ await expect.poll(ids).toEqual([303,301,302]);
+});
+
+test('extended designer sidebar scrolls independently without overflowing viewport',async({page,isMobile})=>{
+ const users=Array.from({length:20},(_,i)=>({id:i+50,name:'Designer '+String(i+1).padStart(2,'0'),email:'staff'+i+'@local.invalid',role:'Designer',active:true}));
+ const spaces=users.map((u,i)=>({id:i+500,name:u.name,owner_user_id:u.id,sort_order:i}));
+ await page.route('**/api/bootstrap*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...emptyWorkspace,users,spaces})}));
+ await page.reload();
+ if(isMobile)await page.getByRole('button',{name:'Open job spaces'}).click();
+ const scroll=page.locator('.sidebar-scroll'),sidebar=page.locator('.sidebar');
+ await expect(scroll).toBeVisible();
+ const result=await scroll.evaluate(el=>({visible:el.clientHeight,total:el.scrollHeight}));
+ expect(result.total).toBeGreaterThan(result.visible);
+ await scroll.evaluate(el=>{el.scrollTop=el.scrollHeight});
+ await expect.poll(async()=>scroll.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);
+ const size=await sidebar.evaluate(el=>(el as HTMLElement).getBoundingClientRect().width);
+ expect(size).toBeGreaterThan(260);
+ const pageWidth=await page.evaluate(()=>[document.documentElement.scrollWidth,window.innerWidth]);
+ expect(pageWidth[0]).toBeLessThanOrEqual(pageWidth[1]+1);
+});
