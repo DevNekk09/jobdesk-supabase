@@ -111,3 +111,39 @@ test('Delete user removes their Jobdesk from sidebar while preserving other spac
  await expect(nav.getByRole('button',{name:/General Projects/})).toBeVisible();
  await expect(page.locator('.member').filter({hasText:'Removed Designer'})).toHaveCount(0);
 });
+
+test('empty team can create an unassigned shared jobsheet without a designer space',async({page})=>{
+ let created=false;
+ const createdJob={id:901,invoice_id:'INV-2026-00901',name:'General shared job',date_in:'2026-11-23',due_date:'2026-11-25',priority:'Normal',status:'Awaiting Sales',space_id:null,assigned_to:1,created_at:'2026-11-23T01:00:00Z',version:1};
+ await page.route('**/api/bootstrap*',async route=>{
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...emptyWorkspace,jobs:created?[createdJob]:[]})});
+ });
+ await page.route('**/api/jobs',async route=>{
+  const b=route.request().postDataJSON();
+  expect(b).toMatchObject({name:'General shared job',space_id:null});
+  created=true;
+  await route.fulfill({status:201,contentType:'application/json',body:JSON.stringify({job:createdJob})});
+ });
+ await page.reload();
+ await page.locator('.ksl-dock .dock-create').click();
+ await expect(page.getByRole('dialog')).toContainText('Add a job.');
+ await page.getByPlaceholder('Enter job sheet name').fill('General shared job');
+ await page.locator('input[name="date_in"]').fill('2026-11-23');
+ await page.locator('input[name="due_date"]').fill('2026-11-25');
+ await page.getByRole('dialog').getByRole('button',{name:'Add job'}).click();
+ await expect(page.getByText('Jobsheet created')).toBeVisible();
+ expect(created).toBe(true);
+});
+
+test('Admin can view archived jobs and prepare permanent deletion',async({page})=>{
+ const j={id:905,invoice_id:'INV-2026-00905',name:'Archived sample job',date_in:'2026-11-10',due_date:'2026-11-12',priority:'Normal',status:'Cancelled',space_id:null,assigned_to:null,created_at:'2026-11-10T01:00:00Z',version:4};
+ await page.route('**/api/bootstrap*',async route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...emptyWorkspace,me:{...emptyWorkspace.me,name:'Admin',role:'Admin'},jobs:[j]})}));
+ await page.route('**/api/jobs/905',async route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({job:j,activity:[]})}));
+ await page.reload();
+ await page.getByRole('tab',{name:/Archived/}).click();
+ await expect(page.getByRole('button',{name:'Archived sample job'})).toBeVisible();
+ await page.getByRole('button',{name:'Archived sample job'}).click();
+ await expect(page.getByRole('button',{name:'Delete permanently'})).toBeVisible();
+ await page.getByRole('button',{name:'Delete permanently'}).click();
+ await expect(page.getByRole('dialog').last()).toContainText('cannot be undone');
+});
