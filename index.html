@@ -1,3 +1,22 @@
-<!doctype html>
-<html lang="en"><head>
-  <meta name="referrer" content="no-referrer"/><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#1f332b"><title>Jobdesk · Shared Team Workspace</title><link rel="icon" href="%BASE_URL%favicon.svg"></head><body><div id="root"></div><script type="module" src="/frontend/main.tsx"></script></body></html>
+<!doctype html><html lang="en"><head>
+<meta name="referrer" content="no-referrer"/><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1f332b"><title>Jobdesk · Shared Team Workspace</title>
+<link rel="icon" type="image/svg+xml" href="%BASE_URL%icon.svg?v=206"/>
+<style>
+html{background:#f3f6f4}
+#root>[data-preboot]{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;font:500 14px Inter,"Segoe UI",Arial,sans-serif;color:#293a2b}
+#root>[data-preboot] .boot-card{width:min(340px,100%);display:flex;flex-direction:column;gap:18px}
+#root>[data-preboot] .boot-brand{display:flex;align-items:center;gap:13px;text-align:left;justify-content:flex-start}
+#root>[data-preboot] .boot-brand img{width:52px;height:52px;border-radius:14px}
+#root>[data-preboot] .boot-brand span{display:flex;flex-direction:column;gap:5px}
+#root>[data-preboot] .boot-brand strong{font-size:25px;line-height:1.1;font-weight:750;letter-spacing:-.7px}
+#root>[data-preboot] .boot-brand small{color:#667a62;font-size:12px}
+#root>[data-preboot] .boot-status{display:flex;align-items:center;gap:12px;color:#667a62}
+#root>[data-preboot] .boot-ring{width:22px;height:22px;flex:none;border:2px solid #d9e8cf;border-top-color:#79aa36;border-radius:50%;animation:boot-spin .8s linear infinite}
+#root>[data-preboot] .boot-retry{display:none;color:#416b2c;text-decoration:underline;align-self:flex-start}
+@keyframes boot-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#root>[data-preboot] .boot-ring{animation:none}}
+</style></head><body>
+<div id="root"><div data-preboot aria-live="polite"><div class="boot-card"><div class="boot-brand"><img src="%BASE_URL%icon.svg" alt=""><span><strong>Jobdesk</strong><small>KSL Job Management</small></span></div><div class="boot-status"><i class="boot-ring"></i><span>Opening your workspace…</span></div><a class="boot-retry" href="">Reload Jobdesk</a></div></div></div>
+<script>setTimeout(function(){var b=document.querySelector('#root [data-preboot]');if(b){b.querySelector('.boot-status span').textContent='The page is taking longer than expected.';b.querySelector('.boot-retry').style.display='inline';}},12000);</script>
+<script type="module" src="/frontend/main.tsx"></script></body></html>

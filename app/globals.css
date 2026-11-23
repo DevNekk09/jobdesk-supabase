@@ -175,3 +175,19 @@ html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="of
 @media(prefers-reduced-motion:reduce){
   .floating-panel>button{transition:none!important}
 }
+
+/* V2.0.6 startup, empty-state and recovery layout */
+.start-screen{background:#f3f6f4;color:#293a2b}
+.start-screen .loading-identity{width:min(340px,100%);display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:22px}
+.start-screen .brand-ksl{justify-content:flex-start;align-items:center;text-align:left;margin:0}
+.start-screen .brand-ksl img{flex:none;width:52px;height:52px;border-radius:14px}
+.start-screen .brand-stack{align-items:flex-start;text-align:left;gap:5px}
+.start-screen .brand-stack strong{font-size:1.55rem;color:#263a27}
+.start-screen .brand-stack small{font-size:.75rem;color:#64795e}
+.start-screen .loading-status{display:flex;gap:12px;align-items:center;text-align:left}
+.start-screen .loading-status p{margin:0;color:#687c65;font-size:.875rem}
+.start-screen .load-failure{width:min(430px,100%);display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:16px}
+.start-screen .load-failure h1{font-size:1.35rem;color:#263a27}
+.start-screen .load-failure>p{max-width:100%;overflow-wrap:anywhere}
+.start-screen .load-failure .btn{align-self:flex-start}
+.job-panel .panel-title .row-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
