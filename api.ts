@@ -37,7 +37,7 @@ async function handler(req:Request){try{
  const assigned:Row=Number.isSafeInteger(actorId)&&actorId>0?(await db.prepare("SELECT * FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid' AND role IN ('Designer','Print','Sales')").bind(actorId).first<Row>()||shared):shared;
  const isAdmin=env.EDGE_TRUSTED_ACCESS===true&&req.headers.get('x-edge-admin-verified')==='1';
  const acting:Row=isAdmin?shared:assigned;
- const u:Row=isAdmin?{...shared,name:'Admin',role:'Admin'}:assigned.id===shared.id?{...shared,name:'Guest',role:'Viewer'}:assigned;
+ const u:Row=isAdmin?{...shared,name:'Admin',role:'Admin'}:{...assigned,name:assigned.id===shared.id?'Team member':assigned.name,role:'Designer'};
  // Device IDs are browser-generated random UUIDs, not hardware fingerprints.
  const deviceId=req.headers.get('x-jobdesk-device')||'';
  const validDevice=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(deviceId);
@@ -79,7 +79,7 @@ async function handler(req:Request){try{
   const b=await data(req),label=str(b.label,'Device name',60,true);
   const member=await db.prepare("SELECT id FROM users WHERE id=? AND active=1 AND deleted_at IS NULL AND email!='shared-team@system.invalid'").bind(Number(b.user_id)).first<Row>();
   if(!member)fail('Choose an active member before saving this device.',400);
-  if(u.role!=='Admin'&&Number(member.id)!==Number(u.id))fail('Your device can only be linked to your verified member profile.',403);
+  // Public team identity is optional; selecting a name does not grant Admin powers.
   await db.prepare('INSERT INTO device_profiles(device_key,device_label,user_id,last_seen,created_at) VALUES(?,?,?,?,?) ON CONFLICT(device_key) DO UPDATE SET device_label=excluded.device_label,user_id=excluded.user_id,last_seen=excluded.last_seen').bind(deviceId,label,member.id,now(),now()).run();
   return json({ok:true});
  }
