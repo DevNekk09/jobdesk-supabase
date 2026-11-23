@@ -20,7 +20,7 @@ test('irreversible delete operations require a server-verified Admin role',()=>{
  assert.match(edge,/if\(action==='status'&&method==='POST'\)\{\s*role\(u,\['Admin','Sales','Designer','Print'\]\)/);
  assert.match(edge,/if\(r==='Admin'\)fail\('Admin permissions are reserved for a verified PIN session\.',403\)/);
  const page=read('app/page.tsx');
- assert.match(page,/data\.me\.role==='Admin'&&selected\.status==='Deleted'/);
+ assert.match(page,/data\.me\.role==='Admin'&&\['Deleted','Cancelled'\]\.includes\(selected\.status\)/);
  assert.match(page,/data\.me\.role==='Admin'&&<button className="btn danger"/);
 });
 test('Edge refuses forged verified header without a valid server session',()=>{
