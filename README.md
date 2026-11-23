@@ -1,53 +1,41 @@
-# Jobdesk V1.5.0 — GitHub Pages + Supabase
+# Jobdesk V2.0.2 — Open Team Workspace
 
-Shared Designer and Production job management. **No Hostinger needed.**
+GitHub Pages + Supabase. **No Hostinger, no private link, no staff invitation required.**
 
-- **Frontend**: https://devnekk09.github.io/jobdesk-supabase/
-- **Backend**: Supabase Edge Function `jobdesk-api`
-- **Database**: Supabase PostgreSQL (private `jobdesk` schema)
-- **Access**: private workspace invitation link; no email registration or PIN during testing
-- **Demo data**: none
+**Live website:** https://devnekk09.github.io/jobdesk-supabase/
 
-## Features
+## Access and responsibilities
 
-- Shared Designer Jobdesks and Production Jobdesk
-- Manage members exclusively in Settings
-- Team Overview, deadlines, priorities and month filtering (defaults to current month)
-- Personal Active / Due within 3 Days / Overdue summary
-- Temporary names and PC/device labels stored per browser
-- Activity history and shared PostgreSQL persistence
+- **Everyone who opens the website can view and edit all shared jobs.**
+- No email registration, workspace token or staff session is required.
+- Optionally choose a team member's name so activity can be attributed on that browser. The name selection is a convenience, **not authenticated identity**.
+- The original **Admin PIN and Admin Panel are unchanged**. Managing staff, managing spaces and permanently clearing/deleting records still require a verified Admin session.
+- The original green theme, floating navigation, Designer/Production Jobdesks, urgent/deadline cards, save animations, deleted-user Jobdesk archival and other V2.0 functionality remain.
 
-## Deploy
+## Deployment
 
-1. In GitHub **Settings → Pages**, choose **GitHub Actions** as the source.
-2. The `Deploy Jobdesk frontend preview to GitHub Pages` workflow builds the React/Vite app and publishes `dist`.
-3. Supabase project `Jobdesk` already contains the private tables and deployed `jobdesk-api` function.
-4. Open the **private invitation URL** provided by the workspace administrator, containing `?workspace=...`; the token is stored locally in the browser.
+1. GitHub **Settings → Pages → Source**: **GitHub Actions** (compiled Vite frontend).
+2. GitHub Actions verifies and builds the app with `npm ci`.
+3. The backend is the Supabase Edge Function `jobdesk-api` deployed with `verify_jwt=false`; its business API accesses the private PostgreSQL `jobdesk` schema. No browser database secrets are used.
+4. Open **the normal website URL**, without query parameters.
 
-**Full setup, security warnings, and troubleshooting:** [SUPABASE_GITHUB_ONLY.md](SUPABASE_GITHUB_ONLY.md)
+## Security warning
 
-### Security
+**This is deliberately public write access. Anybody with the website address can read, add, edit, update status, or move jobs to Trash.** They can also choose another staff member's displayed name, so activity attribution is not trustworthy. The Admin PIN only protects Admin-only features; it does not make job data private. Do not put sensitive personal/customer information in this system and do not share the URL with anyone you do not trust. You can later restore authenticated staff access if stronger controls are needed.
 
-This is intentionally a shared testing workspace. Anyone holding an invitation link can access and change all jobs. Do not use sensitive customer information until authentication and per-role access rules are implemented. Do not put `DATABASE_URL`, service-role keys, or invitation tokens in frontend or GitHub source code.
+## Source code
 
-The private PostgreSQL schema is accessed only via Edge Functions. It is not exposed to the Supabase Data API.
+- `app/`, `frontend/`, `index.html`: React/Vite UI.
+- `supabase/functions/jobdesk-api/`: Supabase Edge API, Admin PIN auth, SQL adapter.
+- `supabase/schema.sql`: private database schema with no demo data.
+- `api.ts`: synchronized Node/Edge business logic for development.
 
-### Source layout
+## Development
 
-- `app/`, `frontend/`, `index.html`: React/Vite frontend
-- `supabase/functions/jobdesk-api/`: Supabase Edge API and database adapter
-- `supabase/schema.sql`: Private PostgreSQL schema, with no sample records
-- `.github/workflows/deploy-pages.yml`: GitHub Pages deployment
-- `api.ts`: Original shared job API logic, also adapted for Supabase Edge Functions
-- `server.mjs`: Retained for optional local Node.js development, not required for the deployed website
-
-### Develop
-
-```bash
-npm install
+```sh
+npm ci
 npm run verify:source
-npm run test:offline
 npm run build:pages
+npm run test:offline
+npm run test:e2e
 ```
-
-GitHub Actions checks the compiled output. The deployed frontend does not need `npm start` or a running Node.js server.

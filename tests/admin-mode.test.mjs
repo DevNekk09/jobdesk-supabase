@@ -23,7 +23,8 @@ test('Supabase Edge rejects forged Admin mode and requires a server-verified ses
  assert.match(edge,/failed_attempts\+1>=5/);
  assert.match(edge,/sessionHash/);
  assert.match(api,/req\.headers\.get\('x-edge-admin-verified'\)===\x271\x27/);
- assert.match(api,/role:'Viewer'/);
+ assert.match(api,/role:'Designer'/);
+ assert.match(api,/isAdmin\?\{\.\.\.shared,name:'Admin',role:'Admin'\}/);
  assert.doesNotMatch(api,/access remains intentionally unrestricted/);
 });
 test('PIN is never embedded as plaintext in frontend or repository',()=>{
