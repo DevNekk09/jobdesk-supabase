@@ -105,12 +105,14 @@ async function handler(req:Request){try{
   const id=Number(ud[1]);
   const target=await db.prepare('SELECT * FROM users WHERE id=? AND deleted_at IS NULL').bind(id).first<Row>();
   if(!target)fail('Active member not found.',404);
-  if(id===u.id)fail('This shared workspace profile is reserved.');
+  if(id===u.id||['shared-team@system.invalid','team-editor@system.invalid'].includes(target.email))fail('System profiles cannot be deleted.',403);
   // Keep historical jobs and spaces intact; archive spaces so removed users vanish from navigation.
   const linked=await db.prepare('SELECT id FROM job_spaces WHERE owner_user_id=? AND archived_at IS NULL').bind(id).all<Row>();
   const removedSpaces=linked.results.map(row=>Number(row.id));
   await db.batch([
    db.prepare('UPDATE users SET active=0,deleted_at=? WHERE id=?').bind(now(),id),
+   // Detach active jobs before the removed member's desk becomes archived; keep historical records.
+   db.prepare("UPDATE jobs SET space_id=NULL,assigned_to=CASE WHEN assigned_to=? THEN NULL ELSE assigned_to END,version=version+1,updated_at=? WHERE status NOT IN ('Completed','Cancelled','Deleted') AND (assigned_to=? OR space_id IN (SELECT id FROM job_spaces WHERE owner_user_id=?))").bind(id,now(),id,id),
    db.prepare('UPDATE job_spaces SET owner_user_id=NULL,archived_at=now() WHERE owner_user_id=?').bind(id),
    db.prepare('DELETE FROM device_profiles WHERE user_id=?').bind(id),
    db.prepare('UPDATE staff_sessions SET revoked_at=now() WHERE user_id=? AND revoked_at IS NULL').bind(id),
@@ -127,7 +129,7 @@ async function handler(req:Request){try{
   if(b.space_id){const chosen=await db.prepare('SELECT * FROM job_spaces WHERE id=? AND archived_at IS NULL').bind(Number(b.space_id)).first<Row>();if(!chosen||(chosen.owner_user_id&&chosen.owner_user_id!==id))fail('That job space is already linked or unavailable.');}
   await db.batch([...(b.space_id!==undefined?[db.prepare('UPDATE job_spaces SET owner_user_id=NULL WHERE owner_user_id=?').bind(id),...(b.space_id?[db.prepare('UPDATE job_spaces SET owner_user_id=? WHERE id=?').bind(id,Number(b.space_id))]:[])]:[]),db.prepare('UPDATE users SET name=?,role=?,active=? WHERE id=?').bind(str(b.name||target.name,'Name',100,true),r,active,id),log(null,`Updated team member ${target.name}`)]);return json({ok:true});
  }
- async function jobData(b:Row){const space=b.space_id?await db!.prepare('SELECT * FROM job_spaces WHERE id=?').bind(Number(b.space_id)).first<Row>():b.space_id===undefined?await db!.prepare('SELECT * FROM job_spaces WHERE owner_user_id=? ORDER BY sort_order,id LIMIT 1').bind(acting.id).first<Row>():null;if(b.space_id&&!space)fail('Job space not found.');const date_in=date(b.date_in,'date in'),due_date=date(b.due_date,'due date');if(due_date<date_in)fail('Due date must be on or after date in.');if(!['Normal','High','Urgent'].includes(b.priority||'Normal'))fail('Choose a valid priority.');const assigned=b.assigned_to===undefined?(space?.owner_user_id||acting.id):b.assigned_to?Number(b.assigned_to):null;if(assigned&&!await db!.prepare('SELECT id FROM users WHERE id=? AND active=1').bind(assigned).first())fail('Assigned staff member is unavailable.');const quantity=Number(b.quantity??1);if(!Number.isInteger(quantity)||quantity<1||quantity>10000000)fail('Quantity must be a whole number between 1 and 10,000,000.');return{space_id:space?.id??null,name:str(b.name,'Job-sheet name',160,true),customer:str(b.customer||'','Customer',160),contact:str(b.contact||'','Contact',120),date_in,due_date,priority:b.priority||'Normal',assigned_to:assigned,quantity,size:str(b.size||'','Size',160),material:str(b.material||'','Material',160),finishing:str(b.finishing||'','Finishing',200),notes:str(b.notes||'','Notes',5000),artwork_url:link(b.artwork_url,'Artwork link')}}
+ async function jobData(b:Row,previous?:Row){const space=b.space_id?await db!.prepare('SELECT * FROM job_spaces WHERE id=? AND archived_at IS NULL').bind(Number(b.space_id)).first<Row>():b.space_id===undefined?await db!.prepare('SELECT * FROM job_spaces WHERE owner_user_id=? AND archived_at IS NULL ORDER BY sort_order,id LIMIT 1').bind(acting.id).first<Row>():null;if(b.space_id&&!space&&!(previous&&Number(b.space_id)===Number(previous.space_id)))fail('Job space is archived or unavailable.');const date_in=date(b.date_in,'date in'),due_date=date(b.due_date,'due date');if(due_date<date_in)fail('Due date must be on or after date in.');if(!['Normal','High','Urgent'].includes(b.priority||'Normal'))fail('Choose a valid priority.');let assigned=b.assigned_to===undefined?(space?.owner_user_id||acting.id):b.assigned_to?Number(b.assigned_to):null;if(assigned&&!await db!.prepare('SELECT id FROM users WHERE id=? AND active=1 AND deleted_at IS NULL').bind(assigned).first()){if(previous&&Number(previous.assigned_to)===assigned)assigned=null;else fail('Assigned staff member is unavailable.');}const quantity=Number(b.quantity??1);if(!Number.isInteger(quantity)||quantity<1||quantity>10000000)fail('Quantity must be a whole number between 1 and 10,000,000.');return{space_id:space?.id??null,name:str(b.name,'Job-sheet name',160,true),customer:str(b.customer||'','Customer',160),contact:str(b.contact||'','Contact',120),date_in,due_date,priority:b.priority||'Normal',assigned_to:assigned,quantity,size:str(b.size||'','Size',160),material:str(b.material||'','Material',160),finishing:str(b.finishing||'','Finishing',200),notes:str(b.notes||'','Notes',5000),artwork_url:link(b.artwork_url,'Artwork link')}}
  const getJob=(id:number)=>db.prepare(selectJob+' WHERE j.id=?').bind(id).first<Row>();
  if(path==='/api/jobs'&&method==='POST'){
   role(u,['Admin','Sales','Designer']);const j=await jobData(await data(req)),stamp=now(),year=new Intl.DateTimeFormat('en',{year:'numeric',timeZone:'Asia/Kuala_Lumpur'}).format(new Date());
@@ -184,6 +186,8 @@ async function handler(req:Request){try{
  if(jm){const id=Number(jm[1]),action=jm[2],j=await getJob(id);if(!j)fail('Job not found.',404);
   if(method==='GET'){const a=await db.prepare('SELECT a.*,u.name AS user_name FROM activity a JOIN users u ON u.id=a.user_id WHERE job_id=? ORDER BY a.id DESC').bind(id).all();return json({job:j,activity:a.results})}
   const b=await data(req);
+  if(j.status==='Deleted'&&!['restore','purge'].includes(action||''))fail('This job is in Trash. Restore it before editing.',409);
+  if(j.status==='Cancelled'&&!['delete','purge'].includes(action||''))fail('This archived job is read-only. Move it to Trash or delete it permanently.',409);
   if(action==='comment'&&method==='POST'){role(u,['Admin','Sales','Designer','Print']);await log(id,'Note: '+str(b.message,'Note',2000,true)).run();return json({ok:true})}
   if(Number(b.version)!==j.version)fail('This job was updated by another staff member. Reopen it and try again.',409);
   if(action==='purge'&&method==='POST'){
@@ -195,14 +199,14 @@ async function handler(req:Request){try{
     await tx.prepare('DELETE FROM activity WHERE job_id=?').bind(id).run();
     const removed=await tx.prepare("DELETE FROM jobs WHERE id=? AND version=? AND status IN ('Deleted','Cancelled')").bind(id,j.version).run();
     if(!removed.meta.changes)fail('The job changed. Review Trash again.',409);
-    await tx.prepare('INSERT INTO activity(job_id,user_id,action,created_at) VALUES(NULL,?,?,?)').bind(acting.id,'Permanently deleted a trashed job',now()).run();
+    await tx.prepare('INSERT INTO activity(job_id,user_id,action,created_at) VALUES(NULL,?,?,?)').bind(acting.id,'Permanently deleted a trashed or archived job',now()).run();
    });
    return json({ok:true});
   }
   const update:Row={};let message='';
   if(!action&&method==='PATCH'){
    role(u,['Admin','Sales','Designer']);if(['Completed','Cancelled'].includes(j.status))fail('Reopen this job before editing its details.');
-   Object.assign(update,await jobData({...j,...b}));
+   Object.assign(update,await jobData({...j,...b},j));
    const changed=['customer','quantity','size','material','finishing','artwork_url'].some(k=>String(update[k])!==String(j[k]));
    if(j.confirmed_at&&changed){Object.assign(update,{status:'Confirmed',artwork_approved:0,print_checked:0,print_file_url:''});message='Print specifications changed — preparation must be checked again'}else message='Updated job details';
   }else if(action==='confirm'&&method==='POST'){
