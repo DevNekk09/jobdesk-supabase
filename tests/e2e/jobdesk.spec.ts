@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 
 const emptyWorkspace={
- me:{id:1,name:'Guest',email:'shared-team@system.invalid',role:'Viewer',active:true},
+ me:{id:1,name:'Team member',email:'shared-team@system.invalid',role:'Designer',active:true},
  users:[],jobs:[],activity:[],spaces:[],devices:[],available_months:[],overdue_total:0,overdue_by_space:[],csrf:'',hosted:true
 };
 test.beforeEach(async({page})=>{
@@ -42,30 +42,36 @@ test('no horizontal viewport overflow on responsive screens',async({page})=>{
 });
 
 
-test('Admin can generate a one-time staff invite without changing Admin PIN panel',async({page})=>{
- const member={id:22,name:'Team Member',role:'Designer',email:'member@profiles.invalid',active:true};
- await page.addInitScript(()=>localStorage.setItem('jobdesk-workspace-token','W'.repeat(48)));
+test('ordinary URL opens without a private token and anonymous team can add jobs',async({page})=>{
+ let created=false;
+ const member={id:22,name:'Team Designer',role:'Designer',email:'member@profiles.invalid',active:true};
+ const desk={id:200,name:'Team Designer',owner_user_id:22,sort_order:1};
  await page.route('**/api/bootstrap*',async route=>{
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
-   ...emptyWorkspace,me:{...emptyWorkspace.me,id:1,name:'Admin',role:'Admin'},users:[member]
+   ...emptyWorkspace,users:[member],spaces:[desk],
+   jobs:created?[{id:501,invoice_id:'INV-2026-00501',name:'Test shared jobsheet',date_in:'2026-11-23',due_date:'2026-11-25',priority:'Normal',status:'Awaiting Sales',space_id:200,assigned_to:22,created_at:'2026-11-23T01:00:00Z',version:1}]:[]
   })});
  });
- await page.route('**/api/staff/invite',async route=>{
-  const request=route.request();
-  expect(request.method()).toBe('POST');
-  expect(request.postDataJSON()).toEqual({user_id:22});
-  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,invite:'b'.repeat(64),user_id:22,user_name:member.name})});
+ await page.route('**/api/jobs',async route=>{
+  expect(route.request().method()).toBe('POST');
+  expect(route.request().headers()['x-workspace-token']).toBeUndefined();
+  expect(route.request().headers()['x-jobdesk-staff-session']).toBeUndefined();
+  expect(route.request().postDataJSON()).toMatchObject({name:'Test shared jobsheet',space_id:200});
+  created=true;
+  await route.fulfill({status:201,contentType:'application/json',body:JSON.stringify({job:{id:501,invoice_id:'INV-2026-00501',name:'Test shared jobsheet',date_in:'2026-11-23',due_date:'2026-11-25',priority:'Normal',status:'Awaiting Sales',space_id:200,assigned_to:22,created_at:'2026-11-23T01:00:00Z',version:1}})});
  });
- await page.reload();
- await page.locator('.device-switch').click();
- const section=page.locator('.v2-staff-invites');
- await expect(section).toBeVisible();
- await section.locator('select').selectOption('22');
- await section.getByRole('button',{name:'Generate link'}).click();
- await expect(section.getByLabel('One-time staff invitation link')).toHaveValue(/staff=b{64}/);
- await expect(page.locator('.admin-pin-form')).toHaveCount(0);
+ await page.goto('/');
+ await expect(page.locator('nav.ksl-dock')).toBeVisible();
+ await page.locator('.ksl-dock .dock-create').click();
+ await page.getByRole('dialog').getByRole('button',{name:/Team Designer/}).click();
+ await expect(page.getByRole('dialog')).toContainText('Add a job.');
+ await page.getByPlaceholder('Enter job sheet name').fill('Test shared jobsheet');
+ await page.locator('input[name="date_in"]').fill('2026-11-23');
+ await page.locator('input[name="due_date"]').fill('2026-11-25');
+ await page.getByRole('dialog').getByRole('button',{name:'Add job'}).click();
+ await expect(page.getByText('Jobsheet created')).toBeVisible();
+ expect(created).toBe(true);
 });
-
 
 test('Delete user removes their Jobdesk from sidebar while preserving other spaces',async({page})=>{
  let removed=false;
