@@ -17,7 +17,7 @@ test('Normal GitHub Pages URL grants access to a common editable workspace',()=>
  assert.match(api,/const openEditor=/);
  assert.match(api,/const u:Row=isAdmin\?\{\.\.\.shared,name:'Admin',role:'Admin'\}:\{\.\.\.assigned,role:'Designer'\}/);
  assert.match(api,/team-editor@system\.invalid/);
- assert.match(page,/Everyone can view and edit shared jobs/);
+ assert.match(page,/Everyone can view and edit jobs/);
 });
 test('Shared team identity never escalates to Admin without the existing PIN',()=>{
  const edge=read('supabase/functions/jobdesk-api/index.ts');
@@ -45,7 +45,7 @@ test('Old UI, member management and deleted staff Jobdesk cleanup remain intact'
  assert.match(page,/KSL Team Job Management/);
  assert.match(page,/APPLE SPORT SDN BHD/);
  assert.match(page,/designerSpaces=data\.spaces\.filter\(s=>!s\.archived_at/);
- assert.match(page,/Use shared team identity/);
+ assert.match(page,/The shared Jobdesk is open for viewing and editing/);
 });
 test('Month scoped loading preserves global deadline metrics',()=>{
  const api=read('supabase/functions/jobdesk-api/api.ts');
