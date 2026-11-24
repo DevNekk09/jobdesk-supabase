@@ -397,3 +397,43 @@ test('each file preparation and production stage uses a distinct readable progre
  expect(await selected.evaluate(el=>getComputedStyle(el).color)).toMatch(/rgb\(/);
  await expect(productionRows).toHaveCount(1);
 });
+
+test('Job Details mobile actions prioritize next step and conceal destructive controls',async({page,isMobile})=>{
+ const job={id:801,invoice_id:'INV-801',name:'Customer sample job',date_in:'2026-11-23',due_date:'2026-11-26',priority:'Normal',status:'Prepare Set Files',assigned_to:31,space_id:51,confirmed_at:'2026-11-23T08:00:00Z',created_at:'2026-11-23T08:00:00Z',version:1};
+ const users=[{id:31,name:'Designer',role:'Designer',active:true,email:'designer@local.invalid'}];
+ const spaces=[{id:51,name:'Designer',owner_user_id:31,sort_order:1}];
+ await page.route('**/api/bootstrap*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...emptyWorkspace,jobs:[job],users,spaces,me:{...emptyWorkspace.me,role:'Designer'}})}));
+ await page.route('**/api/jobs/801',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({job,activity:[]})}));
+ await page.reload();
+ const toggle=page.getByRole('button',{name:'Open job spaces'});
+ if(isMobile&&await toggle.isVisible())await toggle.click();
+ await page.locator('aside.sidebar').getByRole('button',{name:/All jobs/}).click();
+ await page.locator('.job-panel .job-link').getByText('Customer sample job').click();
+ const actions=page.getByRole('region',{name:'Job actions'});
+ await expect(actions).toBeVisible();
+ await expect(actions.getByRole('button',{name:'Set files ready to print'})).toBeVisible();
+ await expect(actions.getByText('Due soon · auto urgent')).toBeVisible();
+ await expect(actions.getByRole('button',{name:'Mark urgent'})).toHaveCount(0);
+ await expect(actions.getByText('More actions')).toBeVisible();
+ await expect(actions.getByRole('button',{name:'Move to Trash'})).not.toBeVisible();
+ await actions.locator('summary').click();
+ await expect(actions.getByRole('button',{name:'Move to Trash'})).toBeVisible();
+ await expect(actions.getByRole('button',{name:'Cancel confirmation'})).toBeVisible();
+ const widths=await actions.evaluate(el=>({content:el.getBoundingClientRect().width,viewport:window.innerWidth}));
+ expect(widths.content).toBeLessThan(widths.viewport);
+});
+
+test('explicit urgent priority can be removed without moving job to Trash',async({page,isMobile})=>{
+ const job={id:802,invoice_id:'INV-802',name:'Urgent sample job',date_in:'2026-11-23',due_date:'2026-12-12',priority:'Urgent',status:'Confirmed',assigned_to:31,space_id:51,confirmed_at:'2026-11-23T08:00:00Z',created_at:'2026-11-23T08:00:00Z',version:1};
+ await page.route('**/api/bootstrap*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...emptyWorkspace,jobs:[job],users:[{id:31,name:'Designer',role:'Designer',active:true}],spaces:[{id:51,name:'Designer',owner_user_id:31}],me:{...emptyWorkspace.me,role:'Designer'}})}));
+ await page.route('**/api/jobs/802',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({job,activity:[]})}));
+ await page.reload();
+ const toggle=page.getByRole('button',{name:'Open job spaces'});
+ if(isMobile&&await toggle.isVisible())await toggle.click();
+ await page.locator('aside.sidebar').getByRole('button',{name:/All jobs/}).click();
+ await page.locator('.job-panel .job-link').getByText('Urgent sample job').click();
+ const actions=page.getByRole('region',{name:'Job actions'});
+ await expect(actions.getByRole('button',{name:'Remove manual urgent priority'})).toBeVisible();
+ await expect(actions.locator('.job-next-action')).toHaveCount(1);
+ await expect(actions.getByRole('button',{name:'Move to Trash'})).not.toBeVisible();
+});
