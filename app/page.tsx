@@ -158,7 +158,8 @@ export default function Home(){
   if(action==='comment')setNote('');
   animateSave('updated','Jobsheet updated',`${jobName} saved to Supabase.${synced?'':' Refresh pending.'}`);
  }catch(e){setFormError((e as Error).message)}finally{setBusy(false)}}
- async function saveJob(e:React.FormEvent){e.preventDefault();const fields=new FormData(e.currentTarget as HTMLFormElement);const values={name:String(fields.get('name')||'').trim(),date_in:parseDisplayDate(String(fields.get('date_in')||'')),due_date:parseDisplayDate(String(fields.get('due_date')||''))};setBusy(true);setFormError('');try{
+ async function saveJob(e:React.FormEvent){e.preventDefault();const fields=new FormData(e.currentTarget as HTMLFormElement);setBusy(true);setFormError('');try{
+  const values={name:String(fields.get('name')||'').trim(),date_in:parseDisplayDate(String(fields.get('date_in')||'')),due_date:parseDisplayDate(String(fields.get('due_date')||''))};
   if(!values.name||!values.date_in||!values.due_date)throw Error('Complete all three fields.');
   if(values.due_date<values.date_in)throw Error('Due date must be on or after the date ordered.');
   const creating=jobForm==='new';
