@@ -66,8 +66,8 @@ test('ordinary URL opens without a private token and anonymous team can add jobs
  await page.getByRole('dialog').getByRole('button',{name:/Team Designer/}).click();
  await expect(page.getByRole('dialog')).toContainText('Add a job.');
  await page.getByPlaceholder('Enter job sheet name').fill('Test shared jobsheet');
- await page.locator('input[name="date_in"]').fill('23/11/2026');
- await page.locator('input[name="due_date"]').fill('25/11/2026');
+ await page.locator('input[name="date_in"]').fill('2026-11-23');
+ await page.locator('input[name="due_date"]').fill('2026-11-25');
  await page.getByRole('dialog').getByRole('button',{name:'Add job'}).click();
  await expect(page.getByText('Jobsheet created')).toBeVisible();
  expect(created).toBe(true);
@@ -128,8 +128,8 @@ test('empty team can create an unassigned shared jobsheet without a designer spa
  await page.locator('.ksl-dock .dock-create').click();
  await expect(page.getByRole('dialog')).toContainText('Add a job.');
  await page.getByPlaceholder('Enter job sheet name').fill('General shared job');
- await page.locator('input[name="date_in"]').fill('23/11/2026');
- await page.locator('input[name="due_date"]').fill('25/11/2026');
+ await page.locator('input[name="date_in"]').fill('2026-11-23');
+ await page.locator('input[name="due_date"]').fill('2026-11-25');
  await page.getByRole('dialog').getByRole('button',{name:'Add job'}).click();
  await expect(page.getByText('Jobsheet created')).toBeVisible();
  expect(created).toBe(true);
