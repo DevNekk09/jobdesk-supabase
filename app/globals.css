@@ -547,3 +547,55 @@ html,body,#root{width:100%;min-width:0}
 .production-detail .job-undo-action{margin:6px 0 0 8px}
 @media(max-width:900px){.job-panel.v23-job-list .job-date-value{font-size:.86rem}.job-panel.v23-job-list tbody td:nth-child(2)::before,.job-panel.v23-job-list tbody td:nth-child(3)::before{font-size:.72rem;margin-bottom:3px}}
 @media(max-width:600px){.job-action-area>.job-undo-action{width:100%}.production-detail .job-undo-action{margin:8px 0 0;width:100%}}
+
+/* Corporate job table refinement: V2.1.8 spacing, restrained accents and clear alignment. */
+.job-panel.v23-job-list .table-scroll{border-top:1px solid #e3e9e3}
+.job-panel.v23-job-list thead th{background:#f6f8f6;color:#66736a;font-size:.72rem;font-weight:600;text-transform:none;letter-spacing:.01em;padding:13px 21px;border-top:0;border-bottom:1px solid #e3e9e3;text-align:left}
+.job-panel.v23-job-list .job-actions-heading{text-align:right}
+.job-panel.v23-job-list tbody td{border-bottom-color:#e9ede9}
+.job-panel.v23-job-list tbody tr:hover{background:#f9fbf9}
+.job-panel.v23-job-list .job-link{color:#2c3c32;font-size:.91rem;font-weight:600;line-height:1.4;text-align:left}
+.job-panel.v23-job-list .job-title-cell{gap:11px}
+.job-panel.v23-job-list .doc-icon{background:#f0f4ee;color:#65805d;border:1px solid #e7ede4;border-radius:9px;width:35px;height:38px}
+.job-panel.v23-job-list .doc-icon.urgent{background:#f5eff9;color:#865fa5;border-color:#ece4f3}
+.job-panel.v23-job-list .space-tag{border:0;margin:0;padding:0;color:#6c796e;font-weight:450;font-size:.73rem}
+.job-panel.v23-job-list .job-ref{margin-top:4px}
+.job-panel.v23-job-list .job-date-value{font-size:.84rem;font-weight:500;color:#3d4b42}
+.job-panel.v23-job-list tbody td:nth-child(3)>small{font-size:.72rem;line-height:1.45;margin-top:3px}
+.job-panel.v23-job-list tbody .status{background:transparent;border:0;padding:0;box-shadow:none;display:inline-flex;align-items:baseline;gap:6px;color:#536a55;font-size:.81rem;font-weight:550;line-height:1.4;border-radius:0;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.job-panel.v23-job-list tbody .status[class*="progress-color-"]{background:transparent;border:0;color:#40554a}
+.job-panel.v23-job-list tbody .status.progress::before,.job-panel.v23-job-list tbody .status.waiting::before{content:'';display:inline-block;width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:var(--progress-ink,#8e9f82);transform:translateY(-1px)}
+.job-panel.v23-job-list tbody .mini-progress{max-width:122px;gap:4px;margin-top:7px}
+.job-panel.v23-job-list tbody .mini-progress i{height:3px;border-radius:2px;min-width:0}
+.job-panel.v23-job-list .open-job,.job-panel.v23-job-list .v23-quick-next{border-radius:7px}
+@media(min-width:901px){.job-panel.v23-job-list tbody td{padding-top:22px;padding-bottom:22px}.job-panel.v23-job-list thead th:last-child{padding-right:23px}}
+/* Trash is a separate review state; keep destructive actions away from the standard row actions. */
+.job-panel.is-trash-list .trash-overview{display:flex;flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;background:#f7f8f7;border:1px solid #e3e8e3;border-radius:10px;padding:16px 18px;margin:4px 20px 14px}
+.trash-overview-main{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 220px}
+.trash-emblem{display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;border:1px solid #e3e8e3;border-radius:10px;background:#fff;color:#6c756e}
+.trash-emblem svg{width:19px;height:19px}
+.trash-overview-main strong{display:flex;align-items:center;gap:8px;color:#34423a;font-size:.88rem;font-weight:650}
+.trash-overview-main p{font-size:.75rem;line-height:1.45;color:#68756c;margin:4px 0 0}
+.trash-count{background:#e9ede9;color:#566359;padding:2px 7px;border-radius:5px;font-size:.72rem;font-weight:600;font-variant-numeric:tabular-nums}
+.job-panel.is-trash-list .trash-overview>.btn.danger{background:#fff;color:#9c443d;border:1px solid #e9d8d5;box-shadow:none;min-height:40px;border-radius:8px;font-size:.75rem;gap:7px}
+.job-panel.is-trash-list .trash-overview>.btn.danger:hover:not(:disabled){background:#fbf0ee}
+.job-panel.is-trash-list .trash-overview>.btn.danger svg{width:15px;height:15px}
+.job-panel.is-trash-list .list-tools .search-field{max-width:100%;flex:1 1 100%}
+.job-panel.is-trash-list .doc-icon{background:#f2f4f2;color:#78837a;border-color:#e7ebe7}
+.trash-state{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;color:#69766d;font-weight:500}
+.trash-state-dot{width:6px;height:6px;background:#929b94;border-radius:50%;flex:none}
+.job-panel.is-trash-list .trash-review{display:inline-flex;align-items:center;justify-content:center;gap:4px;width:auto;min-width:0;min-height:34px;padding:6px 9px;font-size:.73rem;color:#53685a;white-space:nowrap}
+.job-panel.is-trash-list .trash-review svg{width:13px;height:13px}
+.job-panel.is-trash-list .trash-empty{padding:38px 20px}
+.job-panel.is-trash-list .trash-empty .empty-icon{background:#f0f3f0;color:#859087}
+@media(max-width:900px){
+ .job-panel.v23-job-list .job-link{font-size:.92rem}
+ .job-panel.v23-job-list tbody td:nth-child(2)::before,.job-panel.v23-job-list tbody td:nth-child(3)::before{color:#768078;font-size:.71rem}
+ .job-panel.v23-job-list tbody .mini-progress{max-width:150px}
+ .job-panel.is-trash-list .trash-overview{margin:4px 11px 12px;padding:14px;gap:12px}
+ .job-panel.is-trash-list .trash-overview>.btn.danger{width:100%}
+ .job-panel.is-trash-list tbody td:nth-child(4){grid-column:1/3;grid-row:3}
+ .job-panel.is-trash-list tbody td:nth-child(5){grid-column:3;grid-row:1}
+ .job-panel.is-trash-list .trash-review{width:36px;min-width:36px;min-height:36px;padding:0}
+ .job-panel.is-trash-list .trash-review span{display:none}
+}

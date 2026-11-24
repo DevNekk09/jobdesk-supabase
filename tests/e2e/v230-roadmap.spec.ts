@@ -135,3 +135,18 @@ test('undo progress uses the current version and keeps invoice reference hidden'
  await expect.poll(()=>calls).toBe(1);
  await expect(page.locator('.job-panel tbody')).toContainText('Preparing Master Files');
 });
+
+test('Trash has a dedicated review state with no active deadline controls',async({page})=>{
+ const deleted=makeJob(955,'Deleted review example',localDate(-2),'Deleted');
+ await page.route('**/api/bootstrap*',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(bootstrap([deleted]))}));
+ await page.goto('/');await openAllJobs(page);
+ await page.getByRole('tab',{name:/^Trash/}).click();
+ const list=page.locator('.job-panel.is-trash-list');
+ await expect(list).toBeVisible();
+ await expect(list.getByText('Deleted jobs',{exact:false}).first()).toBeVisible();
+ await expect(list.getByRole('combobox',{name:'Filter by deadline'})).toHaveCount(0);
+ await expect(list.locator('tbody')).toContainText('In trash');
+ await expect(list.locator('tbody')).not.toContainText('days overdue');
+ await expect(list.getByRole('button',{name:'Open Deleted review example'})).toBeVisible();
+ await expect(list.getByRole('button',{name:/Clear all Trash/})).toHaveCount(0);
+});
