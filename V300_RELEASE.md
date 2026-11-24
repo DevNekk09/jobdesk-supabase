@@ -1,0 +1,5 @@
+# Jobdesk V3.0 — Professional workspace
+
+Preserves the approved green hero, Professional Task Ticket default, Apple modal, original data/API and Admin PIN. Browser-local view preference. Focus counts respect the current month; search and notification center explicitly fetch all months only when opened. Board is a stage grouping, not drag and drop. Notification center uses actual deadline and recent activity data, not external push alerts. Undo toast is version-checked and limited to supported reversible progress and production mutations. Completion still uses existing Reopen control. Existing reduced-motion setting applies. No loading splash added. All-month search loads on demand, capped at 30 rendered rows; activity capped at 25. Existing pagination and synchronization retained. No database migration.
+
+Tests: new mocked API Playwright test; full offline and browser suites in independent verification workflow. Build publisher stays branch-based; a direct cache-key commit is needed after compiled output to trigger legacy Pages publication. Verify actual deployment and tests independently.
