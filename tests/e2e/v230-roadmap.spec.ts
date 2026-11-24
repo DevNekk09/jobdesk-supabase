@@ -166,6 +166,7 @@ test('deadline reminders sort chronologically and mark each near-deadline state'
  const payload={...bootstrap(jobs),available_months:[...new Set(jobs.map(j=>j.due_date.slice(0,7)).concat(localDate(0).slice(0,7)))]};
  await page.route('**/api/bootstrap*',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(payload)}));
  await page.goto('/');await openAllJobs(page);
+ await page.getByRole('combobox',{name:'Filter jobs by due month'}).selectOption('all');
  const list=page.locator('.job-panel.ticket-list');
  await expect(list.locator('tbody .job-link')).toHaveText(['Overdue job','Today job','Tomorrow job','Two days job','Three days job','Later job']);
  for(const [tone,label] of [['late','1 day overdue'],['today','Due today'],['tomorrow','Due tomorrow'],['two-days','Due in 2 days'],['three-days','Due in 3 days'],['normal','Due in 5 days']]){
