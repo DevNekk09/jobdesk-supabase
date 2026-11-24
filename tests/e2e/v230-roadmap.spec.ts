@@ -18,6 +18,7 @@ const bootstrap=(jobs:ReturnType<typeof makeJob>[])=>({
  available_months:[localDate(0).slice(0,7)],overdue_total:0,overdue_by_space:[],csrf:'',hosted:true
 });
 async function openAllJobs(page:any){
+ await expect(page.locator('nav.ksl-dock')).toBeVisible();
  const mobile=page.getByRole('button',{name:'Open job spaces'});
  if(await mobile.isVisible())await mobile.click();
  await page.locator('aside.sidebar').getByRole('button',{name:/All jobs/}).click();
@@ -25,7 +26,7 @@ async function openAllJobs(page:any){
 test('V2.3 compact cards and quick filters fit responsive screens',async({page})=>{
  const jobs=[makeJob(901,'Due today job',localDate(0)),makeJob(902,'Due later job',localDate(2)),makeJob(903,'Overdue job',localDate(-2))];
  await page.route('**/api/bootstrap*',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(bootstrap(jobs))}));
- await page.reload();await openAllJobs(page);
+ await page.goto('/');await openAllJobs(page);
  const list=page.locator('.job-panel.v23-job-list');
  await expect(list.locator('tbody tr')).toHaveCount(3);
  await expect(list.getByRole('group',{name:'Designer quick deadline filters'})).toBeVisible();
@@ -56,11 +57,11 @@ test('V2.3 one-tap next progress saves a versioned request only once',async({pag
   job={...job,status:'Preparing Master Files',version:2};
   return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({job})});
  });
- await page.reload();await openAllJobs(page);
+ await page.goto('/');await openAllJobs(page);
  const row=page.locator('.job-panel tbody tr').filter({hasText:'Advance this file'});
  const next=row.getByRole('button',{name:'Advance Advance this file'});
  await expect(next).toBeVisible();
- await next.dblclick();
+ await next.evaluate(el=>{(el as HTMLButtonElement).click();(el as HTMLButtonElement).click()});
  await expect(row).toContainText('Preparing Master Files');
  await expect(page.getByText('Progress updated')).toBeVisible();
  expect(calls).toBe(1);
@@ -73,7 +74,7 @@ test('V2.3 version conflict reports and refreshes instead of overwriting another
   count++;job={...job,status:'Master Files Ready',version:3};
   return r.fulfill({status:409,contentType:'application/json',body:JSON.stringify({error:'Job version conflict; another browser changed this job.'})});
  });
- await page.reload();await openAllJobs(page);
+ await page.goto('/');await openAllJobs(page);
  await page.getByRole('button',{name:'Advance Conflict example'}).click();
  await expect(page.getByText(/updated in another browser/)).toBeVisible();
  await expect(page.locator('.job-panel tbody tr').filter({hasText:'Conflict example'})).toContainText('Master Files Ready');
@@ -89,7 +90,8 @@ test('V2.3 production handover retains source desk and updates without duplicate
   ready={...ready,production_status:'Review Files',version:2};
   return r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({job:ready})});
  });
- await page.reload();
+ await page.goto('/');
+ await expect(page.locator('nav.ksl-dock')).toBeVisible();
  const toggle=page.getByRole('button',{name:'Open job spaces'});
  if(await toggle.isVisible())await toggle.click();
  await page.locator('aside.sidebar').getByRole('navigation',{name:'Shared production space'}).locator('button').click();
@@ -104,7 +106,7 @@ test('V2.3 production handover retains source desk and updates without duplicate
 });
 test('V2.3 offline state blocks new changes while preserving loaded jobs',async({page,context})=>{
  await page.route('**/api/bootstrap*',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(bootstrap([makeJob(925,'Offline visible job',localDate(0))]))}));
- await page.reload();await openAllJobs(page);
+ await page.goto('/');await openAllJobs(page);
  await context.setOffline(true);
  await expect(page.getByText(/Offline — Jobs remain visible/)).toBeVisible();
  await expect(page.locator('.job-panel tbody')).toContainText('Offline visible job');

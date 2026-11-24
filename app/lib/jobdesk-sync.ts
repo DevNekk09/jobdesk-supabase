@@ -1,6 +1,6 @@
 /** Pure helpers for safe UI handling of concurrent job updates. */
 export function isJobConflict(message:string):boolean{
- return /\b(conflict|version|stale|changed|out.of.date|already updated|409)\b/i.test(message);
+ return /\b(conflict|version|stale|changed|out.of.date|already updated|409)\b|updated by another (?:staff member|browser)/i.test(message);
 }
 export function saveErrorMessage(message:string):string{
  return isJobConflict(message)

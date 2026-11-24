@@ -36,3 +36,9 @@ test('V2.3 moves reusable modal to a standalone component preserving focus',()=>
  assert.match(modal,/old\?\.focus\(\)/);
  assert.match(modal,/useId\(\)/);
 });
+
+test('conflict handling recognizes the actual current Supabase API message',()=>{
+ const api=read('api.ts'),sync=read('app/lib/jobdesk-sync.ts');
+ assert.match(api,/This job was updated by another staff member/);
+ assert.match(sync,/updated by another \(\?:staff member\|browser\)/);
+});

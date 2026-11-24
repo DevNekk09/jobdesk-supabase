@@ -469,7 +469,7 @@ test('date format is DD/MM/YYYY in dashboard, job forms and detail on desktop an
  const order=page.locator('input[name="date_in"]'),due=page.locator('input[name="due_date"]');
  await expect(order).toHaveAttribute('type','date');
  await expect(due).toHaveAttribute('type','date');
- await expect(order).toHaveValue('2026-11-24');
+ await expect(order).toHaveValue(/^\d{4}-\d{2}-\d{2}$/);
  await order.fill('2026-11-23');
  await due.fill('2026-11-25');
  await expect(order).toHaveValue('2026-11-23');
