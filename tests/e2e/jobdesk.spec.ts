@@ -216,42 +216,34 @@ test('the initial workspace has no splash, opening message, or spinner',async({p
  await expect(page.getByRole('heading',{name:'Team overview'})).toBeVisible();
 });
 
-test('designer sidebar sorts by dragging and promotes selected desk to first position, saved on reload',async({page,isMobile})=>{
+test('designer names are tap-only; selected desk rises to top and persists after reload',async({page})=>{
  const users=[
   {id:31,name:'Alice',email:'alice@local.invalid',role:'Designer',active:true},
   {id:32,name:'Bashir',email:'bashir@local.invalid',role:'Designer',active:true},
   {id:33,name:'Carina',email:'carina@local.invalid',role:'Designer',active:true}
  ];
  const spaces=users.map((u,i)=>({id:301+i,name:u.name,owner_user_id:u.id,sort_order:i+1}));
- await page.route('**/api/bootstrap*',route=>route.fulfill({
-  status:200,contentType:'application/json',
-  body:JSON.stringify({...emptyWorkspace,users,spaces})
- }));
+ await page.route('**/api/bootstrap*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...emptyWorkspace,users,spaces})}));
  await page.reload();
- if(isMobile)await page.getByRole('button',{name:'Open job spaces'}).click();
- const nav=page.getByRole('navigation',{name:'Designer job spaces'});
+ const sidebar=page.locator('aside.sidebar');
+ const toggle=page.getByRole('button',{name:'Open job spaces'});
+ if(await toggle.isVisible())await toggle.click();
+ const nav=sidebar.getByRole('navigation',{name:'Designer job spaces'});
  const ids=async()=>nav.locator('button[data-designer-desk]').evaluateAll(nodes=>nodes.map(n=>Number((n as HTMLElement).dataset.designerDesk)));
  await expect(nav.locator('button[data-designer-desk]')).toHaveCount(3);
  expect(await ids()).toEqual([301,302,303]);
+ await expect(nav.locator('.desk-drag-grip')).toHaveCount(0);
+ await expect(nav.locator('[draggable="true"]')).toHaveCount(0);
+ expect(await nav.locator('button[data-designer-desk]').first().getAttribute('aria-keyshortcuts')).toBeNull();
  await nav.locator('button[data-designer-desk="303"]').click();
- if(isMobile)await page.getByRole('button',{name:'Open job spaces'}).click();
- expect(await ids()).toEqual([303,301,302]);
- const handle=nav.locator('button[data-designer-desk="302"] .desk-drag-grip');
- const target=nav.locator('button[data-designer-desk="301"]');
- await handle.scrollIntoViewIfNeeded();
- const from=await handle.boundingBox(),to=await target.boundingBox();
- expect(from).not.toBeNull();expect(to).not.toBeNull();
- await page.mouse.move(from!.x+from!.width/2,from!.y+from!.height/2);
- await page.mouse.down();
- await page.mouse.move(to!.x+to!.width/2,to!.y+to!.height/2,{steps:7});
- await page.mouse.up();
- await expect.poll(ids).toEqual([303,302,301]);
- await page.reload();
- if(isMobile)await page.getByRole('button',{name:'Open job spaces'}).click();
- await expect.poll(ids).toEqual([303,302,301]);
- await nav.locator('button[data-designer-desk="301"]').focus();
- await page.keyboard.press('Alt+ArrowUp');
+ if(await toggle.isVisible())await toggle.click();
  await expect.poll(ids).toEqual([303,301,302]);
+ await page.reload();
+ if(await toggle.isVisible())await toggle.click();
+ await expect.poll(ids).toEqual([303,301,302]);
+ await nav.locator('button[data-designer-desk="301"]').click();
+ if(await toggle.isVisible())await toggle.click();
+ await expect.poll(ids).toEqual([301,302,303]);
 });
 
 test('extended designer sidebar scrolls independently without overflowing viewport',async({page,isMobile})=>{
@@ -312,3 +304,57 @@ test('Production is a separate sidebar shortcut directly above Settings, not ins
  await settings.click();
  await expect(page.getByRole('heading',{name:'Workspace settings.'})).toBeVisible();
 });
+
+const responsiveSizes=[
+ {w:320,h:640},{w:390,h:844},{w:768,h:1024},{w:900,h:768},{w:1024,h:800},{w:1366,h:900}
+];
+for(const {w,h} of responsiveSizes){
+ test('fluid layout fits '+w+'×'+h+' without overlap across workspace, production and settings',async({page})=>{
+  const users=Array.from({length:6},(_,i)=>({id:100+i,name:i===0?'Long Designer Workspace Example':'Designer '+(i+1),email:'staff'+i+'@invalid.local',role:'Designer',active:true}));
+  const spaces=users.map((u,i)=>({id:200+i,name:u.name,owner_user_id:u.id,sort_order:i}));
+  const jobs=Array.from({length:4},(_,i)=>({
+   id:700+i,invoice_id:'INV-2026-0070'+i,name:'Production and design campaign '+i,
+   date_in:'2026-11-20',due_date:'2026-11-28',priority:'Normal',
+   status:i===0?'Confirmed':'Awaiting Sales',assigned_to:100,space_id:200,
+   production_status:i===0?'Printing':null,confirmed_at:i===0?'2026-11-20T02:00:00Z':null,
+   created_at:'2026-11-20T02:00:00Z',version:1
+  }));
+  await page.route('**/api/bootstrap*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...emptyWorkspace,users,spaces,jobs})}));
+  await page.setViewportSize({width:w,height:h});
+  await page.reload();
+  const sidebar=page.locator('aside.sidebar');
+  const toggle=page.getByRole('button',{name:'Open job spaces'});
+  const assertFits=async(context:string)=>{
+   const size=await page.evaluate(()=>({document:document.documentElement.scrollWidth,body:document.body.scrollWidth,viewport:window.innerWidth}));
+   expect(size.document,context+' html overflow at '+w).toBeLessThanOrEqual(size.viewport+1);
+   expect(size.body,context+' body overflow at '+w).toBeLessThanOrEqual(size.viewport+1);
+   const main=await page.locator('.app-main').boundingBox();
+   expect(main,context+' content visible').not.toBeNull();
+   expect(main!.x+main!.width,context+' main right edge').toBeLessThanOrEqual(w+1);
+  };
+  await expect(page.getByRole('heading',{name:'Team overview.'})).toBeVisible();
+  await assertFits('overview');
+  const mobile=await toggle.isVisible();
+  if(mobile)await toggle.click();
+  await expect(sidebar.getByRole('navigation',{name:'Designer job spaces'})).toBeVisible();
+  const production=sidebar.getByRole('navigation',{name:'Shared production space'});
+  const settings=sidebar.locator('.sidebar-settings');
+  await expect(production).toBeVisible();
+  await expect(settings).toBeVisible();
+  const sideBox=await sidebar.boundingBox();
+  expect(sideBox!.x, 'sidebar must be inside viewport').toBeGreaterThanOrEqual(0);
+  expect(sideBox!.x+sideBox!.width, 'sidebar must fit screen').toBeLessThanOrEqual(w+1);
+  expect((await production.boundingBox())!.y).toBeLessThan((await settings.boundingBox())!.y);
+  await sidebar.getByRole('navigation',{name:'Designer job spaces'}).locator('button[data-designer-desk="200"]').click();
+  await expect(page.getByRole('heading',{name:/Long Designer Workspace Example/})).toBeVisible();
+  await assertFits('personal workspace');
+  if(mobile)await toggle.click();
+  await production.locator('button').click();
+  await expect(page.getByRole('heading',{name:'Production Jobdesk.'})).toBeVisible();
+  await assertFits('production');
+  if(mobile)await toggle.click();
+  await settings.click();
+  await expect(page.getByRole('heading',{name:'Workspace settings.'})).toBeVisible();
+  await assertFits('settings');
+ });
+}
