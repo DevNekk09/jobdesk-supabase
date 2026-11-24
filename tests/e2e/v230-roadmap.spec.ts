@@ -36,7 +36,13 @@ test('V2.3 compact cards and quick filters fit responsive screens',async({page})
   await page.setViewportSize({width,height:850});
   const widths=await page.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:window.innerWidth}));
   expect(widths.document,'overflow at '+width).toBeLessThanOrEqual(width+1);
-  await expect(list.locator('tbody tr').first()).toHaveCSS('display',width<=900?'grid':'table-row');
+  await expect(list.locator('tbody tr').first()).toHaveCSS('display','grid');
+  const geometry=await list.locator('tbody tr').first().evaluate(row=>{
+   const date=row.querySelector('.schedule-cell')!.getBoundingClientRect(),title=row.querySelector('.ticket-title-cell')!.getBoundingClientRect(),progress=row.querySelector('.ticket-progress')!.getBoundingClientRect();
+   return {left:date.right<=title.left+1,stacked:progress.top>=title.bottom-1};
+  });
+  expect(geometry.left,'calendar left at '+width).toBe(true);
+  expect(geometry.stacked,'progress below title at '+width).toBe(true);
  }
  await list.getByRole('button',{name:/^Today/}).click();
  await expect(list.locator('tbody tr')).toHaveCount(1);
