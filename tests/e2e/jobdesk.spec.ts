@@ -289,3 +289,26 @@ test('fast refresh guard does not make a duplicate bootstrap request on immediat
  await page.getByRole('button',{name:'Refresh job list'}).click();
  await expect.poll(()=>count).toBe(2);
 });
+
+test('Production is a separate sidebar shortcut directly above Settings, not inside Designer Jobdesks',async({page,isMobile})=>{
+ await expect(page.locator('nav.ksl-dock')).toBeVisible();
+ if(isMobile)await page.getByRole('button',{name:'Open job spaces'}).click();
+ const sidebar=page.locator('aside.sidebar');
+ const production=sidebar.getByRole('navigation',{name:'Shared production space'});
+ const designers=sidebar.getByRole('navigation',{name:'Designer job spaces'});
+ const bottom=sidebar.locator('.sidebar-bottom');
+ const settings=sidebar.locator('button.sidebar-settings');
+ await expect(production).toBeVisible();
+ await expect(settings).toBeVisible();
+ expect(await production.evaluate(el=>el.closest('.sidebar-scroll')===null)).toBe(true);
+ expect(await production.evaluate(el=>el.closest('.sidebar-production-shortcut')!==null)).toBe(true);
+ expect(await bottom.evaluate(el=>el.children[0]?.classList.contains('sidebar-production-shortcut'))).toBe(true);
+ expect(await designers.locator('.production-space-nav')).toHaveCount(0);
+ expect((await production.boundingBox())!.y).toBeLessThan((await settings.boundingBox())!.y);
+ await production.locator('button').click();
+ await expect(page.getByRole('heading',{name:'Production Jobdesk.'})).toBeVisible();
+ if(isMobile)await page.getByRole('button',{name:'Open job spaces'}).click();
+ await expect(bottom.getByRole('navigation',{name:'Production stages'}).locator('button')).toHaveCount(6);
+ await settings.click();
+ await expect(page.getByRole('heading',{name:'Workspace settings.'})).toBeVisible();
+});

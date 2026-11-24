@@ -236,3 +236,35 @@ html[data-motion="off"] *,html[data-motion="off"] *::before,html[data-motion="of
 }
 html[data-motion="off"] .sidebar-scroll{scroll-behavior:auto}
 html[data-motion="off"] .designer-reorder-nav>button{transition:none}
+
+/* V2.1.2: Production is an independent shortcut, immediately before Settings.
+   The scrollable Designer Jobdesks list ends above this footer. */
+.sidebar-bottom{
+ min-height:0;
+ flex-shrink:1;
+ overflow-y:auto;
+ overflow-x:hidden;
+ overscroll-behavior-y:contain;
+ scrollbar-width:thin;
+ scrollbar-color:#3e604b transparent;
+}
+.sidebar-production-shortcut{
+ margin:0 1px 11px;
+ padding:0 0 12px;
+ border-bottom:1px solid #ffffff20;
+ flex:0 0 auto;
+}
+.sidebar-production-shortcut .production-space-nav{margin:0}
+.sidebar-production-shortcut .production-space-nav>button{width:100%;min-width:0}
+.sidebar-production-shortcut .production-subnav{
+ max-height:min(20vh,132px);
+ overflow-y:auto;
+ overscroll-behavior-y:contain;
+ scrollbar-width:thin;
+ scrollbar-color:#3e604b transparent;
+}
+.sidebar-production-shortcut .production-subnav>button{min-height:34px}
+@media(max-height:650px){
+ .sidebar-production-shortcut .production-subnav{max-height:84px}
+ .sidebar-production-shortcut{margin-bottom:8px;padding-bottom:8px}
+}
