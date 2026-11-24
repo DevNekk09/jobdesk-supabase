@@ -115,7 +115,7 @@ test('V2.3 offline state blocks new changes while preserving loaded jobs',async(
  await expect(page.getByText(/Offline — Jobs remain visible/)).toHaveCount(0);
 });
 
-test('undo progress control appears and invoice reference stays hidden',async({page})=>{
+test('undo progress uses the current version and keeps invoice reference hidden',async({page})=>{
  let job=makeJob(940,'Undo design example',localDate(1),'Master Files Ready');
  let calls=0;
  await page.route('**/api/bootstrap*',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(bootstrap([job]))}));
@@ -129,5 +129,9 @@ test('undo progress control appears and invoice reference stays hidden',async({p
  await expect(page.locator('.job-panel tbody')).not.toContainText('INV-TEST-940');
  await page.getByRole('button',{name:'Open Undo design example'}).click();
  await expect(page.locator('[role="dialog"]')).not.toContainText('INV-TEST-940');
+ await page.getByRole('button',{name:'Undo progress',exact:true}).click();
+ await page.getByRole('button',{name:'Confirm',exact:true}).click();
  await expect(page.getByRole('button',{name:'Undo progress',exact:true})).toBeVisible();
+ await expect.poll(()=>calls).toBe(1);
+ await expect(page.locator('.job-panel tbody')).toContainText('Preparing Master Files');
 });
