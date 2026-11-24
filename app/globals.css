@@ -444,3 +444,122 @@ html,body,#root{width:100%;min-width:0}
 .job-name-inline .job-link{min-width:0;max-width:100%;overflow-wrap:anywhere}
 .job-new-label{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;padding:2px 6px;min-height:18px;border:1px solid #d4e4c4;border-radius:5px;background:#f0f7e8;color:#547c33;font-size:.6rem;line-height:1.2;letter-spacing:.035em;font-weight:650;vertical-align:middle}
 @media(max-width:700px){.job-name-inline{gap:5px}.job-new-label{padding:2px 5px;font-size:.57rem}}
+
+
+/* Jobdesk V2.3.0 — compact, accessible list cards, quick actions and reliable sync. */
+.job-panel.v23-job-list .table-scroll{overflow:visible;max-width:100%;min-width:0}
+.job-panel.v23-job-list table,
+.job-panel.v23-job-list tbody{display:block;width:100%;max-width:100%;min-width:0}
+.job-panel.v23-job-list thead{display:none}
+.job-panel.v23-job-list tbody{display:grid;gap:9px;padding:12px}
+.job-panel.v23-job-list tbody tr{
+ display:grid;grid-template-columns:minmax(0,2.15fr) minmax(88px,.8fr) minmax(120px,1fr) minmax(142px,1.15fr) auto;
+ align-items:center;gap:clamp(8px,1.2vw,16px);
+ background:#fff;border:1px solid #e5ebe1;border-radius:13px;
+ padding:12px 15px;min-width:0;max-width:100%;
+ box-shadow:0 2px 9px #223a1707;
+ transition:border-color .16s ease,background-color .16s ease,box-shadow .16s ease;
+}
+.job-panel.v23-job-list tbody tr:hover{background:#fbfdf9;border-color:#cdddc5;box-shadow:0 3px 11px #223a170a}
+.job-panel.v23-job-list tbody td{
+ display:block;min-width:0;max-width:100%;padding:0;border:0;grid-column:auto;grid-row:auto;
+ align-self:center;white-space:normal;
+}
+.job-panel.v23-job-list tbody td:first-child{grid-column:1;grid-row:1}
+.job-panel.v23-job-list tbody td:nth-child(2){grid-column:2;grid-row:1}
+.job-panel.v23-job-list tbody td:nth-child(3){grid-column:3;grid-row:1}
+.job-panel.v23-job-list tbody td:nth-child(4){grid-column:4;grid-row:1}
+.job-panel.v23-job-list tbody td:nth-child(5){grid-column:5;grid-row:1}
+.job-panel.v23-job-list .job-title-cell{min-width:0;gap:9px}
+.job-panel.v23-job-list .job-title-cell>div{min-width:0;flex:1}
+.job-panel.v23-job-list .doc-icon{display:grid;width:33px;height:36px}
+.job-panel.v23-job-list .job-link{font-size:.84rem;line-height:1.35;max-width:100%;font-weight:600;color:#334c32;overflow-wrap:anywhere}
+.job-panel.v23-job-list .job-ref{display:flex;flex-wrap:wrap;gap:5px 7px;margin-top:4px;font-size:.64rem;line-height:1.4;overflow-wrap:anywhere}
+.job-panel.v23-job-list .space-tag{font-size:.62rem;min-width:0}
+.job-panel.v23-job-list .status{display:inline-flex;align-items:center;gap:5px;max-width:100%;font-size:.71rem;font-weight:500;white-space:normal;line-height:1.35;padding:5px 8px}
+.job-panel.v23-job-list .mini-progress{display:flex;max-width:180px;margin-top:6px;gap:3px}
+.job-panel.v23-job-list .mini-progress i{height:4px;min-width:8px;border-radius:999px;flex:1}
+.job-panel.v23-job-list .ordered{font-size:.76rem;color:#647562}
+.job-panel.v23-job-list .due-date{font-size:.8rem;font-weight:600}
+.job-panel.v23-job-list td>small{font-size:.7rem;line-height:1.35}
+.v23-row-actions{display:flex!important;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+.v23-quick-next,.v23-production-next{
+ display:inline-flex;align-items:center;justify-content:center;gap:6px;
+ min-height:35px;padding:7px 10px;border:1px solid #d8e7ce;
+ border-radius:9px;background:#f0f7eb;color:#3b6840;font-weight:600;
+ font-size:.72rem;line-height:1.25;white-space:nowrap;
+ transition:background-color .15s ease,border-color .15s ease;
+}
+.v23-quick-next:hover:not(:disabled),.v23-production-next:hover:not(:disabled){background:#e2f0dc;border-color:#bfd6b4}
+.v23-quick-next svg,.v23-production-next svg{width:15px;height:15px}
+.v23-quick-next:disabled,.v23-production-next:disabled{opacity:.52;cursor:not-allowed}
+.job-panel.v23-job-list .open-job{width:35px;height:35px;min-width:35px;min-height:35px;display:grid;place-items:center;border:1px solid #e5ece0;background:#fafcf7;border-radius:9px}
+.job-panel.v23-job-list .production-colored-progress{max-width:175px}
+.v23-quick-filters{display:flex;align-items:center;gap:6px;padding:0 15px 13px;max-width:100%;overflow-x:auto;scrollbar-width:thin;overscroll-behavior-x:contain}
+.v23-quick-filters>button{
+ display:inline-flex;align-items:center;justify-content:center;gap:5px;
+ border:1px solid #e2e9dc;border-radius:9px;padding:7px 9px;
+ background:#fafcf8;color:#63765b;min-height:35px;flex:0 0 auto;
+ font-size:.71rem;font-weight:550;white-space:nowrap;
+}
+.v23-quick-filters>button:hover{border-color:#cbdac0;background:#f5faf0}
+.v23-quick-filters>button.selected{border-color:#aac99e;background:#eef6e9;color:#396c3c}
+.v23-quick-filters>button svg{width:13px;height:13px}
+.v23-quick-filters>button small{font-size:.65rem;color:inherit;opacity:.72;font-variant-numeric:tabular-nums}
+.v23-quick-filters>button:focus-visible,.v23-quick-next:focus-visible,.v23-production-next:focus-visible,
+.job-panel.v23-job-list .job-link:focus-visible,.job-panel.v23-job-list .open-job:focus-visible{
+ outline:2px solid #3b7b45;outline-offset:3px
+}
+.v23-handover{overflow:hidden}
+.v23-handover .handover-row{padding:13px 20px;gap:10px;flex-wrap:wrap}
+.v23-handover .handover-row>div{flex:1 1 200px;min-width:0}
+.v23-handover .handover-row small{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:5px;color:#677d65}
+.v23-handover .handover-row small svg{width:13px;height:13px}
+.v23-handover .handover-row .btn{min-height:38px;flex-shrink:0}
+.v23-handover-ready{display:inline-flex;align-items:center;gap:5px;padding:4px 7px;margin-top:6px;font-size:.68rem;font-weight:550;background:#f1f8ef;color:#54795a;border-radius:7px}
+.v23-handover-ready svg{width:13px;height:13px}
+.v23-connection-banner{position:fixed;z-index:150;bottom:84px;left:50%;transform:translateX(-50%);
+ display:flex;align-items:center;gap:12px;width:min(560px,calc(100vw - 24px));
+ padding:12px 14px;border:1px solid #f1d8af;border-radius:13px;
+ background:#fffbf3;box-shadow:0 9px 30px #28190020;color:#805b25;font-size:.77rem;line-height:1.5}
+.v23-connection-banner svg{width:18px;height:18px;flex-shrink:0}
+.v23-connection-banner span{flex:1;min-width:0}
+.v23-connection-banner .text-btn{color:#7b551b;white-space:nowrap}
+@media (min-width:901px) and (max-width:1240px){
+ .job-panel.v23-job-list tbody tr{grid-template-columns:minmax(0,1.6fr) minmax(95px,.8fr) minmax(122px,1fr) auto;gap:9px}
+ .job-panel.v23-job-list tbody td:nth-child(2){display:none}
+ .job-panel.v23-job-list tbody td:nth-child(3){grid-column:2}
+ .job-panel.v23-job-list tbody td:nth-child(4){grid-column:3}
+ .job-panel.v23-job-list tbody td:nth-child(5){grid-column:4}
+}
+@media(max-width:900px){
+ .job-panel.v23-job-list tbody{gap:8px;padding:9px}
+ .job-panel.v23-job-list tbody tr{
+  grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;
+  padding:13px 12px;
+ }
+ .job-panel.v23-job-list tbody td:first-child{grid-column:1;grid-row:1}
+ .job-panel.v23-job-list tbody td:nth-child(2){display:none}
+ .job-panel.v23-job-list tbody td:nth-child(3){grid-column:1;grid-row:2}
+ .job-panel.v23-job-list tbody td:nth-child(4){grid-column:1/-1;grid-row:3}
+ .job-panel.v23-job-list tbody td:nth-child(5){grid-column:2;grid-row:1 / 3;align-self:center}
+ .job-panel.v23-job-list .doc-icon{width:30px;height:32px}
+ .job-panel.v23-job-list .job-link{font-size:.83rem}
+ .job-panel.v23-job-list .job-ref{font-size:.63rem}
+ .job-panel.v23-job-list .status{font-size:.7rem}
+ .job-panel.v23-job-list .mini-progress{max-width:220px}
+ .v23-quick-filters{padding:0 11px 12px}
+ .v23-row-actions{flex-direction:column}
+ .v23-handover .handover-row{padding:12px 14px}
+}
+@media(max-width:390px){
+ .job-panel.v23-job-list tbody tr{padding:11px 10px;gap:6px 9px}
+ .v23-quick-next{min-width:35px;padding:7px;gap:0}
+ .v23-quick-next span{display:none}
+ .v23-quick-filters>button{padding:7px 8px}
+ .v23-handover .handover-row .btn{width:100%}
+ .v23-connection-banner{bottom:77px;padding:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .job-panel.v23-job-list tbody tr,.v23-quick-next,.v23-production-next{transition:none}
+}
