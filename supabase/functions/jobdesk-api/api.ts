@@ -184,7 +184,7 @@ async function handler(req:Request){try{
   });
   return json({ok:true});
  }
- const jm=path.match(/^\/api\/jobs\/(\d+)(?:\/(confirm|status|comment|file|complete|reopen|priority|progress|space|delete|restore|unconfirm|production|purge))?$/);
+ const jm=path.match(/^\/api\/jobs\/(\d+)(?:\/(confirm|status|comment|file|complete|reopen|priority|progress|space|delete|restore|unconfirm|production|undo-progress|undo-production|purge))?$/);
  if(jm){const id=Number(jm[1]),action=jm[2],j=await getJob(id);if(!j)fail('Job not found.',404);
   if(method==='GET'){const a=await db.prepare('SELECT a.*,u.name AS user_name FROM activity a JOIN users u ON u.id=a.user_id WHERE job_id=? ORDER BY a.id DESC').bind(id).all();return json({job:j,activity:a.results})}
   const b=await data(req);
@@ -218,6 +218,19 @@ async function handler(req:Request){try{
   }else if(action==='delete'&&method==='POST'){role(u,['Admin','Designer','Sales']);if(j.status==='Deleted')fail('Job is already in Trash.');update.status='Deleted';update.deleted_from_status=j.status;message='Moved job to Trash';
   }else if(action==='restore'&&method==='POST'){role(u,['Admin','Designer','Sales']);if(j.status!=='Deleted')fail('Job is not in Trash.');update.status=j.deleted_from_status||'Awaiting Sales';update.deleted_from_status=null;message='Restored job from Trash';
   }else if(action==='unconfirm'&&method==='POST'){role(u,['Admin','Designer','Sales']);if(j.production_status&&j.production_status!=='Review Files')fail('Production has started. Confirmation cannot be cancelled while production is in progress.');if(!j.confirmed_at||['Deleted','Completed','Cancelled'].includes(j.status))fail('Only active confirmed jobs can have confirmation cancelled.');Object.assign(update,{production_status:null,production_updated_at:null,status:'Awaiting Sales',confirmed_at:null,confirmed_by:null,artwork_approved:0,print_checked:0,print_file_url:''});message='Cancelled confirmation — file preparation reset';
+  }else if(action==='undo-progress'&&method==='POST'){
+   role(u,['Admin','Designer']);
+   const at=workflow.indexOf(j.status);
+   if(!j.confirmed_at||at<=0)fail('There is no previous file preparation stage.');
+   if(j.production_status)fail('Undo production handover before moving design progress backwards.',409);
+   update.status=workflow[at-1];message=`Undo progress: ${j.status} → ${update.status}`;
+  }else if(action==='undo-production'&&method==='POST'){
+   role(u,['Admin','Designer','Print']);
+   const at=production.indexOf(j.production_status);
+   if(at<0||!j.confirmed_at||!(stage(j)===workflow.at(-1)||j.status==='Completed'))fail('There is no production stage to undo.');
+   update.production_status=at===0?null:production[at-1];
+   update.production_updated_at=at===0?null:now();
+   message=`Undo production: ${j.production_status} → ${update.production_status||'Waiting for handover'}`;
   }else if(action==='progress'&&method==='POST'){
    role(u,['Admin','Designer']);if(!j.confirmed_at)fail('Confirm the job before updating file progress.');const current=stage(j),index=workflow.indexOf(current);if(index<0||index===workflow.length-1)fail('This job has no further preparation stage.');const next=workflow[index+1];if(b.status!==next)fail('Update progress one stage at a time.');update.status=next;message=`${current} → ${next}`;
   }else if(action==='space'&&method==='POST'){

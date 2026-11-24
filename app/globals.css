@@ -532,3 +532,18 @@ html,body,#root{width:100%;min-width:0}
  .v23-connection-banner{bottom:77px;padding:10px}
 }
 @media(prefers-reduced-motion:reduce){.job-panel.v23-job-list tbody tr,.v23-quick-next,.v23-production-next{transition:none}}
+
+/* V2.1.8 visual baseline — refined calendar and date cells, no extra card chrome. */
+.dash-priority-list .dash-date{width:40px;height:44px;gap:2px;line-height:1.1;font-size:1rem;font-weight:700}
+.dash-priority-list .dash-date>svg{width:14px;height:14px;flex-shrink:0;opacity:.85}
+.dash-priority-list .dash-date>span{font-variant-numeric:tabular-nums}
+.job-panel.v23-job-list .job-date-value{display:block;color:#405643;font-weight:500;font-size:.86rem;line-height:1.4;font-variant-numeric:tabular-nums;white-space:normal}
+.job-panel.v23-job-list tbody td:nth-child(3)>small{font-size:.73rem;font-weight:400;line-height:1.35;margin-top:4px;white-space:normal}
+.job-panel.v23-job-list tbody td:nth-child(3)>small.late::before,.job-panel.v23-job-list tbody td:nth-child(3)>small.soon::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;vertical-align:2px;margin-right:5px}
+.job-panel.v23-job-list .job-ref{margin-top:5px}
+.job-panel.v23-job-list th:nth-child(2),.job-panel.v23-job-list th:nth-child(3){text-transform:none;letter-spacing:0;font-weight:550}
+.job-undo-action{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;font-weight:500;color:#536b4e;border:1px solid #e0e9dc;background:#fafcf8}
+.job-undo-action svg{width:16px;height:16px}
+.production-detail .job-undo-action{margin:6px 0 0 8px}
+@media(max-width:900px){.job-panel.v23-job-list .job-date-value{font-size:.86rem}.job-panel.v23-job-list tbody td:nth-child(2)::before,.job-panel.v23-job-list tbody td:nth-child(3)::before{font-size:.72rem;margin-bottom:3px}}
+@media(max-width:600px){.job-action-area>.job-undo-action{width:100%}.production-detail .job-undo-action{margin:8px 0 0;width:100%}}
