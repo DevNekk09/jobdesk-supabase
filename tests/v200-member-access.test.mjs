@@ -53,7 +53,7 @@ test('Month scoped loading preserves global deadline metrics',()=>{
  assert.match(api,/overdue_by_space:overdue\.results/);
  assert.match(api,/near_deadline_by_space:nearDeadline\.results/);
  assert.match(page,/const overdueCount=month==='all'/);
- assert.match(page,/if\(d==='overdue'\|\|d==='urgent'\|\|d==='soon'\)setMonth\('all'\)/);
+ assert.match(page,/if\(d==='overdue'\|\|d==='urgent'\|\|d==='soon'\|\|d==='today'\)setMonth\('all'\)/);
  assert.equal((page.match(/label:'Overdue',value:overdueCount/g)||[]).length,2);
  assert.equal((page.match(/label:'Urgent jobs',value:urgentCount/g)||[]).length,2);
  assert.equal((page.match(/label:'Due in 3 days',value:soonCount/g)||[]).length,2);
