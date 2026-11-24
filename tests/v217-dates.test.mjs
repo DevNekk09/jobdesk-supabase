@@ -12,7 +12,8 @@ test('DD/MM/YYYY formatting keeps ISO for sorting and database APIs',()=>{
  assert.match(page,/due_date:parseDisplayDate\(String\(fields\.get\('due_date'\)/);
  assert.match(page,/values\.due_date<values\.date_in/);
  assert.match(page,/a\.due_date\.localeCompare\(b\.due_date\)/);
- assert.match(page,/inputMode="numeric"/);
- assert.doesNotMatch(page,/name="date_in" type="date"/);
- assert.doesNotMatch(page,/name="due_date" type="date"/);
+ assert.match(page,/name="date_in" type="date"/);
+ assert.match(page,/name="due_date" type="date"/);
+ assert.doesNotMatch(page,/name="date_in" type="text"/);
+ assert.doesNotMatch(page,/name="due_date" type="text"/);
 });
