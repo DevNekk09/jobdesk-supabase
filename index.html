@@ -52,11 +52,11 @@ html,body{background:#f3f6f4;margin:0;min-height:100%;color:#20362a;font-family:
   if (favicon) favicon.href = base + 'icon.svg?v=211';
   var style = document.createElement('link');
   style.rel = 'stylesheet';
-  style.href = base + 'assets/jobdesk-compiled.css?v=230-teamoverview-b9a2567';
+  style.href = base + 'assets/jobdesk-compiled.css?v=230-overview-revert-364a62f';
   document.head.appendChild(style);
   var bundle = document.createElement('script');
   bundle.type = 'module';
-  bundle.src = base + 'assets/jobdesk-compiled.js?v=230-teamoverview-b9a2567';
+  bundle.src = base + 'assets/jobdesk-compiled.js?v=230-overview-revert-364a62f';
   bundle.onerror = function () {
     if(typeof window.showJobdeskBootFailure==='function') window.showJobdeskBootFailure();
   };
