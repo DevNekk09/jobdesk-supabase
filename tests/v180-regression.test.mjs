@@ -48,7 +48,7 @@ test('non-blocking refresh and performance modules have safe fallbacks',()=>{
  assert.match(client,/new AbortController\(\)/);
  assert.match(client,/25000/);
  assert.match(client,/clearTimeout\(timeout\)/);
- assert.match(dates,/const dayFormat=new Intl\.DateTimeFormat/);
- assert.match(dates,/const dateShort=new Intl\.DateTimeFormat/);
+ assert.match(dates,/const isoParts=new Intl\.DateTimeFormat/);
+ assert.match(dates,/const monthFormat=new Intl\.DateTimeFormat/);
  assert.match(read('frontend/main.tsx'),/styles\/fluid\.css/);
 });
