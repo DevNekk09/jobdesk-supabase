@@ -25,7 +25,7 @@ test('Jobsheet and Urgent cards exist in personal and team views',()=>{
  assert.ok(page.match(/label:'Urgent jobs'/g).length>=2);
  assert.match(page,/urgent=openJobs\.filter\(isUrgent\)/);
  assert.match(page,/deadline==='urgent'&&isUrgent\(j\)/);
- assert.match(page,/isUrgent\(j\)\?'bolt':'file'/);
+ assert.match(page,/isUrgent\(j\)&&<span className="ticket-urgent"[^>]*><Icon name="bolt"\/>/);
  assert.match(css,/\.team-metrics\{grid-template-columns:repeat\(5,/);
  assert.match(css,/\.personal-stats\{grid-template-columns:repeat\(4,/);
 });
