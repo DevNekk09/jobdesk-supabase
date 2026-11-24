@@ -50,7 +50,7 @@ test('V2.3 compact cards and quick filters fit responsive screens',async({page})
  await list.getByRole('button',{name:/^Overdue/}).click();
  await expect(list.locator('tbody tr')).toHaveCount(1);
  await expect(list.locator('tbody')).toContainText('Overdue job');
- await expect(list.locator('.job-schedule.schedule-late .schedule-detail')).toContainText('overdue');
+ await expect(list.locator('.ticket-reminder.reminder-late .schedule-detail')).toContainText('overdue');
  await list.getByRole('button',{name:/^All/}).click();
  await list.getByRole('textbox',{name:'Search jobs'}).fill('INV-TEST-902');
  await expect(list.locator('tbody tr')).toHaveCount(1);
@@ -158,4 +158,19 @@ test('Trash has a dedicated review state with no active deadline controls',async
  await expect(list.locator('tbody')).not.toContainText('days overdue');
  await expect(list.getByRole('button',{name:'Open Deleted review example'})).toBeVisible();
  await expect(list.getByRole('button',{name:/Clear all Trash/})).toHaveCount(0);
+});
+
+test('deadline reminders sort chronologically and mark each near-deadline state',async({page})=>{
+ const jobs=[makeJob(961,'Later job',localDate(5)),makeJob(962,'Two days job',localDate(2)),makeJob(963,'Today job',localDate(0)),makeJob(964,'Overdue job',localDate(-1)),makeJob(965,'Tomorrow job',localDate(1)),makeJob(966,'Three days job',localDate(3))];
+ jobs[0]={...jobs[0],priority:'Urgent'};
+ const payload={...bootstrap(jobs),available_months:[...new Set(jobs.map(j=>j.due_date.slice(0,7)).concat(localDate(0).slice(0,7)))]};
+ await page.route('**/api/bootstrap*',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(payload)}));
+ await page.goto('/');await openAllJobs(page);
+ const list=page.locator('.job-panel.ticket-list');
+ await expect(list.locator('tbody .job-link')).toHaveText(['Overdue job','Today job','Tomorrow job','Two days job','Three days job','Later job']);
+ for(const [tone,label] of [['late','1 day overdue'],['today','Due today'],['tomorrow','Due tomorrow'],['two-days','Due in 2 days'],['three-days','Due in 3 days'],['normal','Due in 5 days']]){
+  await expect(list.locator('.ticket-reminder.reminder-'+tone)).toHaveText(label);
+ }
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await expect(list.locator('.reminder-today svg')).toHaveCSS('animation-name','none');
 });

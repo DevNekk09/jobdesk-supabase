@@ -5,7 +5,7 @@ const icons:Record<string,ReactNode>={
  settings:<><path d="m9 3-.6 2.2-2 .9-2.1-.6-2.3 4 1.6 1.6v2L2 14.7l2.3 4 2.1-.6 2 .9L9 21h6l.6-2.1 2-.9 2.1.6 2.3-4-1.6-1.6v-2L22 9.5l-2.3-4-2.1.6-2-.9L15 3z"/><circle cx="12" cy="12" r="3"/></>,
  grid:<><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></>,
  file:<><path d="M14 3H5v18h14V8l-5-5ZM14 3v6h5M9 13h6M9 17h4"/></>,
- check:<path d="m5 12 4 4L19 6"/>,plus:<path d="M12 5v14M5 12h14"/>,clock:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
+ check:<path d="m5 12 4 4L19 6"/>,plus:<path d="M12 5v14M5 12h14"/>,bell:<><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></>,clock:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
  calendar:<><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 11h18M8 15h1M14 15h1"/></>,
  bolt:<path d="m13 2-9 12h7l-1 8 10-13h-7z"/>,alert:<><path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v5M12 17h.01"/></>,
  search:<><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></>,chevron:<path d="m9 6 6 6-6 6"/>,close:<path d="m6 6 12 12M18 6 6 18"/>,

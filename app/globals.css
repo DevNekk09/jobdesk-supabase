@@ -701,3 +701,21 @@ html,body,#root{width:100%;min-width:0}
  .job-panel.v23-job-list.schedule-list.ticket-list .ticket-progress .status{font-size:.75rem}
 }
 @media(prefers-reduced-motion:reduce){.job-panel.v23-job-list.schedule-list.ticket-list tbody tr{transition:none}}
+
+/* Smart Deadline Highlight 04 — task-ticket reminders. Only the bell animates. */
+.job-schedule.schedule-late,.ticket-reminder.reminder-late{--schedule-accent:#a13e36;--schedule-calendar:#faece9}
+.job-schedule.schedule-today,.ticket-reminder.reminder-today{--schedule-accent:#a45c22;--schedule-calendar:#fcebdc}
+.job-schedule.schedule-tomorrow,.ticket-reminder.reminder-tomorrow{--schedule-accent:#8d651c;--schedule-calendar:#fbf0d9}
+.job-schedule.schedule-two-days,.ticket-reminder.reminder-two-days{--schedule-accent:#80651c;--schedule-calendar:#fbf4d9}
+.job-schedule.schedule-three-days,.ticket-reminder.reminder-three-days{--schedule-accent:#637b35;--schedule-calendar:#f1f5df}
+.job-schedule.schedule-normal,.ticket-reminder.reminder-normal{--schedule-accent:#53744b;--schedule-calendar:#edf3e8}
+.job-schedule.schedule-inactive{--schedule-accent:#6f7c73;--schedule-calendar:#f0f3f0}
+.job-panel.ticket-list .ticket-reminder{display:inline-flex;align-items:center;gap:6px;max-width:100%;margin-top:8px;padding:4px 8px;border-radius:6px;background:var(--schedule-calendar);color:var(--schedule-accent);box-sizing:border-box;line-height:1.35;font-weight:550}
+.job-panel.v23-job-list.schedule-list.ticket-list .ticket-reminder .schedule-detail{color:inherit;font-size:.74rem;font-weight:550;line-height:1.35}
+.ticket-reminder svg{width:13px;height:13px;flex:0 0 13px}
+.job-panel.ticket-list .ticket-reminder.reminder-normal{background:transparent;padding:0;color:#63745e;margin-top:6px}
+.job-panel.ticket-list .ticket-reminder.reminder-normal svg{display:none}
+@keyframes ticketReminderPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.72;transform:scale(1.12)}}
+html[data-motion="on"] .ticket-reminder:is(.reminder-late,.reminder-today) svg{animation:ticketReminderPulse 2.4s ease-in-out 3}
+@media(prefers-reduced-motion:reduce){html[data-motion="on"] .ticket-reminder svg{animation:none!important}}
+@container (max-width:350px){.job-panel.ticket-list .ticket-reminder{padding:4px 5px;gap:4px}.job-panel.v23-job-list.schedule-list.ticket-list .ticket-reminder .schedule-detail{font-size:.7rem}}
