@@ -518,3 +518,20 @@ test('NEW badge appears only on creation day in Malaysia, then hides automatical
  await page.locator('aside.sidebar').getByRole('button',{name:/All jobs/}).click();
  await expect(page.locator('.job-panel tbody .job-new-label')).toHaveCount(0);
 });
+
+test('team overview panels align on wide screens and active count remains visible on phones',async({page})=>{
+ const members=Array.from({length:5},(_,i)=>({id:100+i,name:'Designer '+(i+1),role:'Designer',email:'designer'+i+'@local.invalid',active:true}));
+ const spaces=members.map((u,i)=>({id:200+i,name:u.name,owner_user_id:u.id,sort_order:i}));
+ await page.route('**/api/bootstrap*',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...emptyWorkspace,users:members,spaces})}));
+ await page.setViewportSize({width:1440,height:900});
+ await page.goto('/');
+ const grid=page.locator('.team-dashboard-grid');
+ await expect(grid.locator('.dash-designer-row')).toHaveCount(5);
+ const rects=await grid.evaluate(el=>{const a=el.querySelector('.dash-designer-panel')!.getBoundingClientRect(),b=el.querySelector('.dash-side-stack')!.getBoundingClientRect();return {a:a.bottom,b:b.bottom}});
+ expect(Math.abs(rects.a-rects.b)).toBeLessThanOrEqual(2);
+ await expect(page.locator('.dash-count-label')).toHaveText('Active jobs');
+ await page.setViewportSize({width:390,height:844});
+ await expect(page.locator('.dash-hero-visual')).toBeVisible();
+ const width=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,viewport:window.innerWidth}));
+ expect(width.doc).toBeLessThanOrEqual(width.viewport+1);
+});
