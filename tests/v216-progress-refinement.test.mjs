@@ -5,8 +5,9 @@ const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
 test('stage colors retain six distinct gentle palettes for desktop and mobile',()=>{
  const area=css.slice(css.indexOf('/* V2.1.4'),css.indexOf('/* V2.1.5'));
  const colors=[...area.matchAll(/\.progress-color-\d+\{--progress-ink:(#[0-9a-f]{6})/g)].map(m=>m[1]);
- assert.equal(colors.length,6);
- assert.equal(new Set(colors).size,6);
+ assert.equal(colors.length,12,'six designer + six production color variants');
+ assert.equal(new Set(colors.slice(0,6)).size,6,'designer stages must stay distinct');
+ assert.equal(new Set(colors.slice(6)).size,6,'production stages must stay distinct');
  assert.match(area,/border:1px solid var\(--progress-line\);font-weight:500/);
  assert.match(area,/border-top:1px solid var\(--progress-line\)/);
  assert.match(area,/box-shadow:none/);
