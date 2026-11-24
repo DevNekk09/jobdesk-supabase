@@ -29,6 +29,8 @@ test('V2.3 compact cards and quick filters fit responsive screens',async({page})
  await page.goto('/');await openAllJobs(page);
  const list=page.locator('.job-panel.v23-job-list');
  await expect(list.locator('tbody tr')).toHaveCount(3);
+ await expect(list.locator('tbody tr .job-schedule')).toHaveCount(3);
+ await expect(list.locator('tbody tr').first().locator('td')).toHaveCount(4);
  await expect(list.getByRole('group',{name:'Designer quick deadline filters'})).toBeVisible();
  for(const width of [320,390,768,1024,1366]){
   await page.setViewportSize({width,height:850});
@@ -42,6 +44,7 @@ test('V2.3 compact cards and quick filters fit responsive screens',async({page})
  await list.getByRole('button',{name:/^Overdue/}).click();
  await expect(list.locator('tbody tr')).toHaveCount(1);
  await expect(list.locator('tbody')).toContainText('Overdue job');
+ await expect(list.locator('.job-schedule.schedule-late .schedule-detail')).toContainText('overdue');
  await list.getByRole('button',{name:/^All/}).click();
  await list.getByRole('textbox',{name:'Search jobs'}).fill('INV-TEST-902');
  await expect(list.locator('tbody tr')).toHaveCount(1);

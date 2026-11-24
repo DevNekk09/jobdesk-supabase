@@ -445,7 +445,7 @@ test('explicit urgent priority can be removed without moving job to Trash',async
  await expect(actions.getByRole('button',{name:'Move to Trash'})).not.toBeVisible();
 });
 
-test('date format is DD/MM/YYYY in dashboard, job forms and detail on desktop and phone',async({page,isMobile})=>{
+test('calendar schedule and DD/MM/YYYY job details and forms work on desktop and phone',async({page,isMobile})=>{
  const user={id:22,name:'Date Designer',role:'Designer',email:'date@local.invalid',active:true};
  const space={id:200,name:'Date Designer',owner_user_id:22,sort_order:1};
  const job={id:501,invoice_id:'INV-2026-00501',name:'Date display test',date_in:'2026-11-23',due_date:'2026-11-25',priority:'Normal',status:'Confirmed',confirmed_at:'2026-11-23T01:00:00Z',space_id:200,assigned_to:22,created_at:'2026-11-23T01:00:00Z',version:1};
@@ -455,8 +455,9 @@ test('date format is DD/MM/YYYY in dashboard, job forms and detail on desktop an
  const toggle=page.getByRole('button',{name:'Open job spaces'});
  if(isMobile&&await toggle.isVisible())await toggle.click();
  await page.locator('aside.sidebar').getByRole('button',{name:/All jobs/}).click();
- await expect(page.locator('.job-panel tbody')).toContainText('23/11/2026');
- await expect(page.locator('.job-panel tbody')).toContainText('25/11/2026');
+ await expect(page.locator('.job-panel tbody .schedule-range')).toHaveText('23 Nov – 25 Nov 2026');
+ await expect(page.locator('.job-panel tbody .job-schedule')).toHaveAttribute('title','Date ordered: 23/11/2026; Due date: 25/11/2026');
+ await expect(page.locator('.job-panel tbody .schedule-calendar strong')).toHaveText('25');
  await page.locator('.job-panel .job-link').getByText('Date display test').click();
  const detail=page.getByRole('dialog');
  await expect(detail.locator('.job-dates')).toContainText('23/11/2026');
