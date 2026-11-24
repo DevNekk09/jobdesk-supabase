@@ -360,3 +360,40 @@ for(const {w,h} of responsiveSizes){
   await assertFits('settings');
  });
 }
+
+test('each file preparation and production stage uses a distinct readable progress color',async({page,isMobile})=>{
+ const users=[{id:30,name:'Designer',role:'Designer',email:'designer@invalid.local',active:true}];
+ const spaces=[{id:50,name:'Designer',owner_user_id:30,sort_order:1}];
+ const fileStages=['Confirmed','Preparing Master Files','Master Files Ready','Prepare Set Files','Set Files - Ready to Print'];
+ const productionStages=['Review Files','Printing','Cutting','Sewing','Packing','Ready to Collect'];
+ const base={invoice_id:'INV-TEST',name:'Stage demo',date_in:'2026-11-20',due_date:'2026-11-28',priority:'Normal',assigned_to:30,space_id:50,created_at:'2026-11-20T00:00:00Z',version:1};
+ const jobs=[
+ ...fileStages.map((status,i)=>({...base,id:500+i,name:'Designer stage '+i,status,confirmed_at:'2026-11-20T00:00:00Z'})),
+ ...productionStages.map((production_status,i)=>({...base,id:600+i,name:'Production stage '+i,status:'Set Files - Ready to Print',confirmed_at:'2026-11-20T00:00:00Z',production_status}))
+ ];
+ await page.route('**/api/bootstrap*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...emptyWorkspace,users,spaces,jobs})}));
+ await page.reload();
+ await expect(page.getByRole('heading',{name:'Team overview.'})).toBeVisible();
+ const sidebarToggle=page.getByRole('button',{name:'Open job spaces'});
+ const nav=page.locator('aside.sidebar');
+ if(await sidebarToggle.isVisible())await sidebarToggle.click();
+ await nav.getByRole('button',{name:/All jobs/}).click();
+ await expect(page.getByRole('heading',{name:'All team jobs.'})).toBeVisible();
+ const designRows=page.locator('.job-panel tbody tr').filter({hasText:'Designer stage'});
+ await expect(designRows).toHaveCount(5);
+ const inkColors=await designRows.locator('.status').evaluateAll(nodes=>nodes.map(el=>getComputedStyle(el).color));
+ expect(new Set(inkColors).size).toBe(5);
+ const barColors=await designRows.locator('.mini-progress i.filled').evaluateAll(nodes=>new Set(nodes.map(el=>getComputedStyle(el).backgroundColor)).size);
+ expect(barColors).toBe(5);
+ if(await sidebarToggle.isVisible())await sidebarToggle.click();
+ await nav.getByRole('navigation',{name:'Shared production space'}).locator('button').click();
+ const productionRows=page.locator('.production-job-panel tbody tr');
+ await expect(productionRows).toHaveCount(6);
+ const productionColors=await productionRows.locator('.status').evaluateAll(nodes=>nodes.map(el=>getComputedStyle(el).color));
+ expect(new Set(productionColors).size).toBe(6);
+ await expect(page.getByRole('tab',{name:/Printing/})).toBeVisible();
+ const selected=page.getByRole('tab',{name:/Printing/});
+ await selected.click();
+ expect(await selected.evaluate(el=>getComputedStyle(el).color)).toMatch(/rgb\(/);
+ await expect(productionRows).toHaveCount(1);
+});

@@ -335,3 +335,40 @@ html,body,#root{width:100%;min-width:0}
  .topbar-context b{font-size:.75rem}
  .sidebar-profile{flex-shrink:0}
 }
+
+/* V2.1.4 — semantic, stage-specific progress colors. Text and stage numbers stay visible. */
+.progress-color-0{--progress-ink:#1d4ed8;--progress-soft:#dbeafe;--progress-line:#93c5fd}
+.progress-color-1{--progress-ink:#6d28d9;--progress-soft:#ede9fe;--progress-line:#c4b5fd}
+.progress-color-2{--progress-ink:#0e7490;--progress-soft:#cffafe;--progress-line:#67e8f9}
+.progress-color-3{--progress-ink:#92400e;--progress-soft:#fef3c7;--progress-line:#fcd34d}
+.progress-color-4{--progress-ink:#047857;--progress-soft:#d1fae5;--progress-line:#6ee7b7}
+.progress-color-5{--progress-ink:#166534;--progress-soft:#dcfce7;--progress-line:#86efac}
+.production-job-panel .progress-color-0,.production-subnav .progress-color-0,.production-step-chips .progress-color-0,.dash-stage-track .progress-color-0{--progress-ink:#1d4ed8;--progress-soft:#dbeafe;--progress-line:#93c5fd}
+.production-job-panel .progress-color-1,.production-subnav .progress-color-1,.production-step-chips .progress-color-1,.dash-stage-track .progress-color-1{--progress-ink:#6d28d9;--progress-soft:#ede9fe;--progress-line:#c4b5fd}
+.production-job-panel .progress-color-2,.production-subnav .progress-color-2,.production-step-chips .progress-color-2,.dash-stage-track .progress-color-2{--progress-ink:#9a3412;--progress-soft:#ffedd5;--progress-line:#fdba74}
+.production-job-panel .progress-color-3,.production-subnav .progress-color-3,.production-step-chips .progress-color-3,.dash-stage-track .progress-color-3{--progress-ink:#9d174d;--progress-soft:#fce7f3;--progress-line:#f9a8d4}
+.production-job-panel .progress-color-4,.production-subnav .progress-color-4,.production-step-chips .progress-color-4,.dash-stage-track .progress-color-4{--progress-ink:#0f766e;--progress-soft:#ccfbf1;--progress-line:#5eead4}
+.production-job-panel .progress-color-5,.production-subnav .progress-color-5,.production-step-chips .progress-color-5,.dash-stage-track .progress-color-5{--progress-ink:#166534;--progress-soft:#dcfce7;--progress-line:#86efac}
+.job-panel .status[class*="progress-color-"]{
+ color:var(--progress-ink);background:var(--progress-soft);
+ border:1px solid var(--progress-line);font-weight:650;
+}
+.job-panel .mini-progress i.filled[class*="progress-color-"]{background:var(--progress-ink)}
+.compact-workflow>button[class*="progress-color-"]{border-top:3px solid var(--progress-ink);color:var(--progress-ink);background:color-mix(in srgb,var(--progress-soft) 52%,white)}
+.compact-workflow>button[class*="progress-color-"] b{background:var(--progress-soft);color:var(--progress-ink)}
+.compact-workflow>button.progress-awaiting{--progress-ink:#854d0e;--progress-soft:#fef9c3}
+.compact-workflow>button[class*="progress-color-"]:hover{background:var(--progress-soft)}
+.workflow-card li.current[class*="progress-color-"]{color:var(--progress-ink)}
+.workflow-card li.current[class*="progress-color-"] .step-marker{color:var(--progress-ink);border-color:var(--progress-ink);background:var(--progress-soft);box-shadow:0 0 0 3px var(--progress-soft)}
+.workflow-card li.current[class*="progress-color-"] .step-marker i{background:var(--progress-ink)}
+.workflow-card li.current[class*="progress-color-"] b{color:var(--progress-ink);background:var(--progress-soft)}
+.workflow-card li.finished[class*="progress-color-"]{color:var(--progress-ink)}
+.workflow-card li.finished[class*="progress-color-"] .step-marker{color:var(--progress-ink);border-color:var(--progress-line);background:var(--progress-soft)}
+.production-step-chips span.reached[class*="progress-color-"]{color:var(--progress-ink);background:var(--progress-soft);border:1px solid var(--progress-line)}
+.dash-stage-track span.filled[class*="progress-color-"]{background:var(--progress-ink)}
+.production-subnav>button[class*="progress-color-"]{border-left:3px solid var(--progress-line)}
+.production-subnav>button.active[class*="progress-color-"]{background:var(--progress-soft);color:var(--progress-ink);font-weight:700}
+.production-subnav>button.active[class*="progress-color-"] b{background:var(--progress-line);color:#18291e}
+.production-job-panel .list-tabs button.selected[class*="progress-color-"]{background:var(--progress-soft);color:var(--progress-ink);border-color:var(--progress-line)}
+.production-job-panel .list-tabs button.selected[class*="progress-color-"] span{background:var(--progress-line);color:var(--progress-ink)}
+@media(prefers-reduced-motion:reduce){.job-panel .mini-progress i{transition:none}}
