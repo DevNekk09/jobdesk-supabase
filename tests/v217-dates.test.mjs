@@ -8,8 +8,8 @@ test('DD/MM/YYYY formatting keeps ISO for sorting and database APIs',()=>{
  assert.match(dates,/export const date=\(value:string,_long=false\)=>isoParts\.format/);
  assert.match(dates,/export const parseDisplayDate=/);
  assert.match(dates,/getUTCMonth\(\)!==mm-1/);
- assert.match(page,/date_in:parseDisplayDate\(String\(fields\.get\('date_in'\)/);
- assert.match(page,/due_date:parseDisplayDate\(String\(fields\.get\('due_date'\)/);
+ assert.match(page,/date_in:String\(fields\.get\('date_in'\)/);
+ assert.match(page,/due_date:String\(fields\.get\('due_date'\)/);
  assert.match(page,/values\.due_date<values\.date_in/);
  assert.match(page,/a\.due_date\.localeCompare\(b\.due_date\)/);
  assert.match(page,/name="date_in" type="date"/);
