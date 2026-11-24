@@ -1,15 +1,16 @@
 import Icon from './Icon';
 
-export type QuickDeadline='all'|'today'|'soon'|'overdue';
+export type QuickDeadline='all'|'today'|'tomorrow'|'soon'|'overdue';
 type Props={
  value:QuickDeadline|'urgent';
  onChange:(next:QuickDeadline)=>void;
- counts:{all:number;today:number;soon:number;overdue:number};
+ counts:{all:number;today:number;tomorrow:number;soon:number;overdue:number};
  label?:string;
 };
 const choices=[
  {value:'all',label:'All',icon:'grid'},
  {value:'today',label:'Today',icon:'calendar'},
+ {value:'tomorrow',label:'Tomorrow',icon:'calendar'},
  {value:'soon',label:'Next 3 days',icon:'clock'},
  {value:'overdue',label:'Overdue',icon:'alert'}
 ] as const;

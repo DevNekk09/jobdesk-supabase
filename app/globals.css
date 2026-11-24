@@ -906,5 +906,9 @@ html[data-motion="on"] .ticket-reminder:is(.reminder-late,.reminder-today) svg{a
 .job-save-timeline.v30-undo-timeline{animation-duration:8.5s}
 .apple-job-modal .apple-stage-segments i{transition:background-color .24s ease}
 @media(max-width:760px){.v30-focus{flex-direction:column;align-items:stretch;padding:13px;gap:10px}.v30-focus-actions{gap:6px}.v30-focus-actions button{padding:9px 7px}.v30-focus-actions button svg{display:none}.v30-focus-actions button span{font-size:.68rem}.v30-view-switch button{padding:6px 8px}.v30-top-tool{width:34px;height:34px}.app-main .topbar .account{gap:3px}.job-panel .v30-board{grid-auto-columns:minmax(216px,82%)}}
-@media(max-width:390px){.app-main .topbar .account .refresh{display:none}.v30-top-tool{width:32px;height:32px}.v30-utility .search-field input{min-width:0}}
+@media(max-width:390px){ .app-main .topbar .account .refresh{width:32px;height:32px}.v30-top-tool{width:32px;height:32px}.v30-utility .search-field input{min-width:0}}
 @media(prefers-reduced-motion:reduce){.apple-stage-segments i,.v30-view-switch button,.v30-focus-actions button{transition:none!important}}
+
+/* Maintain semantic stage colours without reintroducing heavy badges. */
+.job-panel.v23-job-list tbody .status[class*="progress-color-"]{color:var(--progress-ink,#40554a);font-weight:500}
+@media(max-width:390px){.app-main .topbar .topbar-context{flex:1;min-width:0}.app-main .topbar .topbar-context b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.app-main .topbar .device-switch-name{display:none}.app-main .topbar .device-switch{padding:4px;gap:3px}}
