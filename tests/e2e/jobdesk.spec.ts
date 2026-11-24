@@ -462,6 +462,13 @@ test('calendar schedule and DD/MM/YYYY job details and forms work on desktop and
  const detail=page.getByRole('dialog');
  await expect(detail.locator('.job-dates')).toContainText('23/11/2026');
  await expect(detail.locator('.job-dates')).toContainText('25/11/2026');
+ await expect(detail).toHaveClass(/apple-job-modal/);
+ await expect(detail.locator('.apple-job-summary>.apple-summary-card')).toHaveCount(2);
+ await expect(detail.locator('.apple-progress-card .apple-summary-value')).toHaveText('1 / 5');
+ await expect(detail.locator('.apple-job-activity')).not.toHaveAttribute('open','');
+ await detail.locator('.apple-job-activity>summary').click();
+ await expect(detail.getByRole('textbox',{name:'Add a job note'})).toBeVisible();
+ await expect(detail.locator('.apple-job-content')).toHaveCSS('overflow-y','auto');
  await detail.getByRole('button',{name:'Close dialog'}).click();
  const button=page.getByRole('button',{name:'Add job'});
  await button.click();
