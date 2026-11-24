@@ -143,6 +143,7 @@ test('Admin can view archived jobs and prepare permanent deletion',async({page})
  await page.getByRole('tab',{name:/Archived/}).click();
  await expect(page.getByRole('button',{name:'Archived sample job',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Archived sample job',exact:true}).click();
+ await page.getByRole('region',{name:'Job actions'}).locator('summary').click();
  await expect(page.getByRole('button',{name:'Delete permanently'})).toBeVisible();
  await page.getByRole('button',{name:'Delete permanently'}).click();
  await expect(page.getByRole('dialog').last()).toContainText('cannot be undone');
@@ -424,7 +425,7 @@ test('Job Details mobile actions prioritize next step and conceal destructive co
 });
 
 test('explicit urgent priority can be removed without moving job to Trash',async({page,isMobile})=>{
- const job={id:802,invoice_id:'INV-802',name:'Urgent sample job',date_in:'2026-11-23',due_date:'2026-12-12',priority:'Urgent',status:'Confirmed',assigned_to:31,space_id:51,confirmed_at:'2026-11-23T08:00:00Z',created_at:'2026-11-23T08:00:00Z',version:1};
+ const job={id:802,invoice_id:'INV-802',name:'Urgent sample job',date_in:'2026-11-23',due_date:'2026-11-30',priority:'Urgent',status:'Confirmed',assigned_to:31,space_id:51,confirmed_at:'2026-11-23T08:00:00Z',created_at:'2026-11-23T08:00:00Z',version:1};
  await page.route('**/api/bootstrap*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({...emptyWorkspace,jobs:[job],users:[{id:31,name:'Designer',role:'Designer',active:true}],spaces:[{id:51,name:'Designer',owner_user_id:31}],me:{...emptyWorkspace.me,role:'Designer'}})}));
  await page.route('**/api/jobs/802',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({job,activity:[]})}));
  await page.reload();
