@@ -467,7 +467,11 @@ test('calendar schedule and DD/MM/YYYY job details and forms work on desktop and
  await expect(detail.locator('.apple-progress-card .apple-summary-value')).toHaveText('1 / 5');
  const value=detail.locator('.apple-progress-value');
  await expect(value).toHaveCSS('display','flex');
- await expect(value.locator('small')).toHaveCSS('display','inline');
+ const geometry=await value.evaluate(el=>{
+  const number=el.querySelector('span')!.getBoundingClientRect(),denominator=el.querySelector('small')!.getBoundingClientRect();
+  return {beside:denominator.left>=number.right-1,overlaps:denominator.top<number.bottom&&denominator.bottom>number.top};
+ });
+ expect(geometry.beside&&geometry.overlaps).toBe(true);
  await expect(detail.locator('.apple-stage-segments i.reached')).toHaveCount(1);
  await expect(detail.locator('.apple-job-activity')).not.toHaveAttribute('open','');
  await detail.locator('.apple-job-activity>summary').click();
