@@ -466,6 +466,7 @@ test('date format is DD/MM/YYYY in dashboard, job forms and detail on desktop an
  await button.click();
  const chooser=page.getByRole('dialog');
  if(await chooser.getByRole('button',{name:/Date Designer/}).isVisible())await chooser.getByRole('button',{name:/Date Designer/}).click();
+ await page.getByPlaceholder('Enter job sheet name').fill('Date input test');
  const order=page.locator('input[name="date_in"]'),due=page.locator('input[name="due_date"]');
  await expect(order).toHaveAttribute('placeholder','DD/MM/YYYY');
  await expect(due).toHaveAttribute('placeholder','DD/MM/YYYY');
