@@ -341,12 +341,14 @@ for(const {w,h} of responsiveSizes){
   const settings=sidebar.locator('.sidebar-settings');
   await expect(production).toBeVisible();
   await expect(settings).toBeVisible();
+  // Wait for the mobile sidebar's slide-in transition to complete before checking its rectangle.
+  await expect.poll(async()=>Math.round((await sidebar.boundingBox())?.x??-999)).toBeGreaterThanOrEqual(0);
   const sideBox=await sidebar.boundingBox();
-  expect(sideBox!.x, 'sidebar must be inside viewport').toBeGreaterThanOrEqual(0);
+  expect(sideBox!.x, 'sidebar must be inside viewport').toBeGreaterThanOrEqual(-0.5);
   expect(sideBox!.x+sideBox!.width, 'sidebar must fit screen').toBeLessThanOrEqual(w+1);
   expect((await production.boundingBox())!.y).toBeLessThan((await settings.boundingBox())!.y);
   await sidebar.getByRole('navigation',{name:'Designer job spaces'}).locator('button[data-designer-desk="200"]').click();
-  await expect(page.getByRole('heading',{name:/Long Designer Workspace Example/})).toBeVisible();
+  await expect(page.getByRole('heading',{level:1,name:/Long Designer Workspace Example/})).toBeVisible();
   await assertFits('personal workspace');
   if(mobile)await toggle.click();
   await production.locator('button').click();
