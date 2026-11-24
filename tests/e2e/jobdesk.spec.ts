@@ -384,6 +384,10 @@ test('each file preparation and production stage uses a distinct readable progre
  await expect(designRows).toHaveCount(5);
  const inkColors=await designRows.locator('.status').evaluateAll(nodes=>nodes.map(el=>getComputedStyle(el).color));
  expect(new Set(inkColors).size).toBe(5);
+ const badgeWeights=await designRows.locator('.status').evaluateAll(nodes=>nodes.map(el=>Number(getComputedStyle(el).fontWeight)));
+ expect(badgeWeights.every(weight=>weight<=550)).toBe(true);
+ const badgeBorders=await designRows.locator('.status').evaluateAll(nodes=>nodes.map(el=>parseFloat(getComputedStyle(el).borderTopWidth)));
+ expect(badgeBorders.every(width=>width<=1)).toBe(true);
  const barColors=await designRows.locator('.mini-progress i.filled').evaluateAll(nodes=>new Set(nodes.map(el=>getComputedStyle(el).backgroundColor)).size);
  expect(barColors).toBe(5);
  if(await sidebarToggle.isVisible())await sidebarToggle.click();
@@ -392,6 +396,8 @@ test('each file preparation and production stage uses a distinct readable progre
  await expect(productionRows).toHaveCount(6);
  const productionColors=await productionRows.locator('.status').evaluateAll(nodes=>nodes.map(el=>getComputedStyle(el).color));
  expect(new Set(productionColors).size).toBe(6);
+ const productionBadgeWeights=await productionRows.locator('.status').evaluateAll(nodes=>nodes.map(el=>Number(getComputedStyle(el).fontWeight)));
+ expect(productionBadgeWeights.every(weight=>weight<=550)).toBe(true);
  await expect(page.getByRole('tab',{name:/Printing/})).toBeVisible();
  const selected=page.getByRole('tab',{name:/Printing/});
  await selected.click();
