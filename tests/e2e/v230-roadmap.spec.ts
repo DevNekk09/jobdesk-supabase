@@ -34,7 +34,7 @@ test('V2.3 compact cards and quick filters fit responsive screens',async({page})
   await page.setViewportSize({width,height:850});
   const widths=await page.evaluate(()=>({document:document.documentElement.scrollWidth,viewport:window.innerWidth}));
   expect(widths.document,'overflow at '+width).toBeLessThanOrEqual(width+1);
-  await expect(list.locator('tbody tr').first()).toHaveCSS('display','grid');
+  await expect(list.locator('tbody tr').first()).toHaveCSS('display',width<=900?'grid':'table-row');
  }
  await list.getByRole('button',{name:/^Today/}).click();
  await expect(list.locator('tbody tr')).toHaveCount(1);
