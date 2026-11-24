@@ -465,6 +465,10 @@ test('calendar schedule and DD/MM/YYYY job details and forms work on desktop and
  await expect(detail).toHaveClass(/apple-job-modal/);
  await expect(detail.locator('.apple-job-summary>.apple-summary-card')).toHaveCount(2);
  await expect(detail.locator('.apple-progress-card .apple-summary-value')).toHaveText('1 / 5');
+ const value=detail.locator('.apple-progress-value');
+ await expect(value).toHaveCSS('display','flex');
+ await expect(value.locator('small')).toHaveCSS('display','inline');
+ await expect(detail.locator('.apple-stage-segments i.reached')).toHaveCount(1);
  await expect(detail.locator('.apple-job-activity')).not.toHaveAttribute('open','');
  await detail.locator('.apple-job-activity>summary').click();
  await expect(detail.getByRole('textbox',{name:'Add a job note'})).toBeVisible();
