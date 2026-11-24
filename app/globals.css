@@ -563,3 +563,45 @@ html,body,#root{width:100%;min-width:0}
 @media(prefers-reduced-motion:reduce){
  .job-panel.v23-job-list tbody tr,.v23-quick-next,.v23-production-next{transition:none}
 }
+
+
+/* Jobdesk — calm date metadata, preserving the original card layout. */
+.job-panel.v23-job-list tbody td.ordered,
+.job-panel.v23-job-list tbody td:nth-child(3){
+ text-align:left;min-width:0;white-space:normal;line-height:1.35;
+}
+.job-panel.v23-job-list tbody td.ordered{
+ color:#405348;font-size:.79rem;font-weight:550;font-variant-numeric:tabular-nums;
+}
+.job-panel.v23-job-list tbody td.ordered::before,
+.job-panel.v23-job-list tbody td:nth-child(3)::before{
+ display:block;font-size:.66rem;line-height:1.25;font-weight:450;
+ color:#6b7b6c;letter-spacing:0;text-transform:none;margin:0 0 4px;
+}
+.job-panel.v23-job-list tbody td.ordered::before{content:'Ordered'}
+.job-panel.v23-job-list tbody td:nth-child(3)::before{content:'Due date'}
+.job-panel.v23-job-list tbody .due-date{
+ display:block;font-size:.79rem;font-weight:550;color:#405348;
+ font-variant-numeric:tabular-nums;line-height:1.35;white-space:normal;
+}
+.job-panel.v23-job-list tbody .due-date.late{color:#405348!important}
+.job-panel.v23-job-list tbody td:nth-child(3)>small{
+ display:inline-flex;align-items:center;gap:4px;max-width:100%;
+ box-sizing:border-box;margin:4px 0 0;padding:2px 5px;
+ border-radius:5px;font-size:.65rem;font-weight:450;line-height:1.35;
+ color:#596d5c;background:#f1f5ef;white-space:normal;overflow-wrap:anywhere;
+}
+.job-panel.v23-job-list tbody td:nth-child(3)>small.late{color:#a33e35!important;background:#fbefed}
+.job-panel.v23-job-list tbody td:nth-child(3)>small.soon{color:#805c27!important;background:#faf2e3}
+.job-panel.v23-job-list tbody td:nth-child(3)>small.late::before,
+.job-panel.v23-job-list tbody td:nth-child(3)>small.soon::before{
+ content:'';width:5px;height:5px;flex:0 0 5px;border-radius:50%;background:currentColor;
+}
+@media(min-width:1241px){
+ .job-panel.v23-job-list tbody td.ordered,
+ .job-panel.v23-job-list tbody td:nth-child(3){align-self:start}
+}
+@media(max-width:900px){
+ .job-panel.v23-job-list tbody td:nth-child(3)::before{margin-bottom:3px}
+ .job-panel.v23-job-list tbody td:nth-child(3)>small{margin-top:3px}
+}
