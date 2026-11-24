@@ -12,3 +12,7 @@ Jekyll remains the sole Pages publisher, consuming index.html and the versioned 
 
 Raw index's precompiled bundle cache query is bumped to v230, forcing browsers/CDN to fetch the new V2.3 bundle. No database or Supabase changes.
 If GitHub Pages is later switched to Source=GitHub Actions, the workflow needs its Pages artifact/deploy job re-enabled.
+
+## Task Ticket release refresh
+
+The previous fixed v230 query remained unchanged across several UI releases. The branch publisher can also serve the previous bundle because commits pushed with GITHUB_TOKEN do not start a Pages build. Once the precompiled assets are present on main, publish a direct non-workflow commit with a new matching CSS/JS cache key. This release uses `230-ticket20-e4edd65`. This does not require another Supabase deployment. For fully automated future releases, migrate Pages Source to GitHub Actions and use a single artifact deployment workflow instead of the legacy branch publisher; do not run both publishers.
