@@ -1,0 +1,90 @@
+/* Apple Job Workspace — Job Details only; preserve shared forms and mutation handlers. */
+.modal.apple-job-modal{width:min(660px,100%);max-height:min(92dvh,900px);display:flex;flex-direction:column;overflow:hidden;border-radius:23px;background:#f4f6f3;border-color:#e1e7de;box-shadow:0 25px 85px #142e2038;animation:appleJobEnter .26s cubic-bezier(.2,.75,.25,1) both}
+@keyframes appleJobEnter{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.apple-job-modal>.modal-head{flex:none;display:flex;align-items:center;justify-content:space-between;padding:17px 24px;background:#f4f6f3;border-bottom:1px solid #e4e9e1}
+.apple-job-modal>.modal-head h2{font-size:.88rem;letter-spacing:.015em;font-weight:600;color:#596a5d}
+.apple-job-modal>.modal-head .icon-btn{width:36px;height:36px;background:#e8ede6;color:#536c53;border:0}
+.apple-job-modal .apple-job-content{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#c7d1c4 transparent;padding:22px 24px 24px}
+.apple-job-modal .detail-heading{display:flex;align-items:flex-start;flex-wrap:wrap;gap:7px 12px;margin:0 0 6px}
+.apple-job-modal .detail-heading h2{font-size:1.55rem;line-height:1.22;letter-spacing:-.035em;color:#293f30;font-weight:680;overflow-wrap:anywhere;min-width:0}
+.apple-job-modal .detail-heading .status{margin:2px 0 0;white-space:normal;background:#e8efe3;border:0;color:#496c43;font-size:.73rem;font-weight:550;border-radius:7px}
+.apple-job-modal .detail-space-context{margin:0 0 18px;color:#647760;font-size:.76rem;flex-wrap:wrap;gap:5px 8px}
+.apple-job-modal .detail-space-context>span:last-child{color:#78867b}
+.apple-job-modal .apple-job-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 14px}
+.apple-job-modal .apple-job-summary>.apple-summary-card{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:17px;min-width:0;border:1px solid #e8ece5;border-radius:17px;background:#fff}
+.apple-job-modal .apple-deadline-card>svg{width:29px;height:29px;margin:1px 0 6px;color:var(--schedule-accent,#657e60)}
+.apple-job-modal .apple-job-summary .apple-summary-label{font-size:.76rem;color:#68766b;font-weight:500}
+.apple-job-modal .apple-job-summary .apple-summary-value{font-size:1.65rem;line-height:1.12;letter-spacing:-.045em;color:#304237;font-weight:680;margin:0;font-variant-numeric:tabular-nums}
+.apple-job-modal .apple-summary-value small{font-size:.98rem;color:#78877b;font-weight:500;letter-spacing:0}
+.apple-job-modal .apple-job-summary .apple-full-date,.apple-job-modal .apple-job-summary .apple-order-date{font-size:.72rem;color:#69786c;line-height:1.35;overflow-wrap:anywhere}
+.apple-job-modal .apple-job-summary .apple-summary-reminder{display:flex;align-items:center;gap:4px;font-size:.73rem;font-weight:550;color:var(--schedule-accent,#657e60);overflow-wrap:anywhere}
+.apple-summary-reminder svg{width:13px;height:13px;flex:none}
+.apple-deadline-card.schedule-late{--schedule-accent:#a13e36}.apple-deadline-card.schedule-today{--schedule-accent:#a45c22}.apple-deadline-card.schedule-tomorrow{--schedule-accent:#8d651c}.apple-deadline-card.schedule-two-days{--schedule-accent:#80651c}.apple-deadline-card.schedule-three-days{--schedule-accent:#637b35}
+.apple-job-modal .apple-progress-ring{width:36px;height:36px;flex:none;margin-bottom:0;fill:none}
+.apple-progress-ring circle{fill:none;stroke-width:3.5}.apple-ring-track{stroke:#e5ebe2}.apple-ring-value{stroke:#799a75;stroke-linecap:round;transition:stroke-dasharray .32s ease}.apple-ring-check{stroke:#799a75;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.apple-job-modal .apple-job-summary .apple-stage-caption{font-size:.74rem;line-height:1.4;color:#557252;overflow-wrap:anywhere}
+.apple-job-modal .sales-record,.apple-job-modal .sales-record.confirmed{background:#fff;border:1px solid #e7ece4;border-radius:13px;margin:0 0 14px;padding:12px 14px;gap:10px;align-items:center}
+.apple-job-modal .sales-record b,.apple-job-modal .sales-record.confirmed b{font-size:.79rem;color:#4a6450;font-weight:600}
+.apple-job-modal .sales-record p,.apple-job-modal .sales-record.confirmed p{font-size:.73rem;color:#718075;line-height:1.4}
+.apple-job-modal .workflow-card{background:#fff;border:1px solid #e7ece4;border-radius:17px;overflow:hidden;margin:0 0 14px}
+.apple-job-modal .workflow-heading{background:transparent;padding:14px 16px;border-color:#edf0eb}
+.apple-job-modal .workflow-heading h3{color:#34493a;font-size:.87rem;font-weight:650}
+.apple-job-modal .workflow-heading>span{color:#718074;font-size:.72rem}
+.apple-job-modal .workflow-card ol{padding:8px 15px 13px;margin:0}
+.apple-job-modal .workflow-card li{min-height:36px;padding:7px 4px;gap:9px;font-size:.8rem;line-height:1.35}
+.apple-job-modal .workflow-card li.current{background:#f2f6ef;border-radius:8px;font-weight:600}
+.apple-job-modal .workflow-card li.current>b{font-size:.66rem;font-weight:550}
+.apple-job-modal .job-action-area{gap:10px;margin:0 0 15px}
+.apple-job-modal .job-primary-actions .job-next-action{background:#3d6147;color:#fff;border:1px solid #3d6147;box-shadow:none;border-radius:12px;min-height:45px;font-size:.86rem;font-weight:600}
+.apple-job-modal .job-primary-actions .job-next-action:not(:disabled):hover{background:#31513a}
+.apple-job-modal .apple-job-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.apple-job-modal .apple-job-tools:empty{display:none}
+.apple-job-modal .apple-job-tools>.job-undo-action,.apple-job-modal .apple-job-tools>.job-quick-actions,.apple-job-modal .apple-job-tools>.job-more-actions{flex:1 1 130px;min-width:0;margin:0}
+.apple-job-modal .apple-job-tools>.job-quick-actions{display:flex}
+.apple-job-modal .apple-job-tools>.job-undo-action,.apple-job-modal .apple-job-tools .job-priority-switch,.apple-job-modal .apple-job-tools .job-auto-urgent,.apple-job-modal .apple-job-tools .job-more-actions>summary{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px;min-height:65px;width:100%;padding:10px 6px;font-size:.73rem;line-height:1.3;font-weight:550;color:#526b54;background:#fff;border:1px solid #e7ece4;border-radius:12px;box-sizing:border-box}
+.apple-job-modal .apple-job-tools .job-priority-switch.is-urgent{color:#855c36;background:#fbf4e8}
+.apple-job-modal .apple-job-tools svg{width:18px;height:18px}
+.apple-job-modal .apple-job-tools>.job-more-actions{border:0;background:transparent}
+.apple-job-modal .apple-job-tools>.job-more-actions[open]{flex-basis:100%}
+.apple-job-modal .apple-job-tools .job-more-actions>summary>svg:last-child{display:none}
+.apple-job-modal .apple-job-tools .job-secondary-actions{background:#fff;border:1px solid #e7ece4;border-radius:0 0 12px 12px;padding:10px}
+.apple-job-modal .production-detail{background:#fff;border:1px solid #e7ece4;border-radius:15px;padding:14px;margin:0 0 14px}
+.apple-job-modal .apple-job-activity{background:#fff;border:1px solid #e7ece4;border-radius:14px;padding:0 14px;overflow:hidden}
+.apple-job-modal .apple-job-activity>.history-heading{display:flex;align-items:center;gap:8px;min-height:46px;cursor:pointer;list-style:none;margin:0;padding:8px 0}
+.apple-job-modal .apple-job-activity>.history-heading::-webkit-details-marker{display:none}
+.apple-job-modal .apple-job-activity>.history-heading h3{margin:0;font-size:.85rem;color:#405644}
+.apple-job-modal .apple-job-activity>.history-heading>span{margin-left:auto;color:#718075;font-size:.72rem}
+.apple-job-modal .apple-job-activity>.history-heading svg{width:15px;height:15px;transition:transform .2s ease;color:#6e826e}
+.apple-job-modal .apple-job-activity[open]>.history-heading svg{transform:rotate(90deg)}
+.apple-job-modal .apple-job-activity .history-list{max-height:none;overflow:visible}
+.apple-job-modal .apple-job-activity .note-form{padding-bottom:12px;min-width:0}
+.apple-job-modal .apple-job-activity .note-form input{min-width:0}
+.apple-job-modal>.modal-footer{flex:none;display:flex;align-items:center;padding:12px 24px;background:#fff;border-top:1px solid #e4e9e1;border-radius:0;gap:8px}
+.apple-job-modal>.modal-footer .btn{min-height:40px;border-radius:9px}
+.apple-job-modal button{transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease}
+@media(max-width:600px){
+ .modal.apple-job-modal{max-height:calc(100dvh - 16px);max-width:calc(100vw - 16px);border-radius:19px}
+ .apple-job-modal>.modal-head{padding:12px 16px}
+ .apple-job-modal .apple-job-content{padding:16px 14px 18px}
+ .apple-job-modal .detail-heading h2{font-size:1.32rem}
+ .apple-job-modal .detail-space-context>span:last-child{flex-basis:100%}
+ .apple-job-modal .apple-job-summary{gap:8px}
+ .apple-job-modal .apple-job-summary>.apple-summary-card{padding:13px 11px;border-radius:14px}
+ .apple-job-modal .apple-job-summary .apple-summary-value{font-size:1.45rem}
+ .apple-job-modal .apple-job-tools>.job-undo-action,.apple-job-modal .apple-job-tools>.job-quick-actions,.apple-job-modal .apple-job-tools>.job-more-actions{flex-basis:calc((100% - 16px)/3)}
+ .apple-job-modal>.modal-footer{padding:10px 14px max(10px,env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){.modal.apple-job-modal,.apple-job-modal *{animation:none!important;transition:none!important}}
+
+/* Apple progress card: keep stage numerator and denominator on one baseline. */
+.apple-job-modal .apple-job-summary .apple-progress-value{display:flex;align-items:baseline;gap:4px;white-space:nowrap;line-height:1.15}
+.apple-job-modal .apple-job-summary .apple-progress-value>span{display:inline;font-size:inherit;color:inherit;font-weight:inherit}
+.apple-job-modal .apple-job-summary .apple-progress-value>small{display:inline;font-size:.95rem;line-height:1;white-space:nowrap;margin:0;color:#78877b}
+.apple-job-modal .apple-job-summary>.apple-summary-card{gap:7px}
+.apple-job-modal .apple-progress-ring{width:39px;height:39px;margin:0 0 2px}
+.apple-stage-segments{display:flex;gap:4px;width:100%;margin:3px 0 0}
+.apple-stage-segments i{height:4px;flex:1;border-radius:4px;background:#e5ebe2}
+.apple-stage-segments i.reached{background:#91aa8c}
+.apple-job-modal .apple-job-summary .apple-stage-caption{font-weight:550;margin-top:2px}
+.apple-job-modal .apple-job-summary .apple-deadline-card>svg{margin-bottom:9px}
+

@@ -1,3 +1,4 @@
+import {readGlobalStyles} from './read-global-styles.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -12,7 +13,7 @@ test('V2.3 keeps server-authoritative endpoints and Admin PIN',()=>{
  assert.match(api,/RESET JOBDESK/);
 });
 test('V2.3 compact cards, smart filters and handover are responsive and accessible',()=>{
- const p=read('app/page.tsx'),css=read('app/globals.css');
+ const p=read('app/page.tsx'),css=readGlobalStyles();
  const filters=read('app/components/QuickDeadlineFilters.tsx');
  for(const token of ['v23-job-list','v23-quick-next','v23-handover','v23-connection-banner','productionLimit','useDeferredValue','QuickDeadlineFilters','matchesJobSearch'])assert.ok(p.includes(token),token);
  assert.match(filters,/aria-pressed=\{value===item.value\}/);

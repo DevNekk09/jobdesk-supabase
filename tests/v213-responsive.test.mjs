@@ -1,10 +1,11 @@
+import {readGlobalStyles} from './read-global-styles.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 test('drag and keyboard reordering are fully removed from Designer sidebar',()=>{
  const page=read('app/page.tsx');
- const css=read('app/globals.css');
+ const css=readGlobalStyles();
  const icon=read('app/components/Icon.tsx');
  for(const keyword of ['desk-drag-grip','onPointerDown','onPointerMove','onPointerCancel','aria-keyshortcuts','shiftSidebarDesk','changeSidebarOrder','dragDeskRef','designer-reorder-nav'])assert.doesNotMatch(page,new RegExp(keyword));
  assert.doesNotMatch(css,/desk-drag-grip|dragging-desk|designer-reorder-nav/);
@@ -14,7 +15,7 @@ test('drag and keyboard reordering are fully removed from Designer sidebar',()=>
  assert.match(page,/className="space-nav designer-space-nav"/);
 });
 test('responsive containers support mobile, tablet and desktop without changing job functionality',()=>{
- const css=read('app/globals.css');
+ const css=readGlobalStyles();
  assert.match(css,/@media\(max-width:390px\)/);
  assert.match(css,/@media\(max-width:700px\)/);
  assert.match(css,/@media\(max-width:900px\)/);

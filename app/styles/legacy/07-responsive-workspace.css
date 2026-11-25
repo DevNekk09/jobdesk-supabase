@@ -1,0 +1,86 @@
+/* V2.1.3 — responsive viewport sizing; preserve all existing visual design. */
+:root{--jobdesk-sidebar-width:clamp(250px,21vw,280px)}
+html,body,#root{width:100%;min-width:0}
+.app-main{min-width:0;width:auto;margin-left:calc(var(--jobdesk-sidebar-width) + 34px)}
+.app-main .workspace{width:100%;max-width:1580px;min-width:0;padding-inline:clamp(16px,2.6vw,32px)}
+.app-main .topbar{min-width:0;padding-inline:clamp(14px,2.4vw,32px)}
+.app-main .topbar-context{min-width:0;flex:1 1 auto;overflow:hidden}
+.app-main .topbar-context b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-main .topbar .account{flex:0 0 auto;min-width:0}
+.page-heading{min-width:0;column-gap:16px;row-gap:12px}
+.page-heading>div:first-child{min-width:0}
+.page-heading h1,.page-heading p{overflow-wrap:anywhere}
+.page-heading .heading-actions{min-width:0;flex-wrap:wrap}
+.team-dashboard-grid,.dash-side-stack,.team-metrics,.personal-stats,.production-summary,
+.settings-grid-new,.settings-space-grid,.team-grid,.job-panel,.panel,
+.list-tools,.list-tabs,.team-dashboard-grid>*,.team-dashboard-grid .panel{min-width:0;max-width:100%}
+.dash-designer-row,.dash-designer-name,.dash-designer-list,.dash-side-stack>*,.sidebar-settings span{min-width:0}
+.dash-designer-name strong,.dash-designer-name small{overflow-wrap:anywhere}
+.list-tabs{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.table-scroll{max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.modal{max-width:calc(100vw - 24px);max-height:calc(100dvh - 20px);overflow-y:auto}
+.overlay{padding:10px}
+@media(min-width:901px) and (max-width:1199px){
+ :root{--jobdesk-sidebar-width:clamp(236px,24vw,262px)}
+ .app-main .workspace{padding-inline:clamp(16px,2.2vw,25px)}
+ .team-dashboard-grid{grid-template-columns:minmax(0,1fr)}
+ .dash-side-stack{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .team-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .page-heading{flex-wrap:wrap}
+ .page-heading .heading-actions{justify-content:flex-start}
+}
+@media(max-width:900px){
+ .sidebar{
+  inset:8px auto 8px 10px;
+  width:min(304px,calc(100vw - 20px));
+  max-width:calc(100vw - 20px);
+  max-height:calc(100dvh - 16px);
+ }
+ .app-main{width:100%;margin-left:0}
+ .app-main .topbar{gap:8px;padding-inline:clamp(12px,2.6vw,22px)}
+ .app-main .workspace{padding-inline:clamp(12px,2.6vw,22px)}
+ .team-dashboard-grid{grid-template-columns:minmax(0,1fr)}
+ .team-metrics,.personal-stats,.production-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .settings-grid-new,.settings-space-grid{grid-template-columns:minmax(0,1fr)}
+ .settings-wide{grid-column:auto}
+ .team-dashboard-hero,.team-dashboard-grid>*{min-width:0}
+ .sidebar-bottom{max-height:45dvh}
+ .sidebar-scroll{min-height:60px}
+}
+@media(max-width:700px){
+ .app-main .topbar{gap:6px}
+ .app-main .topbar-context{gap:6px}
+ .app-main .topbar-context>span:first-child,
+ .app-main .topbar-context>svg,.app-main .topbar-context .shared-pill{display:none}
+ .app-main .topbar .account{gap:4px}
+ .page-heading{flex-wrap:wrap;gap:12px}
+ .page-heading>div:first-child{flex:1 1 100%}
+ .page-heading h1{font-size:clamp(1.45rem,6vw,2.1rem);line-height:1.18}
+ .page-heading .heading-actions{width:100%;justify-content:flex-start;gap:8px}
+ .page-heading .heading-actions>*{max-width:100%}
+ .dash-side-stack{grid-template-columns:minmax(0,1fr)}
+ .dash-designer-row{gap:8px}
+ .dash-designer-pills{min-width:0}
+ .team-bar,.workspace-banner,.settings-intro{max-width:100%;min-width:0}
+ .team-bar>*,.workspace-banner>*{min-width:0}
+ .list-tools{flex-wrap:wrap}
+ .list-tools>.search-field{min-width:0;flex:1 1 100%;max-width:100%}
+ .list-tools select{min-width:0;flex:1 1 140px}
+ .settings-tabs{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+ .settings-tabs>button{white-space:nowrap}
+ .job-panel .table-scroll{overflow:visible}
+}
+@media(max-width:390px){
+ .app-main .workspace{padding-inline:12px}
+ .app-main .topbar{padding-inline:11px;gap:5px}
+ .team-metrics,.personal-stats,.production-summary{gap:8px}
+ .app-main .stat{min-width:0;padding:12px 10px}
+ .app-main .stat .stat-top{font-size:.68rem;overflow-wrap:anywhere}
+ .app-main .stat .stat-number{font-size:clamp(1.45rem,8vw,2rem)}
+ .app-main .stat p{font-size:.66rem;line-height:1.35}
+ .dash-designer-row>.space-avatar{flex-shrink:0}
+ .dash-designer-pills{gap:4px}
+ .topbar-context b{font-size:.75rem}
+ .sidebar-profile{flex-shrink:0}
+}
+

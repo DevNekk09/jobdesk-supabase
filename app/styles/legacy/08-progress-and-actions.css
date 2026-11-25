@@ -1,0 +1,109 @@
+/* V2.1.4 — semantic, stage-specific progress colors. Text and stage numbers stay visible. */
+.progress-color-0{--progress-ink:#557d9c;--progress-soft:#f1f6f9;--progress-line:#dce7ee}
+.progress-color-1{--progress-ink:#796e9b;--progress-soft:#f5f2f8;--progress-line:#e7e1ed}
+.progress-color-2{--progress-ink:#50858c;--progress-soft:#f0f7f7;--progress-line:#dce9e8}
+.progress-color-3{--progress-ink:#9b8260;--progress-soft:#faf7ef;--progress-line:#eee6d7}
+.progress-color-4{--progress-ink:#5e8c74;--progress-soft:#f1f7f2;--progress-line:#dce9dd}
+.progress-color-5{--progress-ink:#5c8a64;--progress-soft:#f2f8f2;--progress-line:#dde9de}
+.production-job-panel .progress-color-0,.production-subnav .progress-color-0,.production-step-chips .progress-color-0,.dash-stage-track .progress-color-0{--progress-ink:#557d9c;--progress-soft:#f1f6f9;--progress-line:#dce7ee}
+.production-job-panel .progress-color-1,.production-subnav .progress-color-1,.production-step-chips .progress-color-1,.dash-stage-track .progress-color-1{--progress-ink:#796e9b;--progress-soft:#f5f2f8;--progress-line:#e7e1ed}
+.production-job-panel .progress-color-2,.production-subnav .progress-color-2,.production-step-chips .progress-color-2,.dash-stage-track .progress-color-2{--progress-ink:#a27e63;--progress-soft:#faf6f1;--progress-line:#eee3d8}
+.production-job-panel .progress-color-3,.production-subnav .progress-color-3,.production-step-chips .progress-color-3,.dash-stage-track .progress-color-3{--progress-ink:#a27488;--progress-soft:#fbf4f6;--progress-line:#eee1e7}
+.production-job-panel .progress-color-4,.production-subnav .progress-color-4,.production-step-chips .progress-color-4,.dash-stage-track .progress-color-4{--progress-ink:#568c82;--progress-soft:#f1f8f5;--progress-line:#dceae5}
+.production-job-panel .progress-color-5,.production-subnav .progress-color-5,.production-step-chips .progress-color-5,.dash-stage-track .progress-color-5{--progress-ink:#5c8a64;--progress-soft:#f2f8f2;--progress-line:#dde9de}
+.job-panel .status[class*="progress-color-"]{
+ color:var(--progress-ink);background:var(--progress-soft);
+ border:1px solid var(--progress-line);font-weight:500;
+}
+.job-panel .mini-progress i.filled[class*="progress-color-"]{background:var(--progress-ink)}
+.compact-workflow>button[class*="progress-color-"]{border-top:1px solid var(--progress-line);color:var(--progress-ink);background:color-mix(in srgb,var(--progress-soft) 30%,white);font-weight:450}
+.compact-workflow>button[class*="progress-color-"] b{background:var(--progress-soft);color:var(--progress-ink)}
+.compact-workflow>button.progress-awaiting{--progress-ink:#854d0e;--progress-soft:#fef9c3}
+.compact-workflow>button[class*="progress-color-"]:hover{background:color-mix(in srgb,var(--progress-soft) 65%,white)}
+.workflow-card li.current[class*="progress-color-"]{color:var(--progress-ink)}
+.workflow-card li.current[class*="progress-color-"] .step-marker{color:var(--progress-ink);border-color:var(--progress-line);background:var(--progress-soft);box-shadow:none}
+.workflow-card li.current[class*="progress-color-"] .step-marker i{background:var(--progress-ink)}
+.workflow-card li.current[class*="progress-color-"] b{color:var(--progress-ink);background:var(--progress-soft)}
+.workflow-card li.finished[class*="progress-color-"]{color:var(--progress-ink)}
+.workflow-card li.finished[class*="progress-color-"] .step-marker{color:var(--progress-ink);border-color:var(--progress-line);background:var(--progress-soft)}
+.production-step-chips span.reached[class*="progress-color-"]{color:var(--progress-ink);background:var(--progress-soft);border:1px solid var(--progress-line);font-weight:450}
+.dash-stage-track span.filled[class*="progress-color-"]{background:var(--progress-ink)}
+.production-subnav>button[class*="progress-color-"]{border-left:2px solid var(--progress-line)}
+.production-subnav>button.active[class*="progress-color-"]{background:var(--progress-soft);color:var(--progress-ink);font-weight:550}
+.production-subnav>button.active[class*="progress-color-"] b{background:var(--progress-line);color:#18291e}
+.production-job-panel .list-tabs button.selected[class*="progress-color-"]{background:var(--progress-soft);color:var(--progress-ink);border-color:var(--progress-line)}
+.production-job-panel .list-tabs button.selected[class*="progress-color-"] span{background:var(--progress-line);color:var(--progress-ink)}
+@media(prefers-reduced-motion:reduce){.job-panel .mini-progress i{transition:none}}
+
+/* V2.1.5 — compact, task-first Job Details actions.
+   The current workflow step is prominent; nonessential and destructive actions
+   are progressive-disclosure controls rather than competing large buttons. */
+.job-action-area{display:grid;gap:11px;margin:20px 0 27px;min-width:0}
+.job-primary-actions{display:grid;gap:8px}
+.job-primary-actions:empty{display:none}
+.job-primary-actions .job-next-action{
+ display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+ min-height:48px;padding:12px 16px;border-radius:13px;
+ font-size:.91rem;font-weight:720;text-align:center;white-space:normal;line-height:1.4;
+}
+.job-primary-actions .job-next-action>span{min-width:0;overflow-wrap:anywhere}
+.job-primary-actions .job-next-action>svg:last-child{width:17px;height:17px;opacity:.7}
+.job-quick-actions{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
+.job-auto-urgent,.job-priority-switch{
+ display:inline-flex;align-items:center;gap:7px;min-height:36px;max-width:100%;
+ padding:7px 11px;border-radius:10px;font-size:.77rem;line-height:1.35;
+ font-weight:620;white-space:normal;text-align:left;
+}
+.job-auto-urgent{color:#925314;background:#fff6e5;border:1px solid #f3ddb6}
+.job-priority-switch{color:#4d664e;background:#f8fbf6;border:1px solid #dce6d6}
+.job-priority-switch:hover{background:#edf5e7;border-color:#adcaa0}
+.job-priority-switch.is-urgent{color:#9b452a;background:#fff0e9;border-color:#f0cbb9}
+.job-auto-urgent svg,.job-priority-switch svg{width:15px;height:15px}
+.job-more-actions{border:1px solid #e3eae0;border-radius:12px;overflow:hidden;background:#fbfcfa;min-width:0}
+.job-more-actions>summary{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ min-height:42px;padding:10px 13px;color:#56705a;font-size:.8rem;
+ font-weight:650;cursor:pointer;list-style:none;user-select:none
+}
+.job-more-actions>summary::-webkit-details-marker{display:none}
+.job-more-actions>summary svg{width:16px;height:16px;transition:transform .18s ease}
+.job-more-actions[open]>summary svg{transform:rotate(90deg)}
+.job-more-actions>summary:focus-visible{outline:2px solid #8aba58;outline-offset:-3px}
+.job-more-actions[open]>summary{border-bottom:1px solid #e3eae0}
+.job-secondary-actions{display:flex;flex-wrap:wrap;gap:9px;padding:12px}
+.job-secondary-actions .btn{min-height:40px;flex:1 1 160px;font-size:.79rem;justify-content:center}
+@media(max-width:600px){
+ .job-action-area{gap:10px;margin:15px 0 22px}
+ .job-primary-actions .job-next-action{min-height:48px;padding:12px 13px}
+ .job-secondary-actions{display:grid;grid-template-columns:minmax(0,1fr);padding:11px}
+ .job-secondary-actions .btn{width:100%;min-width:0}
+}
+@media(prefers-reduced-motion:reduce){.job-more-actions>summary svg{transition:none}}
+
+/* V2.1.6 refined progress: lightweight desktop + phone */
+.job-panel .mini-progress i.filled[class*="progress-color-"],
+.dash-stage-track span.filled[class*="progress-color-"]{
+ background:color-mix(in srgb,var(--progress-ink) 62%,white);
+}
+.compact-workflow>button[class*="progress-color-"] b{font-weight:500;background:var(--progress-soft)}
+.workflow-card li.current[class*="progress-color-"],
+.workflow-card li.finished[class*="progress-color-"]{font-weight:450}
+.workflow-card li.current[class*="progress-color-"] b{font-weight:500}
+.production-job-panel .list-tabs button.selected[class*="progress-color-"]{
+ font-weight:550;background:transparent;border-bottom:2px solid var(--progress-line);
+}
+.production-job-panel .list-tabs button.selected[class*="progress-color-"] span{background:var(--progress-soft);color:var(--progress-ink)}
+@media(max-width:700px){
+ .job-panel .status[class*="progress-color-"]{font-size:.71rem;font-weight:500;padding:4px 7px}
+ .compact-workflow>button[class*="progress-color-"]{border-top:1px solid var(--progress-line);padding-block:12px}
+ .production-step-chips span.reached[class*="progress-color-"]{font-size:.7rem;padding:5px 8px}
+ .workflow-card li.current[class*="progress-color-"] .step-marker{box-shadow:none}
+}
+@media(prefers-reduced-motion:reduce){.compact-workflow>button[class*="progress-color-"]{transition:none}}
+
+/* V2.1.8 — subtle new-job marker, responsive on phone and desktop */
+.job-name-inline{display:inline-flex;align-items:center;gap:7px;max-width:100%;min-width:0;flex-wrap:wrap}
+.job-name-inline .job-link{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.job-new-label{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;padding:2px 6px;min-height:18px;border:1px solid #d4e4c4;border-radius:5px;background:#f0f7e8;color:#547c33;font-size:.6rem;line-height:1.2;letter-spacing:.035em;font-weight:650;vertical-align:middle}
+@media(max-width:700px){.job-name-inline{gap:5px}.job-new-label{padding:2px 5px;font-size:.57rem}}
+

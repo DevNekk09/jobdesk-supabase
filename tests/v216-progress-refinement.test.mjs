@@ -1,7 +1,8 @@
+import {readGlobalStyles} from './read-global-styles.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-const css=readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+const css=readGlobalStyles();
 test('stage colors retain six distinct gentle palettes for desktop and mobile',()=>{
  const area=css.slice(css.indexOf('/* V2.1.4'),css.indexOf('/* V2.1.5'));
  const colors=[...area.matchAll(/\.progress-color-\d+\{--progress-ink:(#[0-9a-f]{6})/g)].map(m=>m[1]);

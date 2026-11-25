@@ -1,3 +1,4 @@
+import {readGlobalStyles} from './read-global-styles.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 test('Job Details action groups preserve original mutations and confirmation dialogs',()=>{
  const page=read('app/page.tsx');
@@ -12,7 +13,7 @@ test('Job Details action groups preserve original mutations and confirmation dia
  assert.match(page,/Permanently delete job\?/);
 });
 test('Job Detail responsive actions are not large competing call-to-actions',()=>{
- const css=read('app/globals.css');
+ const css=readGlobalStyles();
  assert.match(css,/\.job-primary-actions \.job-next-action/);
  assert.match(css,/\.job-more-actions>summary/);
  assert.match(css,/@media\(max-width:600px\)/);

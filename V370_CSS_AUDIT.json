@@ -1,0 +1,216 @@
+{
+  "baseline": "506cda84728e4a78016717bd64f5cfc74f52abbb",
+  "originalChars": 175168,
+  "refactoredChars": 172813,
+  "removedRules": 30,
+  "byReason": {
+    "obsolete selector": 29,
+    "identical later rule": 1
+  },
+  "modules": [
+    {
+      "file": "01-foundation.css",
+      "chars": 24869
+    },
+    {
+      "file": "02-shared-workspace.css",
+      "chars": 11187
+    },
+    {
+      "file": "03-fluid-surfaces.css",
+      "chars": 13661
+    },
+    {
+      "file": "04-navigation-and-theme.css",
+      "chars": 13949
+    },
+    {
+      "file": "05-workspace-layout.css",
+      "chars": 20842
+    },
+    {
+      "file": "06-team-and-personal.css",
+      "chars": 27405
+    },
+    {
+      "file": "07-responsive-workspace.css",
+      "chars": 4489
+    },
+    {
+      "file": "08-progress-and-actions.css",
+      "chars": 9236
+    },
+    {
+      "file": "09-job-list.css",
+      "chars": 12839
+    },
+    {
+      "file": "10-schedule-and-ticket.css",
+      "chars": 12423
+    },
+    {
+      "file": "11-apple-modal.css",
+      "chars": 10321
+    },
+    {
+      "file": "12-overview.css",
+      "chars": 3047
+    },
+    {
+      "file": "13-workspace-tools.css",
+      "chars": 8545
+    }
+  ],
+  "removed": [
+    {
+      "context": "root @media(max-width:390px)",
+      "selector": ".schedule-clock svg",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root @media(max-width:390px)",
+      "selector": ".schedule-clock",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".schedule-clock svg",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".schedule-clock",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".schedule-title",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".schedule-copy",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".job-panel.is-trash-list .doc-icon",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".job-panel.v23-job-list .doc-icon.urgent",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".job-panel.v23-job-list .doc-icon",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".doc-icon.urgent",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root @media(max-width:760px)",
+      "selector": ".open-test-strip",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".open-test-strip svg",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".open-test-strip>span:first-child",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".open-test-strip",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".doc-icon.urgent",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".doc-icon",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".floating-panel>button>svg",
+      "reason": "identical later rule"
+    },
+    {
+      "context": "root",
+      "selector": ".doc-icon",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root @media(max-width:380px)",
+      "selector": ".my-filter",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root @media(max-width:760px)",
+      "selector": ".doc-icon",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root @media(max-width:760px)",
+      "selector": ".my-filter",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root @media(max-width:1340px)",
+      "selector": ".workspace-tag",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".doc-icon.urgent",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".doc-icon svg",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".doc-icon",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".my-filter.selected",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".my-filter",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".signout svg",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".signout",
+      "reason": "obsolete selector"
+    },
+    {
+      "context": "root",
+      "selector": ".workspace-tag",
+      "reason": "obsolete selector"
+    }
+  ]
+}
