@@ -16,7 +16,7 @@ test('Undo feedback sends captured server version and cannot target another acto
  assert.match(page,/version:job.version,name:job.name,actor,action/);
  assert.match(page,/dataRef.current\?\.me.id!==token.actor/);
  assert.match(page,/token.action,'POST',\{version:token.version\}/);
- assert.match(page,/undoFor\(result.job,'undo-progress'\)/);
- assert.match(page,/undoFor\(result.job,'undo-production'\)/);
+ assert.match(page,/undoFor\(result.job,'undo-progress',/);
+ assert.match(page,/undoFor\(result.job,'undo-production',/);
  assert.equal(api,read('supabase/functions/jobdesk-api/api.ts'));
 });

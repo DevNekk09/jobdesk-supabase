@@ -1,0 +1,6 @@
+export type Space={id:number;name:string;owner_user_id:number|null;sort_order:number;archived_at?:string|null};
+export type Job={production_status?:string|null;production_updated_at?:string|null;deleted_from_status?:string;space_id?:number|null;resolved_space_id?:number|null;space_name?:string;id:number;invoice_id:string;name:string;date_in:string;due_date:string;priority:string;status:string;assigned_to:number|null;assigned_name?:string;created_name?:string;created_at:string;confirmed_at?:string;confirmed_name?:string;version:number};
+export type User={id:number;name:string;email:string;role:string;active:boolean};
+export type Activity={id:number;job_id:number;job_name?:string;user_name:string;action:string;created_at:string};
+export type DeviceProfile={device_key:string;device_label:string;user_id:number;user_name:string;last_seen:string};
+export type Data={spaces:Space[];me:User;users:User[];jobs:Job[];activity:Activity[];devices?:DeviceProfile[];device_key?:string;available_months?:string[];overdue_total?:number;overdue_by_space?:{space_id:number;count:number}[];near_deadline_by_space?:{space_id:number;urgent_count:number;soon_count:number}[];urgent_total?:number;soon_total?:number;csrf:string};
