@@ -1,0 +1,2 @@
+# V3.6.1 Add Jobsheet visibility hotfix
+Production logs confirm successful HTTP 201 and DB records with future-month due dates. After creating, navigate to matching due month and jobdesk, clear incompatible filters, and reveal the new row through pagination. Retain V3.6 proven CSS; V3.7 desktop visual test failed and its refactor remains in commit 404ab68 for separate repair. No production records deleted or modified. No backend, schema or PIN change. Full existing functional tests and new cross-month creation test gate publication.
