@@ -13,6 +13,9 @@ async function setup(page:Page,getJobs:()=>Job[],activity:any[]=[]){
 test('cross-month focus counts and click open matching records',async({page})=>{
  const jobs=[job,{...job,id:992,name:'Last month overdue',due_date:'2026-10-30',date_in:'2026-10-25'},{...job,id:993,name:'Tomorrow next month',due_date:'2026-12-01'}];
  await setup(page,()=>jobs);
+ const month=page.getByRole('combobox',{name:'Filter jobs by due month'});
+ await expect(month).toHaveValue('all');
+ await month.selectOption('2026-11');
  const focus=page.locator('.v30-focus');
  await expect(focus.locator('.focus-late strong')).toHaveText('1');
  await expect(focus.locator('.focus-tomorrow strong')).toHaveText('1');
