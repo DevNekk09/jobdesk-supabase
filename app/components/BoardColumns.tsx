@@ -1,4 +1,4 @@
-import {useState,useMemo,type ReactNode} from 'react';
+import {useState,type ReactNode} from 'react';
 import type {Job} from '../lib/workspace-types';
 export function BoardColumns({columns,items,totals,group,label,render}:{columns:string[];items:Job[];totals:Job[];group:(j:Job)=>string;label:string;render:(j:Job)=>ReactNode}){
  const [hideEmpty,setHideEmpty]=useState(false);

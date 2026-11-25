@@ -11,7 +11,7 @@ export function useFocusJobs(data:Data|null,month:string,today:string,enabled:bo
  Promise.all(months.map(m=>jobdeskRequest<Data>('/api/bootstrap?month='+encodeURIComponent(m)))).then(records=>{if(live)setExtra({key,records})}).catch(()=>{});
  return()=>{live=false};
  },[enabled,data,month,currentMonth,nextMonth,key]);
- return useMemo(()=>{const active=(j:Data['jobs'][number])=>!['Deleted','Cancelled','Completed'].includes(j.status);const other=extra?.key===key?extra.records.flatMap(r=>r.jobs):[];const jobs=[...new Map([...(data?.jobs||[]),...other].map(j=>[j.id,j])).values()].filter(active);const ready=(m:string)=>month==='all'||month===m||extra?.key===key;
+ return useMemo(()=>{const active=(j:Data['jobs'][number])=>!['Deleted','Cancelled','Completed'].includes(j.status);const other=extra?.key===key?extra.records.flatMap(r=>r.jobs):[];const merged=new Map<number,Data['jobs'][number]>();for(const j of [...other,...(data?.jobs||[])]){const old=merged.get(j.id);if(!old||j.version>=old.version)merged.set(j.id,j)}const jobs=[...merged.values()].filter(active);const ready=(m:string)=>month==='all'||month===m||extra?.key===key;
  return {overdue:data?.overdue_total??(month==='all'?jobs.filter(j=>due(j)<0).length:null),today:ready(currentMonth)?jobs.filter(j=>due(j)===0).length:null,tomorrow:ready(nextMonth)?jobs.filter(j=>due(j)===1).length:null};
  },[data,extra,key,month,currentMonth,nextMonth,today]);
 }
@@ -19,7 +19,8 @@ export function useNotificationReads(actor:number|undefined,today:string){
  const key='jobdesk-notification-reads-v36:'+String(actor??'guest');
  const [state,setState]=useState<{key:string;ids:string[]}>({key:'',ids:[]});
  useEffect(()=>{try{const raw=JSON.parse(localStorage.getItem(key)||'[]');setState({key,ids:Array.isArray(raw)?raw.filter(x=>typeof x==='string').slice(-1000):[]})}catch{setState({key,ids:[]})}},[key]);
- const ids=new Set(state.key===key?state.ids:[]);
- const mark=(keys:string[])=>setState(old=>{const next=[...new Set([...(old.key===key?old.ids:[]),...keys])].slice(-1000);try{localStorage.setItem(key,JSON.stringify(next))}catch{}return {key,ids:next}});
+ const ids=useMemo(()=>new Set(state.key===key?state.ids:[]),[state,key]);
+ const mark=(keys:string[])=>setState(old=>({key,ids:[...new Set([...(old.key===key?old.ids:[]),...keys])].slice(-1000)}));
+ useEffect(()=>{if(state.key===key){try{localStorage.setItem(key,JSON.stringify(state.ids))}catch{}}},[key,state]);
  return {isRead:(id:string)=>ids.has(id),mark,activityKey:(a:Activity)=>'activity:'+a.id,deadlineKey:(id:number,version:number)=>'deadline:'+today+':'+id+':'+version,unreadActivity:(items:Activity[])=>items.filter(a=>!ids.has('activity:'+a.id)).length};
 }

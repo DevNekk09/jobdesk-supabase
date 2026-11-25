@@ -1,12 +1,11 @@
 import Icon from './Icon';
 import type {Data,Job} from '../lib/workspace-types';
 import {due,time} from '../lib/dates';
+import {notificationJobs,needsHandover as handover,liveDeadline as live} from '../lib/workspace-notifications';
 import type {useNotificationReads} from '../hooks/workspace-insights';
 type Filter='all'|'unread'|'deadlines'|'activity';
 export default function NotificationContent({data,filter,setFilter,reads,openJob}:{data:Data;filter:Filter;setFilter:(v:Filter)=>void;reads:ReturnType<typeof useNotificationReads>;openJob:(j:Job)=>void}){
- const handover=(j:Job)=>!j.production_status&&!!j.confirmed_at&&['Set Files - Ready to Print','Ready to Print','Printing','Completed'].includes(j.status);
- const live=(j:Job)=>!['Deleted','Cancelled'].includes(j.status)&&(j.production_status?j.production_status!=='Ready to Collect':j.status!=='Completed');
- const reminders=data.jobs.filter(j=>!['Deleted','Cancelled'].includes(j.status)&&(live(j)&&due(j)<=3||handover(j))).sort((a,b)=>a.due_date.localeCompare(b.due_date));
+ const reminders=notificationJobs(data.jobs);
  const activities=data.activity||[];
  const key=(j:Job)=>reads.deadlineKey(j.id,j.version);
  const keys=[...reminders.map(key),...activities.map(reads.activityKey)];

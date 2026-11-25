@@ -913,12 +913,3 @@ html[data-motion="on"] .ticket-reminder:is(.reminder-late,.reminder-today) svg{a
 .job-panel.v23-job-list tbody .status[class*="progress-color-"]{color:var(--progress-ink,#40554a);font-weight:500}
 @media(max-width:390px){.app-main .topbar .topbar-context{flex:1;min-width:0}.app-main .topbar .topbar-context b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.app-main .topbar .device-switch-name{display:none}.app-main .topbar .device-switch{padding:4px;gap:3px}}
 
-/* V3.6 stability refinements — preserve existing visual identity */
-.v36-board-toolbar,.v36-notification-tools{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;padding:10px 14px;color:#607365;font-size:.75rem}
-.v36-board-toolbar label{display:flex;align-items:center;gap:6px;cursor:pointer}.v36-board-toolbar input{accent-color:#3d6147}
-.v36-notification-tools{padding:0 0 8px}.v36-notification-tools .v30-view-switch{flex-basis:100%;justify-content:space-between}.v36-notification-tools .v30-view-switch button{flex:1}
-.v36-unread-dot{width:7px;height:7px;background:#71956b;border-radius:50%;flex:none}
-.v30-notification-dot.v36-notification-count{width:auto;min-width:16px;height:16px;padding:0 3px;top:0;right:0;line-height:14px;text-align:center;font-size:9px;color:white;background:#93613b;font-style:normal}
-.apple-job-modal .job-primary-actions{position:sticky;bottom:0;z-index:2;background:#f4f6f3;padding:5px 0;box-shadow:0 -5px 12px #f4f6f3}
-.v30-utility-list button:focus-visible,.v36-board-toolbar input:focus-visible,.v36-notification-tools button:focus-visible{outline:2px solid #567e5b;outline-offset:2px}
-@media(max-width:600px){.v30-utility-list button{min-height:44px}.v36-board-toolbar{padding:10px}.v36-notification-tools .v30-view-switch button{min-height:40px}.apple-job-modal .apple-job-tools .job-priority-switch,.apple-job-modal .apple-job-tools>.job-undo-action{min-height:65px}}
